@@ -1,7 +1,8 @@
 
         🧪 Unit test for this
 
-        Create DataBase with all tables
+        Create Database schemas with all tables,
+        create actual database
 
         Function for parsing JSON 🧪(none)🧪(R)🧪(V)🧪(A)🧪(RV)🧪(RA)🧪(VA)🧪(RVA):
            1) Pass into Launch object then add to list
