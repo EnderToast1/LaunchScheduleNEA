@@ -1,15 +1,19 @@
-package com.niaw.launchnea.Data_Classes
+package com.niaw.launchnea.DataClasses
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.Date
 
+@Entity
 data class Version(
+    @PrimaryKey(autoGenerate = false)
     var id: String,
     var name: String,
     var active: Boolean,
     var flights: Int,
     var activeSince: Date? = null,
-    var rocketId: String,
-    var agencyId: String,
+    var rocketID: String,
+    var agencyID: String,
 
     var imageURL: String? =null,
 

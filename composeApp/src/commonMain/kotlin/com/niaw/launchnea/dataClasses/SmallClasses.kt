@@ -1,6 +1,4 @@
-package com.niaw.launchnea.Data_Classes
-
-import kotlinx.serialization.Serializable
+package com.niaw.launchnea.DataClasses
 
 //a set of short classes that are needed
 enum class ResultsState {
@@ -30,7 +28,7 @@ data class Location(
 )
 
 
-data class Reusables(
+data class Reusable(
     var isReusable: Boolean,
     var reuseVehicleID: String,
     var landingLocationID: String,

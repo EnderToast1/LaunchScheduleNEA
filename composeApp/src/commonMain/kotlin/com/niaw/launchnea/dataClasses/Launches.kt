@@ -1,10 +1,14 @@
-package com.niaw.launchnea.Data_Classes
+package com.niaw.launchnea.DataClasses
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
+@Entity
 data class Launches(
     //database search and filter terms
+    @PrimaryKey(autoGenerate = false)
     val id: String,
     val missionName: String,
     val padName: String,
@@ -13,7 +17,7 @@ data class Launches(
     val rocketVersionID: String,
     val launchTimeUTC: ZonedDateTime,
     val launchTimePadLocal: LocalDateTime,
-    var reusableParts: List<Reusables>,
+    var reusableParts: List<Reusable> = emptyList(),
 
 
     //Rest of data needed
@@ -27,11 +31,12 @@ data class Launches(
     var agencyName: String,
     var rocketName: String,
     var rocketVariantName: String,
-    var description: String, //LongText
+    var description: String,
     var orbit: String,
     var stats: Int, //Needs Changing can probably do from database
-    var padCords: Location,
-    var padLocation: String, //eg cape Canaveral
+    var padCords: Location = Location(0.0, 0.0),
+    var padLocation: String, //eg Cape Canaveral
     var padCountry: String,
     var padTimeZone: String,
     )
+

@@ -8,8 +8,8 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     // Add KSP for all targets
-    id("com.google.devtools.ksp") version "2.3.0" // Match your Kotlin version
-    id("androidx.room") version "2.8.4"  // Or use libs.plugins.androidx.room if defined
+    id("com.google.devtools.ksp") version "2.3.0"
+    id("androidx.room") version "2.8.4"
 }
 
 kotlin {
@@ -39,7 +39,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.androidx.room.runtime)
-            implementation(libs.androidx.sqlite.bundled) // Recommended bundled driver
+            implementation(libs.androidx.sqlite.bundled)
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {

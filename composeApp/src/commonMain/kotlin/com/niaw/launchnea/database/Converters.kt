@@ -2,14 +2,11 @@ package com.niaw.launchnea.database
 
 
 import androidx.room.TypeConverter
-import com.niaw.launchnea.Data_Classes.Location
-import com.niaw.launchnea.Data_Classes.Reusables
+import com.niaw.launchnea.DataClasses.Location
+import com.niaw.launchnea.DataClasses.Reusable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import java.time.*
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatter.ofPattern
 
 class Converters {
 
@@ -25,9 +22,9 @@ class Converters {
     // LocalDateTime ↔ String
     @TypeConverter fun localDateTimeToString(dt: LocalDateTime?): String? = dt?.format(localFormatter)
     @TypeConverter fun stringToLocalDateTime(value: String?): LocalDateTime? = value?.let { LocalDateTime.parse(it, localFormatter) }
-   //  List<Reusables> ↔ JSON
-    @TypeConverter fun reusablesToString(list: List<Reusables>?): String? = list?.let { json.encodeToString(it) }
-    @TypeConverter fun stringToReusables(value: String?): List<Reusables>? = value?.let { json.decodeFromString(it) }
+   //  List<Reusable> ↔ JSON
+    @TypeConverter fun reusableToString(list: List<Reusable>?): String? = list?.let { json.encodeToString(it) }
+    @TypeConverter fun stringToReusable(value: String?): List<Reusable>? = value?.let { json.decodeFromString(it) }
 
     // Location ↔ JSON
     @TypeConverter fun locationToString(loc: Location?): String? = loc?.let { json.encodeToString(it) }
