@@ -2,6 +2,7 @@ package com.niaw.launchnea.DataClasses
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 import java.util.Date
 
 @Entity

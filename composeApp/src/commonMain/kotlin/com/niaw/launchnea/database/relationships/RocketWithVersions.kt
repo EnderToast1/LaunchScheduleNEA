@@ -3,7 +3,8 @@ package com.niaw.launchnea.database.relationships
 import androidx.room.Embedded
 import androidx.room.Relation
 import com.niaw.launchnea.DataClasses.Rockets
-import jdk.javadoc.internal.Versions
+import com.niaw.launchnea.DataClasses.Version
+
 
 data class RocketWithVersions(
     @Embedded var rocket: Rockets,
@@ -11,5 +12,5 @@ data class RocketWithVersions(
         parentColumn = "rocketID",
         entityColumn = "rocketID"
     )
-    var versions: List<Versions>
+    var versions: List<Version>
 )

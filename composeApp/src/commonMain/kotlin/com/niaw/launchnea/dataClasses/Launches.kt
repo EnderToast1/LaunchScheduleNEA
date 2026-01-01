@@ -24,16 +24,15 @@ data class Launches(
     var success: ResultsState = ResultsState.UNKNOWN,
     var windowOpen: ZonedDateTime,
     var windowClose: ZonedDateTime,
-    var imageUrl:  String? = null,
+    var imageUrl: String? = null,
     var imageCredit: String? = null,
     var licenseType: String? = null,
-    var weatherProbability: Float? =null,
+    var weatherProbability: Double? =null,
     var agencyName: String,
     var rocketName: String,
     var rocketVariantName: String,
     var description: String,
     var orbit: String,
-    var stats: Int, //Needs Changing can probably do from database
     var padCords: Location = Location(0.0, 0.0),
     var padLocation: String, //eg Cape Canaveral
     var padCountry: String,

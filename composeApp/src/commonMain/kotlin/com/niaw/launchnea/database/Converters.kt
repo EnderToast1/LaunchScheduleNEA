@@ -7,6 +7,7 @@ import com.niaw.launchnea.DataClasses.Reusable
 import kotlinx.serialization.json.Json
 import java.time.*
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 class Converters {
 
@@ -22,7 +23,11 @@ class Converters {
     // LocalDateTime ↔ String
     @TypeConverter fun localDateTimeToString(dt: LocalDateTime?): String? = dt?.format(localFormatter)
     @TypeConverter fun stringToLocalDateTime(value: String?): LocalDateTime? = value?.let { LocalDateTime.parse(it, localFormatter) }
-   //  List<Reusable> ↔ JSON
+
+    //Date ↔ Long
+    @TypeConverter fun dateToTimeStamp (date: Date): Long = date.time
+    @TypeConverter fun timeStampToDateTime(timeStamp: Long): Date = Date.from(Instant.ofEpochMilli(timeStamp))
+    //  List<Reusable> ↔ JSON
     @TypeConverter fun reusableToString(list: List<Reusable>?): String? = list?.let { json.encodeToString(it) }
     @TypeConverter fun stringToReusable(value: String?): List<Reusable>? = value?.let { json.decodeFromString(it) }
 

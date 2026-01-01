@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlinSerialization)
     // Add KSP for all targets
     id("com.google.devtools.ksp") version "2.3.0"
     id("androidx.room") version "2.8.4"
