@@ -9,7 +9,7 @@ import java.time.ZonedDateTime
 data class Launches(
     //database search and filter terms
     @PrimaryKey(autoGenerate = false)
-    val id: String,
+    val launchID: String,
     val missionName: String,
     val padName: String,
     val agencyID: String,

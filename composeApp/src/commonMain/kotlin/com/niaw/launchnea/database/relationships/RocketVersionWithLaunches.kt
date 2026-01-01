@@ -8,7 +8,7 @@ import com.niaw.launchnea.DataClasses.Version
 data class RocketVersionWithLaunches(
     @Embedded var rocketVersion: Version,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "rocketVersionID",
         entityColumn = "rocketVersionID"
     )
     var launches: List<Launches>

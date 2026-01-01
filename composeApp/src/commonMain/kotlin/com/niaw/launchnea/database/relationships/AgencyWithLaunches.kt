@@ -8,7 +8,7 @@ import com.niaw.launchnea.DataClasses.Launches
 data class AgencyWithLaunches(
     @Embedded var agency: Agencies,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "agencyID",
         entityColumn = "agencyID"
     )
     var launches: List<Launches>

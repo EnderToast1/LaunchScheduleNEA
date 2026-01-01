@@ -8,7 +8,7 @@ import com.niaw.launchnea.DataClasses.Rockets
 data class RocketWithLaunches(
     @Embedded var rockets: Rockets,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "rocketID",
         entityColumn = "rocketID"
     )
     var launches: List<Launches>

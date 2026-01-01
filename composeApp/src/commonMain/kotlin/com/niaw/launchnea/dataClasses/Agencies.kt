@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class Agencies(
   //Database Variables
     @PrimaryKey(autoGenerate = false)
-    var id: String,
+    var agencyID: String,
     var name: String,
     var launchNumber: Int=0,
 

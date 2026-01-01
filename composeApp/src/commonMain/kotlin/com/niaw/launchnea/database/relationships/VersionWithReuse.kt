@@ -8,7 +8,7 @@ import com.niaw.launchnea.DataClasses.Version
 data class VersionWithReuse(
     @Embedded var version: Version,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "versionID",
         entityColumn = "versionID"
     )
     var reuses: List<Reuse>

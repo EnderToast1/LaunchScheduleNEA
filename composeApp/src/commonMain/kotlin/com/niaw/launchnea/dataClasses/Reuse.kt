@@ -7,7 +7,7 @@ import java.util.Date
 @Entity
 data class Reuse(
     @PrimaryKey(autoGenerate = false)
-    var id: String,
+    var reuseID: String,
     var name: String,
     var status: Boolean=false,
     var flights: Int=0,

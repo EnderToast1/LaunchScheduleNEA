@@ -8,7 +8,7 @@ import jdk.javadoc.internal.Versions
 data class RocketWithVersions(
     @Embedded var rocket: Rockets,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "rocketID",
         entityColumn = "rocketID"
     )
     var versions: List<Versions>

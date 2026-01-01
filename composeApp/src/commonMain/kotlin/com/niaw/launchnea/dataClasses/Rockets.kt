@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class Rockets(
     @PrimaryKey(autoGenerate = false)
-    var id: String,
+    var rocketID: String,
     var name: String,
     var agencyID: String,
 

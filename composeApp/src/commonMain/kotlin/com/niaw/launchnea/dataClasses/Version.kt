@@ -7,7 +7,7 @@ import java.util.Date
 @Entity
 data class Version(
     @PrimaryKey(autoGenerate = false)
-    var id: String,
+    var rocketVersionID: String,
     var name: String,
     var active: Boolean,
     var flights: Int,
