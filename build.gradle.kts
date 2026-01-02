@@ -7,4 +7,10 @@ plugins {
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
+    alias(libs.plugins.kotlin.android) apply false
+}
+buildscript {
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.12.3") // or your AGP version
+    }
 }
