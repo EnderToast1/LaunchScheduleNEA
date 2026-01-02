@@ -1,10 +1,10 @@
-package com.niaw.launchnea.DataClasses
+package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Rockets(
+data class Rocket(
     @PrimaryKey(autoGenerate = false)
     var rocketID: String,
     var name: String,

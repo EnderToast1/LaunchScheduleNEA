@@ -3,21 +3,21 @@ package com.niaw.launchnea.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.niaw.launchnea.DataClasses.Agencies
-import com.niaw.launchnea.DataClasses.LaunchReuseCrossRef
-import com.niaw.launchnea.DataClasses.Launches
-import com.niaw.launchnea.DataClasses.Reuse
-import com.niaw.launchnea.DataClasses.Rockets
-import com.niaw.launchnea.DataClasses.Version
+import com.niaw.launchnea.database.entities.Agency
+import com.niaw.launchnea.database.entities.LaunchReuseCrossRef
+import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.Reuse
+import com.niaw.launchnea.database.entities.Rocket
+import com.niaw.launchnea.database.entities.RocketVersion
 
 @Database(
     entities = [
-        Agencies::class,
-        Launches::class,
+        Agency::class,
+        Launch::class,
         LaunchReuseCrossRef::class,
         Reuse::class,
-        Rockets::class,
-        Version::class
+        Rocket::class,
+        RocketVersion::class
         ],
     version = 1,
 )

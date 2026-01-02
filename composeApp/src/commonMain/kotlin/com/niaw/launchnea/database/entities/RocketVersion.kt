@@ -1,11 +1,11 @@
-package com.niaw.launchnea.DataClasses
+package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Date
 
 @Entity
-data class Version(
+data class RocketVersion(
     @PrimaryKey(autoGenerate = false)
     var rocketVersionID: String,
     var name: String,

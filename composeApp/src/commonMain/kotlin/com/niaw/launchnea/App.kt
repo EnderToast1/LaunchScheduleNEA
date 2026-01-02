@@ -14,9 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.time.LocalDateTime
 
-import com.niaw.launchnea.DataClasses.Launches
-import com.niaw.launchnea.DataClasses.Location
-import com.niaw.launchnea.DataClasses.ResultsState
+import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.database.ScheduleDao
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -30,7 +28,7 @@ fun App(scheduleDao: ScheduleDao) {
 
         LaunchedEffect(true) {
             val launchList = listOf(
-                Launches(
+                Launch(
                     "1",
                     "Name1",
                     "Pad1",
@@ -59,8 +57,8 @@ fun App(scheduleDao: ScheduleDao) {
                 )
             )
 
-            launchList.forEach { launches: Launches ->
-                scheduleDao.upsertLaunches(launches)
+            launchList.forEach { launch: Launch ->
+                scheduleDao.upsertLaunch(launch)
             }
 
         }

@@ -1,12 +1,15 @@
-package com.niaw.launchnea.DataClasses
+package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.niaw.launchnea.Location
+import com.niaw.launchnea.ResultsState
+import com.niaw.launchnea.Reusable
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 @Entity
-data class Launches(
+data class Launch(
     //database search and filter terms
     @PrimaryKey(autoGenerate = false)
     val launchID: String,

@@ -1,4 +1,4 @@
-package com.niaw.launchnea.DataClasses
+package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
 

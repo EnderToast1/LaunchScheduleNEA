@@ -1,8 +1,8 @@
-package com.niaw.launchnea.DataClasses
+package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.LocalDateTime
+import com.niaw.launchnea.ReuseType
 import java.util.Date
 
 @Entity

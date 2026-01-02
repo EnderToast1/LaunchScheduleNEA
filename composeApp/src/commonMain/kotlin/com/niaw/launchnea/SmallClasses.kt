@@ -1,4 +1,4 @@
-package com.niaw.launchnea.DataClasses
+package com.niaw.launchnea
 
 import kotlinx.serialization.Serializable
 
@@ -32,14 +32,11 @@ data class Location(
 
 @Serializable
 data class Reusable(
-    var reuseVehicleID: String,
+    var reuseID: String,
     var flightNumber: Int,
     var landingLocationAbbr: String,
     var landingLocationName: String,
     var reuseType: ReuseType,
     var status: ResultsState
 ){
-        override fun toString(): String {
-            return ("$reuseVehicleID,$flightNumber,$landingLocationAbbr,$landingLocationName,$reuseType,$status")
-        }
-}
+       }

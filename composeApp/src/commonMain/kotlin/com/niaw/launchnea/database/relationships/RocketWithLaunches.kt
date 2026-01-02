@@ -2,14 +2,14 @@ package com.niaw.launchnea.database.relationships
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.niaw.launchnea.DataClasses.Launches
-import com.niaw.launchnea.DataClasses.Rockets
+import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.Rocket
 
 data class RocketWithLaunches(
-    @Embedded var rockets: Rockets,
+    @Embedded var rocket: Rocket,
     @Relation(
         parentColumn = "rocketID",
         entityColumn = "rocketID"
     )
-    var launches: List<Launches>
+    var launches: List<Launch>
 )

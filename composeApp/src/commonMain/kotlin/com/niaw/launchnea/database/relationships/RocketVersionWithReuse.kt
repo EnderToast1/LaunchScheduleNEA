@@ -2,11 +2,11 @@ package com.niaw.launchnea.database.relationships
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.niaw.launchnea.DataClasses.Reuse
-import com.niaw.launchnea.DataClasses.Version
+import com.niaw.launchnea.database.entities.Reuse
+import com.niaw.launchnea.database.entities.RocketVersion
 
-data class VersionWithReuse(
-    @Embedded var version: Version,
+data class RocketVersionWithReuse(
+    @Embedded var rocketVersion: RocketVersion,
     @Relation(
         parentColumn = "versionID",
         entityColumn = "versionID"
