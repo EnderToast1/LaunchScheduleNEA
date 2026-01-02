@@ -70,7 +70,7 @@ fun App(scheduleDao: ScheduleDao) {
                     .fillMaxSize(), contentPadding = PaddingValues(16.dp)
             ){
                 items(launches){launch ->
-                    Text(text = launch.missionName,
+                    Text(text = launch.launchID+" "+launch.missionName,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
