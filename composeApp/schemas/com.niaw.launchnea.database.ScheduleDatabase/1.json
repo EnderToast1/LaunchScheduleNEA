@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "56e40bfe7010e6631a29ef947343072d",
+    "identityHash": "381908cc77f4cd2d71dd77a71ab714a0",
     "entities": [
       {
         "tableName": "Agency",
@@ -91,7 +91,7 @@
       },
       {
         "tableName": "Launch",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, `missionName` TEXT NOT NULL, `padName` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `rocketID` TEXT NOT NULL, `rocketVersionID` TEXT NOT NULL, `launchTimeUTC` TEXT NOT NULL, `launchTimePadLocal` TEXT NOT NULL, `reusableParts` TEXT NOT NULL, `success` TEXT NOT NULL, `windowOpen` TEXT NOT NULL, `windowClose` TEXT NOT NULL, `imageUrl` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `weatherProbability` REAL, `agencyName` TEXT NOT NULL, `rocketName` TEXT NOT NULL, `rocketVariantName` TEXT NOT NULL, `description` TEXT NOT NULL, `orbit` TEXT NOT NULL, `padCords` TEXT NOT NULL, `padLocation` TEXT NOT NULL, `padCountry` TEXT NOT NULL, `padTimeZone` TEXT NOT NULL, PRIMARY KEY(`launchID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, `launchURL` TEXT, `missionName` TEXT, `padName` TEXT, `agencyID` TEXT, `rocketID` TEXT, `rocketVersionID` TEXT, `launchTimeUTC` TEXT, `launchTimePadLocal` TEXT, `reusableParts` TEXT NOT NULL, `success` TEXT NOT NULL, `windowOpen` TEXT, `windowClose` TEXT, `imageUrl` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `weatherProbability` REAL, `agencyName` TEXT, `rocketName` TEXT, `rocketVariantName` TEXT, `description` TEXT, `orbit` TEXT, `padCords` TEXT NOT NULL, `padLocation` TEXT, `padCountry` TEXT, `padTimeZone` TEXT, `liveStreamUrl` TEXT, `netPrecision` TEXT, PRIMARY KEY(`launchID`))",
         "fields": [
           {
             "fieldPath": "launchID",
@@ -100,46 +100,44 @@
             "notNull": true
           },
           {
+            "fieldPath": "launchURL",
+            "columnName": "launchURL",
+            "affinity": "TEXT"
+          },
+          {
             "fieldPath": "missionName",
             "columnName": "missionName",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "padName",
             "columnName": "padName",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "agencyID",
             "columnName": "agencyID",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "rocketID",
             "columnName": "rocketID",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "rocketVersionID",
             "columnName": "rocketVersionID",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "launchTimeUTC",
             "columnName": "launchTimeUTC",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "launchTimePadLocal",
             "columnName": "launchTimePadLocal",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "reusableParts",
@@ -156,14 +154,12 @@
           {
             "fieldPath": "windowOpen",
             "columnName": "windowOpen",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "windowClose",
             "columnName": "windowClose",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "imageUrl",
@@ -188,32 +184,27 @@
           {
             "fieldPath": "agencyName",
             "columnName": "agencyName",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "rocketName",
             "columnName": "rocketName",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "rocketVariantName",
             "columnName": "rocketVariantName",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "description",
             "columnName": "description",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "orbit",
             "columnName": "orbit",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "padCords",
@@ -224,20 +215,27 @@
           {
             "fieldPath": "padLocation",
             "columnName": "padLocation",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "padCountry",
             "columnName": "padCountry",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "padTimeZone",
             "columnName": "padTimeZone",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "liveStreamUrl",
+            "columnName": "liveStreamUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "netPrecision",
+            "columnName": "netPrecision",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -274,7 +272,7 @@
       },
       {
         "tableName": "Reuse",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT NOT NULL, `status` INTEGER NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `versionID` TEXT NOT NULL, `rocketId` TEXT NOT NULL, `agencyId` TEXT NOT NULL, `reuseType` TEXT NOT NULL, PRIMARY KEY(`reuseID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `versionID` TEXT NOT NULL, `rocketId` TEXT NOT NULL, `agencyId` TEXT NOT NULL, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`reuseID`))",
         "fields": [
           {
             "fieldPath": "reuseID",
@@ -286,12 +284,6 @@
             "fieldPath": "name",
             "columnName": "name",
             "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "status",
-            "columnName": "status",
-            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -326,6 +318,12 @@
           {
             "fieldPath": "reuseType",
             "columnName": "reuseType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -440,7 +438,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '56e40bfe7010e6631a29ef947343072d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '381908cc77f4cd2d71dd77a71ab714a0')"
     ]
   }
 }

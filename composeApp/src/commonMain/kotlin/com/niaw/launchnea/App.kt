@@ -12,7 +12,7 @@ import com.niaw.launchnea.networking.updateLaunchData
 fun App(scheduleDao: ScheduleDao) {
     MaterialTheme{
         LaunchedEffect(Unit){
-            updateLaunchData()
+            updateLaunchData(scheduleDao)
         }
 
     }
