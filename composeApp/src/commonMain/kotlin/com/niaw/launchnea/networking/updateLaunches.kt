@@ -62,10 +62,10 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     }
 }
 
-suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
+fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     val launchJsonObj=launchJsonEle.jsonObject
     val id= launchJsonObj["id"]?.jsonPrimitive?.content ?: return null
-    val URL = launchJsonObj["url"]?.jsonPrimitive?.content
+    val url = launchJsonObj["url"]?.jsonPrimitive?.content
     val missionName= (launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val padName= (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val agencyID= launchJsonObj["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content
@@ -81,7 +81,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     val launcherStages = launchJsonObj["rocket"]
         ?.jsonObject?.get("launcher_stage")
         ?.jsonArray
-    val BoosterLandings: List<Reusable> =
+    val boosterLandings: List<Reusable> =
         launcherStages?.mapNotNull { stage ->
                 val landingLocation =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("name")?.jsonPrimitive?.contentOrNull
                 val landingAbbrev   =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
@@ -144,7 +144,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
         }
             ?: emptyList()
 
-    val stageLandings=BoosterLandings+capsulesLandings
+    val stageLandings=boosterLandings+capsulesLandings
 
     val success= when(launchJsonObj["status"]?.jsonObject?.get("id")?.jsonPrimitive?.int) {
         1 -> Status.GO_FOR_LAUNCH
@@ -182,7 +182,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
 
     val toReturn=Launch(
         launchID = id,
-        launchURL=URL,
+        launchURL=url,
         missionName = missionName,
         padName =padName ,
         agencyID = agencyID,
