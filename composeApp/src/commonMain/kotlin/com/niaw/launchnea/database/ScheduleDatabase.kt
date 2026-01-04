@@ -9,6 +9,7 @@ import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.database.entities.RocketVersion
+import com.niaw.launchnea.database.entities.StarredLaunch
 
 @Database(
     entities = [
@@ -17,7 +18,8 @@ import com.niaw.launchnea.database.entities.RocketVersion
         LaunchReuseCrossRef::class,
         Reuse::class,
         Rocket::class,
-        RocketVersion::class
+        RocketVersion::class,
+        StarredLaunch::class,
         ],
     version = 1,
 )

@@ -27,38 +27,39 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     val lastCallForPast= LocalDateTime.of(2025,12,23,0,0)   //Need to implement finding last call date for past
     lastCallForPast.minusDays(1).toString() //minuses one day and turns it into ISO format
     val pastCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=10&last_updated__lte=$lastCallForPast") //passes the url as a string with the date as part of it in the API filter system
-    if (pastCallResponse.errorType == null){
-        val pastLaunchesJsonArray=pastCallResponse.data
-        pastLaunchesJsonArray?.forEach { launchJson ->              //goes though each launch in the return from the API
-            val launch =parseLaunch(launchJson)         //first it creates a launch object for the launch
-            if (launch != null) {
-               // scheduleDao.upsertLaunch(launch) //adds to database
+    responseToDatabase(scheduleDao,pastCallResponse)        //parses the response and adds each launch to the database
 
-                println(launch.toString())//TEST
-                println("NEXT")//TEST
-            }
-        }
-    }else{
-        println(pastCallResponse.errorType)
-    }
     //edit lastCallForPast to now
 
     println("Upcoming")
     //upcoming launches
     val upcomingCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=150") //passes the url as a string into the API
-    if (upcomingCallResponse.errorType == null) {
-        val upcomingLaunchesJsonArray = upcomingCallResponse.data
-        upcomingLaunchesJsonArray?.forEachIndexed { index, launchJson ->              //goes though each launch in the return from the API
-            println("URL " + launchJson.jsonObject["url"]?.jsonPrimitive?.content)
+    responseToDatabase(scheduleDao,upcomingCallResponse)
+}
+
+
+
+
+
+
+
+
+
+
+private suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseData) {
+    if (callResponse.errorType == null) {
+        val pastLaunchesJsonArray = callResponse.data
+        pastLaunchesJsonArray?.forEach { launchJson ->              //goes though each launch in the return from the API
             val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch
             if (launch != null) {
-                //scheduleDao.upsertLaunch(launch) //adds to database
+                scheduleDao.upsertLaunch(launch) //adds to database
+
                 println(launch.toString())//TEST
-                println("NEXT $index")//TEST
+                println("NEXT")//TEST
             }
         }
-    }else{
-        println(upcomingCallResponse.errorType)
+    } else {
+        println(callResponse.errorType)
     }
 }
 
