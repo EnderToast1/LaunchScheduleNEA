@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "381908cc77f4cd2d71dd77a71ab714a0",
+    "identityHash": "5c3e041516f528b27c4340e5d43e52e0",
     "entities": [
       {
         "tableName": "Agency",
@@ -434,11 +434,53 @@
             "rocketVersionID"
           ]
         }
+      },
+      {
+        "tableName": "starred_launches",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, PRIMARY KEY(`launchID`), FOREIGN KEY(`launchID`) REFERENCES `Launch`(`launchID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "launchID",
+            "columnName": "launchID",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "launchID"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_starred_launches_launchID",
+            "unique": false,
+            "columnNames": [
+              "launchID"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_starred_launches_launchID` ON `${TABLE_NAME}` (`launchID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Launch",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "launchID"
+            ],
+            "referencedColumns": [
+              "launchID"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '381908cc77f4cd2d71dd77a71ab714a0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5c3e041516f528b27c4340e5d43e52e0')"
     ]
   }
 }
