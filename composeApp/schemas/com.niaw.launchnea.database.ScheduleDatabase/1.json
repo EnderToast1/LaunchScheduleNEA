@@ -1,0 +1,531 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "dbaebfbc86c010c8b2ad020ad82df478",
+    "entities": [
+      {
+        "tableName": "Agency",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`agencyID` TEXT NOT NULL, `name` TEXT NOT NULL, `launchNumber` INTEGER NOT NULL, `country` TEXT NOT NULL, `description` TEXT NOT NULL, `leader` TEXT NOT NULL, `leaderType` TEXT NOT NULL, `founded` INTEGER NOT NULL, `logoURL` TEXT, `websiteURL` TEXT, `wikiURL` TEXT, `socialsURL` TEXT, `youtubeURL` TEXT, PRIMARY KEY(`agencyID`))",
+        "fields": [
+          {
+            "fieldPath": "agencyID",
+            "columnName": "agencyID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "launchNumber",
+            "columnName": "launchNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "country",
+            "columnName": "country",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "leader",
+            "columnName": "leader",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "leaderType",
+            "columnName": "leaderType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "founded",
+            "columnName": "founded",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "logoURL",
+            "columnName": "logoURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "websiteURL",
+            "columnName": "websiteURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wikiURL",
+            "columnName": "wikiURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "socialsURL",
+            "columnName": "socialsURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeURL",
+            "columnName": "youtubeURL",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "agencyID"
+          ]
+        }
+      },
+      {
+        "tableName": "Launch",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, `launchURL` TEXT, `missionName` TEXT, `padName` TEXT, `agencyID` TEXT, `rocketID` TEXT, `rocketVersionID` TEXT, `launchTimeUTC` TEXT, `launchTimePadLocal` TEXT, `reusableParts` TEXT NOT NULL, `success` TEXT NOT NULL, `windowOpen` TEXT, `windowClose` TEXT, `imageUrl` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `weatherProbability` REAL, `agencyName` TEXT, `rocketName` TEXT, `rocketVariantName` TEXT, `description` TEXT, `orbit` TEXT, `padCords` TEXT NOT NULL, `padLocation` TEXT, `padCountry` TEXT, `padTimeZone` TEXT, `liveStreamUrl` TEXT, `netPrecision` TEXT, `weatherConcerns` TEXT, `timeline` TEXT NOT NULL, `precisionAbbrev` TEXT, `programType` TEXT, PRIMARY KEY(`launchID`))",
+        "fields": [
+          {
+            "fieldPath": "launchID",
+            "columnName": "launchID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "launchURL",
+            "columnName": "launchURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "missionName",
+            "columnName": "missionName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "padName",
+            "columnName": "padName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "agencyID",
+            "columnName": "agencyID",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rocketID",
+            "columnName": "rocketID",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rocketVersionID",
+            "columnName": "rocketVersionID",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "launchTimeUTC",
+            "columnName": "launchTimeUTC",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "launchTimePadLocal",
+            "columnName": "launchTimePadLocal",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "reusableParts",
+            "columnName": "reusableParts",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "success",
+            "columnName": "success",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "windowOpen",
+            "columnName": "windowOpen",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "windowClose",
+            "columnName": "windowClose",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageCredit",
+            "columnName": "imageCredit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "licenseType",
+            "columnName": "licenseType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "weatherProbability",
+            "columnName": "weatherProbability",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "agencyName",
+            "columnName": "agencyName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rocketName",
+            "columnName": "rocketName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rocketVariantName",
+            "columnName": "rocketVariantName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "orbit",
+            "columnName": "orbit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "padCords",
+            "columnName": "padCords",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "padLocation",
+            "columnName": "padLocation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "padCountry",
+            "columnName": "padCountry",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "padTimeZone",
+            "columnName": "padTimeZone",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "liveStreamUrl",
+            "columnName": "liveStreamUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "netPrecision",
+            "columnName": "netPrecision",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "weatherConcerns",
+            "columnName": "weatherConcerns",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "timeline",
+            "columnName": "timeline",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "precisionAbbrev",
+            "columnName": "precisionAbbrev",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "programType",
+            "columnName": "programType",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "launchID"
+          ]
+        }
+      },
+      {
+        "tableName": "LaunchReuseCrossRef",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, `reuseID` TEXT NOT NULL, PRIMARY KEY(`launchID`, `reuseID`))",
+        "fields": [
+          {
+            "fieldPath": "launchID",
+            "columnName": "launchID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reuseID",
+            "columnName": "reuseID",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "launchID",
+            "reuseID"
+          ]
+        }
+      },
+      {
+        "tableName": "Reuse",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `versionID` TEXT NOT NULL, `rocketId` TEXT NOT NULL, `agencyId` TEXT NOT NULL, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`reuseID`))",
+        "fields": [
+          {
+            "fieldPath": "reuseID",
+            "columnName": "reuseID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flights",
+            "columnName": "flights",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activeSince",
+            "columnName": "activeSince",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "versionID",
+            "columnName": "versionID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rocketId",
+            "columnName": "rocketId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "agencyId",
+            "columnName": "agencyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reuseType",
+            "columnName": "reuseType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "reuseID"
+          ]
+        }
+      },
+      {
+        "tableName": "Rocket",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketID` TEXT NOT NULL, `name` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `imageURL` TEXT NOT NULL, `desc` TEXT NOT NULL, PRIMARY KEY(`rocketID`))",
+        "fields": [
+          {
+            "fieldPath": "rocketID",
+            "columnName": "rocketID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "agencyID",
+            "columnName": "agencyID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageURL",
+            "columnName": "imageURL",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "desc",
+            "columnName": "desc",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "rocketID"
+          ]
+        }
+      },
+      {
+        "tableName": "RocketVersion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT NOT NULL, `active` INTEGER NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `rocketID` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `imageURL` TEXT, PRIMARY KEY(`rocketVersionID`))",
+        "fields": [
+          {
+            "fieldPath": "rocketVersionID",
+            "columnName": "rocketVersionID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flights",
+            "columnName": "flights",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activeSince",
+            "columnName": "activeSince",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "rocketID",
+            "columnName": "rocketID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "agencyID",
+            "columnName": "agencyID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageURL",
+            "columnName": "imageURL",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "rocketVersionID"
+          ]
+        }
+      },
+      {
+        "tableName": "starred_launches",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, PRIMARY KEY(`launchID`), FOREIGN KEY(`launchID`) REFERENCES `Launch`(`launchID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "launchID",
+            "columnName": "launchID",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "launchID"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_starred_launches_launchID",
+            "unique": false,
+            "columnNames": [
+              "launchID"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_starred_launches_launchID` ON `${TABLE_NAME}` (`launchID`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Launch",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "launchID"
+            ],
+            "referencedColumns": [
+              "launchID"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "MetaData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "key"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dbaebfbc86c010c8b2ad020ad82df478')"
+    ]
+  }
+}

@@ -33,7 +33,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
         println("Last Updated: $databaseLastUpdated")
     scheduleDao.upsertMetadata(MetaData("lastUpdated",ZonedDateTime.now(ZoneOffset.UTC).toString()))
     if (databaseLastUpdated == null) {
-        databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable wol only be used when Database is reset
+        databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable will only be used when Database is reset
     }
 
     //Past launches

@@ -7,8 +7,6 @@ import com.niaw.launchnea.ProgramType
 import com.niaw.launchnea.Status
 import com.niaw.launchnea.Reusable
 import com.niaw.launchnea.TimelineEvent
-import kotlinx.serialization.json.JsonObject
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 @Entity

@@ -29,7 +29,7 @@ enum class StatusReuse {
     UNKNOWN
 }
 
-enum class LeaderType() {
+enum class LeaderType {
     CEO,
     Admin,
     UnknownLeaderType
@@ -73,11 +73,11 @@ data class Reusable(
     var landingLocationName: String?=null,
     var landingType: LandingType?=null,
     var status: Boolean?= false
-){
-       }
+)
+
 
 @Serializable
-enum class ProgramType(){
+enum class ProgramType{
     UNKNOWN,
     HUMAN_SPACEFLIGHT,
     COMMUNICATION_CONSTELLATION,
