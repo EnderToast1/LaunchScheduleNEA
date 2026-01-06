@@ -9,6 +9,7 @@ import androidx.room.Upsert
 import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.LaunchReuseCrossRef
 import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.MetaData
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.database.entities.RocketVersion
@@ -36,8 +37,14 @@ interface ScheduleDao {
     @Upsert
     suspend fun upsertLaunchReuseCrossRef(crossRef: LaunchReuseCrossRef)
 
+    @Upsert
+    suspend fun upsertMetadata(data: MetaData)
+
     @Delete
     suspend fun deleteLaunches(launch: Launch)
+
+    @Query("SELECT value FROM MetaData WHERE key = :key")
+    suspend fun getMetaData(key: String): String?
 
     @Query("SELECT * FROM Launch")
     fun getLaunches(): Flow<List<Launch>>

@@ -4,6 +4,7 @@ package com.niaw.launchnea.database
 import androidx.room.TypeConverter
 import com.niaw.launchnea.Location
 import com.niaw.launchnea.Reusable
+import com.niaw.launchnea.TimelineEvent
 import kotlinx.serialization.json.Json
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -34,4 +35,7 @@ class Converters {
     // Location ↔ JSON
     @TypeConverter fun locationToString(loc: Location?): String? = loc?.let { json.encodeToString(it) }
     @TypeConverter fun stringToLocation(value: String?): Location? = value?.let { json.decodeFromString(it) }
+
+    @TypeConverter fun timelineEventListToString(list: List<TimelineEvent>?): String? = list?.let { json.encodeToString(it) }
+    @TypeConverter fun stringToTimelineEventList(value: String?): List<TimelineEvent>? = value?.let { json.decodeFromString(it) }
 }

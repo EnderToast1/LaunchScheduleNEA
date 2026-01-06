@@ -6,6 +6,7 @@ import androidx.room.TypeConverters
 import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.LaunchReuseCrossRef
 import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.MetaData
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.database.entities.RocketVersion
@@ -20,6 +21,7 @@ import com.niaw.launchnea.database.entities.StarredLaunch
         Rocket::class,
         RocketVersion::class,
         StarredLaunch::class,
+        MetaData::class
         ],
     version = 1,
 )

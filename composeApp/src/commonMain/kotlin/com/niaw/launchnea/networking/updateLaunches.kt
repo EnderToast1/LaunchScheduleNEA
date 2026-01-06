@@ -2,10 +2,13 @@ package com.niaw.launchnea.networking
 
 import com.niaw.launchnea.LandingType
 import com.niaw.launchnea.Location
+import com.niaw.launchnea.ProgramType
 import com.niaw.launchnea.Reusable
 import com.niaw.launchnea.Status
+import com.niaw.launchnea.TimelineEvent
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.MetaData
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -20,20 +23,28 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     println("Past")
-    //Past launches
-    val lastCallForPast= LocalDateTime.of(2025,12,23,0,0)   //Need to implement finding last call date for past
-    lastCallForPast.minusDays(1).toString() //minuses one day and turns it into ISO format
-    val pastCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=10&last_updated__lte=$lastCallForPast") //passes the url as a string with the date as part of it in the API filter system
-    responseToDatabase(scheduleDao,pastCallResponse)        //parses the response and adds each launch to the database
 
-    //edit lastCallForPast to now
+    //finds last update and stores it
+    var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")
+        println("Last Updated: $databaseLastUpdated")
+    scheduleDao.upsertMetadata(MetaData("lastUpdated",ZonedDateTime.now(ZoneOffset.UTC).toString()))
+    if (databaseLastUpdated == null) {
+        databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable wol only be used when Database is reset
+    }
+
+    //Past launches
+    val TEMPdatabaseLastUpdated= LocalDateTime.of(2025,12,23,0,0)   //Need to implement finding last call date for past
+    TEMPdatabaseLastUpdated.minusDays(1).toString() //minuses one day and turns it into ISO format
+    val pastCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=10&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string with the date as part of it in the API filter system
+    responseToDatabase(scheduleDao,pastCallResponse)        //parses the response and adds each launch to the database
 
     println("Upcoming")
     //upcoming launches
-    val upcomingCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=150") //passes the url as a string into the API
+    val upcomingCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=150&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string into the API
     responseToDatabase(scheduleDao,upcomingCallResponse)
 }
 
@@ -191,6 +202,34 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     val padLocation = (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("location")?.jsonObject?.get("name")?.jsonPrimitive?.content
     val padCountry = (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("country")?.jsonObject?.get("name")?.jsonPrimitive?.content
     val netPrecision = launchJsonObj["net_precision"]?.jsonObject?.get("description")?.jsonPrimitive?.content
+    val precisionAbbrev = launchJsonObj["net_precision"]?.jsonObject?.get("abbrev")?.jsonPrimitive?.content
+    val weatherConcerns= launchJsonObj["weather_concerns"]?.jsonPrimitive?.content
+
+    val timelineEvents: List<TimelineEvent> =
+        launchJsonObj["timeline"]?.jsonArray?.mapNotNull { event ->
+            val eventObj = event.jsonObject
+            val abbrev = eventObj["type"]?.jsonObject?.get("abbrev")?.jsonPrimitive?.content
+            val relativeTime = eventObj["relative_time"]?.jsonPrimitive?.content
+
+                if (abbrev != null && relativeTime != null) {
+                    TimelineEvent(abbrev, relativeTime)
+                } else {
+                    null
+                }
+            }
+            ?: emptyList()
+
+    val programType=when (launchJsonObj["program"]?.jsonArray?.firstOrNull()?.jsonObject?.get("type")?.jsonObject?.get("id")?.jsonPrimitive?.int) {
+        1-> ProgramType.UNKNOWN
+        2-> ProgramType.HUMAN_SPACEFLIGHT
+        3-> ProgramType.COMMUNICATION_CONSTELLATION
+        4-> ProgramType.NAVIGATION_CONSTELLATION
+        5-> ProgramType.EXPLORATION
+        6-> ProgramType.EDUCATION
+        7-> ProgramType.TECHNOLOGY
+        8 -> ProgramType.EARTH_OBSERVATION
+        else -> ProgramType.UNKNOWN
+    }
 
 // need to add launchLiveStream link
     val liveStreamURL="HOLD TEST"
@@ -224,6 +263,10 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
         padTimeZone =padTimeZoneID,
         netPrecision = netPrecision,
         liveStreamUrl = liveStreamURL,
+        weatherConcerns = weatherConcerns,
+        timeline=timelineEvents,
+        precisionAbbrev = precisionAbbrev,
+        programType = programType
     )
 
      return toReturn

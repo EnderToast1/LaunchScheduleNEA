@@ -75,3 +75,23 @@ data class Reusable(
     var status: Boolean?= false
 ){
        }
+
+@Serializable
+enum class ProgramType(){
+    UNKNOWN,
+    HUMAN_SPACEFLIGHT,
+    COMMUNICATION_CONSTELLATION,
+    NAVIGATION_CONSTELLATION,
+    EXPLORATION,
+    EDUCATION,
+    TECHNOLOGY,
+    EARTH_OBSERVATION,
+
+
+}
+
+@Serializable
+data class TimelineEvent(
+    val abbrev: String,
+    val relativeTime: String
+)

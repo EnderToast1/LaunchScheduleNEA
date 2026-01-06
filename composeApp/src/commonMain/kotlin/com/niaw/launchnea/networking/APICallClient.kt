@@ -9,6 +9,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.network.sockets.SocketTimeoutException
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -33,8 +34,8 @@ val httpClient = HttpClient(OkHttp.create()) {
     suspend fun APIFetchRequest(urlString: String): ResponseData{
         val response = try {
             httpClient.get(urlString)                                 //Tries to get request the data from the api
-        } catch (e: RequestTimeoutException) {
-            return ResponseData(null, NetworkError.REQUEST_TIMEOUT)          //If the Request timesout it catches it and returns the error
+        } catch (e: TimeoutCancellationException) {
+            return ResponseData(null, NetworkError.REQUEST_TIMEOUT)          //If the Request timeout it catches it and returns the error
         }catch(e: UnresolvedAddressException){
             return ResponseData(null,NetworkError.NO_INTERNET)                //If the address is invalid for some reason it catches it and returns the error
         }catch(e: SerializationException){

@@ -3,8 +3,11 @@ package com.niaw.launchnea.database.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.Location
+import com.niaw.launchnea.ProgramType
 import com.niaw.launchnea.Status
 import com.niaw.launchnea.Reusable
+import com.niaw.launchnea.TimelineEvent
+import kotlinx.serialization.json.JsonObject
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
@@ -43,5 +46,9 @@ data class Launch(
     var padTimeZone: String? = null,
     var liveStreamUrl: String? = null,
     var netPrecision: String? = null,
+    var weatherConcerns: String? = null,
+    var timeline: List<TimelineEvent> = emptyList(),
+    var precisionAbbrev: String? = null,
+    val programType: ProgramType?= ProgramType.UNKNOWN
     )
 
