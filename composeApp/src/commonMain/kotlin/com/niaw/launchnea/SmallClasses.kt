@@ -46,7 +46,7 @@ enum class ReuseType{
 enum class LandingType{
     ASDS,          //autonomous spaceport drone ship
     RTLS,         //return to launch side
-    OCEAN,        //No recovery attempt/spashdown
+    OCEAN,        //No recovery attempt/splashdown
     PCL,          // parachute landing
     HC,           //Helicopter catch
     HL,          //Horizontal Landing
