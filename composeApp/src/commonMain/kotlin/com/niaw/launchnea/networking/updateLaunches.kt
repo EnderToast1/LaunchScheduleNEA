@@ -91,6 +91,13 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
                     "ASDS" -> LandingType.ASDS
                     "RTLS" -> LandingType.RTLS
                     "PCL" -> LandingType.PCL
+                    "Ocean" -> LandingType.OCEAN
+                    "HC" -> LandingType.HC
+                    "HL" -> LandingType.HL
+                    "ATM" -> LandingType.ATM
+                    "EXP" -> LandingType.EXP
+                    "VL" -> LandingType.VL
+                    "PFL" -> LandingType.PFL
                     else -> LandingType.UNKNOWN
                 }
                 val statusReuse = (stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("success")?.jsonPrimitive?.booleanOrNull)
@@ -121,10 +128,17 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
             val capLandingAbbrev   =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
             val capLandingType     =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("type")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
             val capLandingTypeInForm= when (capLandingType) {
-                "ASDS" -> LandingType.ASDS
-                "RTLS" -> LandingType.RTLS
-                "PCL" -> LandingType.PCL
-                else -> LandingType.UNKNOWN
+                    "ASDS" -> LandingType.ASDS
+                    "RTLS" -> LandingType.RTLS
+                    "PCL" -> LandingType.PCL
+                    "Ocean" -> LandingType.OCEAN
+                    "HC" -> LandingType.HC
+                    "HL" -> LandingType.HL
+                    "ATM" -> LandingType.ATM
+                    "EXP" -> LandingType.EXP
+                    "VL" -> LandingType.VL
+                    "PFL" -> LandingType.PFL
+                    else -> LandingType.UNKNOWN
             }
             val capStatusReuse = (stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("success")?.jsonPrimitive?.booleanOrNull)
 
