@@ -44,9 +44,17 @@ enum class ReuseType{
 
 @Serializable
 enum class LandingType{
-    ASDS,          //droneship
+    ASDS,          //autonomous spaceport drone ship
     RTLS,         //return to launch side
+    OCEAN,        //No recovery attempt/spashdown
     PCL,          // parachute landing
+    HC,           //Helicopter catch
+    HL,          //Horizontal Landing
+    ATM,        //Atmospheric burn up
+    EXP,        //expended 
+    VL,        //vertical landing
+    PFL,       //Unpowered landing using parafoil(s)
+    
     UNKNOWN
 }
 
