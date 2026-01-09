@@ -1,6 +1,7 @@
 package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.Location
 import com.niaw.launchnea.ProgramType
@@ -9,7 +10,27 @@ import com.niaw.launchnea.Reusable
 import com.niaw.launchnea.TimelineEvent
 import java.time.ZonedDateTime
 
-@Entity
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = RocketVersion::class,
+            parentColumns = ["rocketVersionID"],
+            childColumns = ["rocketVersionID"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Rocket::class,
+            parentColumns = ["rocketID"],
+            childColumns = ["rocketID"],
+            onDelete = ForeignKey.CASCADE
+    ),
+        ForeignKey(
+            entity = Agency::class,
+            parentColumns = ["agencyID"],
+            childColumns = ["agencyID"],
+            onDelete = ForeignKey.CASCADE
+        )]
+)
 data class Launch(
     //database search and filter terms
     @PrimaryKey(autoGenerate = false)

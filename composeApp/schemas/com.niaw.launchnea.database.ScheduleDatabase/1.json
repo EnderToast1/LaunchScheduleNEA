@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "dbaebfbc86c010c8b2ad020ad82df478",
+    "identityHash": "2d032ad59dfc8b80f9f7cf9d0faf1b62",
     "entities": [
       {
         "tableName": "Agency",
@@ -91,7 +91,7 @@
       },
       {
         "tableName": "Launch",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, `launchURL` TEXT, `missionName` TEXT, `padName` TEXT, `agencyID` TEXT, `rocketID` TEXT, `rocketVersionID` TEXT, `launchTimeUTC` TEXT, `launchTimePadLocal` TEXT, `reusableParts` TEXT NOT NULL, `success` TEXT NOT NULL, `windowOpen` TEXT, `windowClose` TEXT, `imageUrl` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `weatherProbability` REAL, `agencyName` TEXT, `rocketName` TEXT, `rocketVariantName` TEXT, `description` TEXT, `orbit` TEXT, `padCords` TEXT NOT NULL, `padLocation` TEXT, `padCountry` TEXT, `padTimeZone` TEXT, `liveStreamUrl` TEXT, `netPrecision` TEXT, `weatherConcerns` TEXT, `timeline` TEXT NOT NULL, `precisionAbbrev` TEXT, `programType` TEXT, PRIMARY KEY(`launchID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, `launchURL` TEXT, `missionName` TEXT, `padName` TEXT, `agencyID` TEXT, `rocketID` TEXT, `rocketVersionID` TEXT, `launchTimeUTC` TEXT, `launchTimePadLocal` TEXT, `reusableParts` TEXT NOT NULL, `success` TEXT NOT NULL, `windowOpen` TEXT, `windowClose` TEXT, `imageUrl` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `weatherProbability` REAL, `agencyName` TEXT, `rocketName` TEXT, `rocketVariantName` TEXT, `description` TEXT, `orbit` TEXT, `padCords` TEXT NOT NULL, `padLocation` TEXT, `padCountry` TEXT, `padTimeZone` TEXT, `liveStreamUrl` TEXT, `netPrecision` TEXT, `weatherConcerns` TEXT, `timeline` TEXT NOT NULL, `precisionAbbrev` TEXT, `programType` TEXT, PRIMARY KEY(`launchID`), FOREIGN KEY(`rocketVersionID`) REFERENCES `RocketVersion`(`rocketVersionID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "launchID",
@@ -264,11 +264,46 @@
           "columnNames": [
             "launchID"
           ]
-        }
+        },
+        "foreignKeys": [
+          {
+            "table": "RocketVersion",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rocketVersionID"
+            ],
+            "referencedColumns": [
+              "rocketVersionID"
+            ]
+          },
+          {
+            "table": "Rocket",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rocketID"
+            ],
+            "referencedColumns": [
+              "rocketID"
+            ]
+          },
+          {
+            "table": "Agency",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "agencyID"
+            ],
+            "referencedColumns": [
+              "agencyID"
+            ]
+          }
+        ]
       },
       {
         "tableName": "LaunchReuseCrossRef",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, `reuseID` TEXT NOT NULL, PRIMARY KEY(`launchID`, `reuseID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, `reuseID` TEXT NOT NULL, PRIMARY KEY(`launchID`, `reuseID`), FOREIGN KEY(`launchID`) REFERENCES `Launch`(`launchID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`reuseID`) REFERENCES `Reuse`(`reuseID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "launchID",
@@ -289,11 +324,35 @@
             "launchID",
             "reuseID"
           ]
-        }
+        },
+        "foreignKeys": [
+          {
+            "table": "Launch",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "launchID"
+            ],
+            "referencedColumns": [
+              "launchID"
+            ]
+          },
+          {
+            "table": "Reuse",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "reuseID"
+            ],
+            "referencedColumns": [
+              "reuseID"
+            ]
+          }
+        ]
       },
       {
         "tableName": "Reuse",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `versionID` TEXT NOT NULL, `rocketId` TEXT NOT NULL, `agencyId` TEXT NOT NULL, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`reuseID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `versionID` TEXT NOT NULL, `rocketID` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`reuseID`), FOREIGN KEY(`versionID`) REFERENCES `RocketVersion`(`rocketVersionID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "reuseID",
@@ -325,14 +384,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "rocketId",
-            "columnName": "rocketId",
+            "fieldPath": "rocketID",
+            "columnName": "rocketID",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "agencyId",
-            "columnName": "agencyId",
+            "fieldPath": "agencyID",
+            "columnName": "agencyID",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -354,7 +413,42 @@
           "columnNames": [
             "reuseID"
           ]
-        }
+        },
+        "foreignKeys": [
+          {
+            "table": "RocketVersion",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "versionID"
+            ],
+            "referencedColumns": [
+              "rocketVersionID"
+            ]
+          },
+          {
+            "table": "Rocket",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rocketID"
+            ],
+            "referencedColumns": [
+              "rocketID"
+            ]
+          },
+          {
+            "table": "Agency",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "agencyID"
+            ],
+            "referencedColumns": [
+              "agencyID"
+            ]
+          }
+        ]
       },
       {
         "tableName": "Rocket",
@@ -400,7 +494,7 @@
       },
       {
         "tableName": "RocketVersion",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT NOT NULL, `active` INTEGER NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `rocketID` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `imageURL` TEXT, PRIMARY KEY(`rocketVersionID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT NOT NULL, `active` INTEGER NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `rocketID` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `imageURL` TEXT, PRIMARY KEY(`rocketVersionID`), FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "rocketVersionID",
@@ -454,7 +548,31 @@
           "columnNames": [
             "rocketVersionID"
           ]
-        }
+        },
+        "foreignKeys": [
+          {
+            "table": "Rocket",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rocketID"
+            ],
+            "referencedColumns": [
+              "rocketID"
+            ]
+          },
+          {
+            "table": "Agency",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "agencyID"
+            ],
+            "referencedColumns": [
+              "agencyID"
+            ]
+          }
+        ]
       },
       {
         "tableName": "starred_launches",
@@ -525,7 +643,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dbaebfbc86c010c8b2ad020ad82df478')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2d032ad59dfc8b80f9f7cf9d0faf1b62')"
     ]
   }
 }

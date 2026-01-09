@@ -1,10 +1,25 @@
 package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.util.Date
 
-@Entity
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Rocket::class,
+            parentColumns = ["rocketID"],
+            childColumns = ["rocketID"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Agency::class,
+            parentColumns = ["agencyID"],
+            childColumns = ["agencyID"],
+            onDelete = ForeignKey.CASCADE
+        )]
+)
 data class RocketVersion(
     @PrimaryKey(autoGenerate = false)
     var rocketVersionID: String,

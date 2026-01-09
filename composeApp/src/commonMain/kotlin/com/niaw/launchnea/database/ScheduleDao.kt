@@ -67,5 +67,18 @@ interface ScheduleDao {
     @Query("SELECT l.* FROM launch l INNER JOIN starred_launches s ON l.launchID = s.launchID")
     fun getStarredLaunches(): Flow<List<Launch>>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM Agency WHERE agencyID = :id)")
+    suspend fun doesAgencyExists(id: String): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM Reuse WHERE reuseID = :id)")
+    suspend fun doesReuseExists(id: String): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM Rocket WHERE rocketID = :id)")
+    suspend fun doesRocketExists(id: String): Boolean
+
+    @Query("SELECT EXISTS(SELECT 1 FROM RocketVersion WHERE rocketVersionID = :id)")
+    suspend fun doesRocketVersionExists(id: String): Boolean
+
+
 
 }

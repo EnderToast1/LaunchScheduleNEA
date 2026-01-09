@@ -7,6 +7,7 @@ import com.niaw.launchnea.Reusable
 import com.niaw.launchnea.Status
 import com.niaw.launchnea.TimelineEvent
 import com.niaw.launchnea.database.ScheduleDao
+import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.database.entities.MetaData
 import kotlinx.serialization.json.JsonElement
@@ -26,7 +27,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 suspend fun updateLaunchData(scheduleDao: ScheduleDao){
-    println("Past")
+
 
     //finds the last time the database updated and then updates it so it set to now()
     var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")//Gets lastUpdates time
@@ -35,22 +36,30 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     if (databaseLastUpdated == null) {//if it doesn't exist set to some time SHOULD BE TEMP AS WHEN IN PRODUCTION WILL ALWAYS EXIST
         databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
     }
-
-    //Updates previous launches
-    val TEMPdatabaseLastUpdated= LocalDateTime.of(2025,12,23,0,0)   //TEMP for TESTing and DEVelopment
+    var TEMPdatabaseLastUpdated= LocalDateTime.of(2025,12,23,0,0)   //TEMP for TESTing and DEVelopment
     TEMPdatabaseLastUpdated.minusDays(1).toString() //minuses one day and turns it into ISO format TEMP for TESTing and DEVelopment
-    val pastCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=10&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string with the last updated dateTime as part of it in the API filter system
-    responseToDatabase(scheduleDao,pastCallResponse)        //parses the response and adds each launch to the database (inside of the function it checks for other tables that need adding to)
 
-    println("Upcoming")//LOG
+    println("\n\nPast https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=100&last_updated__gte=$TEMPdatabaseLastUpdated")
+    //Updates previous launches
+    val pastCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=100&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string with the last updated dateTime as part of it in the API filter system
+    responseToDatabase(scheduleDao,pastCallResponse)        //parses the response and adds each launch to the database (inside the function it checks for other tables that need adding to)
+    while ((pastCallResponse.count>=100) and (pastCallResponse.next!=null)) {
+        println("NEXT PAST RESPONSE")
+        responseToDatabase(scheduleDao,APIFetchRequest(pastCallResponse.next))
+    }
+    //TEST
+    TEMPdatabaseLastUpdated= LocalDateTime.of(2025,10,23,0,0)   //TEMP for TESTing and DEVelopment
+
+    println("\n\nUpcoming https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=100&last_updated__gte=$TEMPdatabaseLastUpdated")//LOG
     //Update upcoming launches
-    val upcomingCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=150&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string into the API and also gives it the lastUpdated string filter
-    responseToDatabase(scheduleDao,upcomingCallResponse)   //parses the response and adds each launch to the database (inside of the function it checks for other tables that need adding to)
+    var upcomingCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=100&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string into the API and also gives it the lastUpdated string filter
+    responseToDatabase(scheduleDao,upcomingCallResponse)   //parses the response and adds each launch to the database (inside the function it checks for other tables that need adding to)
+    while ((upcomingCallResponse.count>=100) and (upcomingCallResponse.next!=null)) {
+        println("NEXT UPCOMING RESPONSE")
+        upcomingCallResponse=(APIFetchRequest(upcomingCallResponse.next))
+        responseToDatabase(scheduleDao,upcomingCallResponse)
+    }
 }
-
-
-
-
 
 
 
@@ -58,17 +67,24 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
 //parses the response and adds each launch to the database (also calls for a function to check for other tables that need adding to)
 private suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseData) {
+    println("Count: ${callResponse.count}\n Next: ${callResponse.next}\n\n")//LOG
     //checks if there was an error reported when getting the response
     if (callResponse.errorType == null) {
-        //if there was no error it sets it to a JsonArrray and calls a function to parse each launch into a object then adds to db 
+
+        //if there was no error it sets it to a JsonArray and calls a function to parse each launch into a object then adds to db
         val pastLaunchesJsonArray = callResponse.data
-        pastLaunchesJsonArray?.forEach { launchJson ->              //goes though each launch in the return from the API
+        pastLaunchesJsonArray?.forEachIndexed {i, launchJson ->              //goes though each launch in the return from the API
             val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch
+            println("NEXT ${i+1} Launch\n$launch\n\n")//LOG
             if (launch != null) {
+                //TODO add a check for other tables
+                checkForOtherEntities(launchJson,launch, scheduleDao)
+
                 scheduleDao.upsertLaunch(launch) //adds to database if not null 
 
-                println(launch.toString()+"\nNEXT Launch\n")//LOG
-                println("NEXT")//TEST
+
+
+
             }
         }
     } else {//if there is an error it logs it 
@@ -77,8 +93,8 @@ private suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: R
 }
 
 //parse each launch element into a launch object
-fun parseLaunch(launchJsonEle: JsonElement): Launch? {
-    val launchJsonObj=launchJsonEle.jsonObject  //turns the element into a object
+suspend fun parseLaunch(launchJsonEle: JsonElement,): Launch? {
+    val launchJsonObj=launchJsonEle.jsonObject  //turns the element into an object
     val id= launchJsonObj["id"]?.jsonPrimitive?.content ?: return null  //finds the tag of "id" then gets the content after it is made JsonPrimitive if it is null, does not exist or canot be made primitive it is set to null  
     val url = launchJsonObj["url"]?.jsonPrimitive?.content
     val missionName= (launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
@@ -98,7 +114,7 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
                 val landingLocation =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("name")?.jsonPrimitive?.contentOrNull
                 val landingAbbrev   =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
                 val landingType     =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("type")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
-                val landingTypeInForm= when (landingType) {//gets the landingtype as a string then turns it into a LandingType
+                val landingTypeInForm= when (landingType) {//gets the landing type as a string then turns it into a LandingType
                     "ASDS" -> LandingType.ASDS
                     "RTLS" -> LandingType.RTLS
                     "PCL" -> LandingType.PCL
@@ -130,12 +146,12 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
             }
             ?: emptyList()
 
-    val spacecraftStages = launchJsonObj["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray//create an array of all reuseable spacecraft items 
+    val spacecraftStages = launchJsonObj["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray//create an array of all reusable spacecraft items
     val capsulesLandings:List<Reusable> =spacecraftStages?.mapNotNull { stage ->//goes through each one and creates a reusable object of it 
             val capLandingLocation =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("name")?.jsonPrimitive?.contentOrNull
             val capLandingAbbrev   =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
             val capLandingType     =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("type")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
-            val capLandingTypeInForm= when (capLandingType) {
+            val capLandingTypeInForm= when (capLandingType) {//gets the landing type as a string then turns it into a LandingType
                     "ASDS" -> LandingType.ASDS
                     "RTLS" -> LandingType.RTLS
                     "PCL" -> LandingType.PCL
@@ -230,7 +246,7 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
 
 // need to add launchLiveStream link  TODO
     val liveStreamURL="HOLD TEST"
-//addes all the variables into a object to return
+//adds all the variables into an object to return
     val toReturn=Launch(
         launchID = id,
         launchURL=url,
@@ -265,7 +281,40 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
         precisionAbbrev = precisionAbbrev,
         programType = programType
     )
-//TODO add a check for other tables 
      return toReturn
 
 }
+
+//check if agency,rocket,version or reuse need a record added to and if they are new adds them to the db
+suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,scheduleDao: ScheduleDao){
+    if (launch.agencyID!=null ) {
+        if (!scheduleDao.doesAgencyExists(launch.agencyID)) {
+            println("${launch.agencyName} does not exist")
+            scheduleDao.upsertAgency(parseAgency(launchJsonEle))
+        }
+    }
+    if (launch.rocketID!=null){
+        if (!scheduleDao.doesRocketExists(launch.rocketID)) {
+            println("${launch.rocketName} does not exist")
+            scheduleDao.upsertRocket(parseRocket(launchJsonEle))
+        }
+    }
+    if (launch.rocketVersionID!=null){
+        if (!scheduleDao.doesRocketVersionExists(launch.rocketVersionID)) {
+            println("${launch.rocketVersionID} does not exist")
+            scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle))
+        }
+    }
+    if (!launch.reusableParts.isEmpty()) {
+        for (reusablePart in launch.reusableParts) {
+            if (reusablePart.reuseID != null) {
+                if (!scheduleDao.doesReuseExists(reusablePart.reuseID!!)) {
+                    println("${reusablePart.reuseName} does not exist")
+                    scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart))
+                }
+            }
+        }
+    }
+
+}
+

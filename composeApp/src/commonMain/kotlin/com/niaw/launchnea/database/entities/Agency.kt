@@ -1,10 +1,12 @@
 package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.LeaderType
 
 @Entity
+
 data class Agency(
   //Database Variables
     @PrimaryKey(autoGenerate = false)

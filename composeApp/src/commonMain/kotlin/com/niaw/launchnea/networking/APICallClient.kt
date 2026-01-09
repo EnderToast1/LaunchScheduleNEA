@@ -2,6 +2,7 @@ package com.niaw.launchnea.networking
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
@@ -12,8 +13,11 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 //Creates an object to connect to the internet and perform the requests
 val httpClient = HttpClient(OkHttp.create()) {
@@ -31,15 +35,20 @@ val httpClient = HttpClient(OkHttp.create()) {
     }
 }
 
-    suspend fun APIFetchRequest(urlString: String): ResponseData{
+    suspend fun APIFetchRequest(urlString: String?): ResponseData{
+        if (urlString == null) {
+            return ResponseData()//sends out all null so aborts
+        }
         val response = try {
             httpClient.get(urlString)                                 //Tries to get request the data from the api
-        } catch (e: TimeoutCancellationException) {
+        } catch (e: HttpRequestTimeoutException) {
             return ResponseData(null, NetworkError.REQUEST_TIMEOUT)          //If the Request timeout it catches it and returns the error
         }catch(e: UnresolvedAddressException){
             return ResponseData(null,NetworkError.NO_INTERNET)                //If the address is invalid for some reason it catches it and returns the error
         }catch(e: SerializationException){
-            return ResponseData(null,NetworkError.SERIALIZATION)       //If there is a json error it catches it and returns the error
+            return ResponseData(null,NetworkError.SERIALIZATION)       //If there is a JSON error it catches it and returns the error
+        }catch(e: Exception){
+            return ResponseData(null, NetworkError.UNKNOWN)
         }
         return when(response.status.value) {
             in 200..299 -> {                           
@@ -48,9 +57,15 @@ val httpClient = HttpClient(OkHttp.create()) {
                 // Safely attempt to get the "results" array
                 val results = jsonElement.jsonObject["results"]?.jsonArray 
                 if (results.isNullOrEmpty()){
-                    ResponseData(null,NetworkError.No_DATA)
+
+                        ResponseData(null, NetworkError.No_DATA)
                 }else {
-                    ResponseData(results, null)
+                    val count =jsonElement.jsonObject["count"]?.jsonPrimitive?.int ?:0
+                    if (count <=100) {
+                        ResponseData(results, null,count)
+                    }else{
+                        ResponseData(results, null,count,jsonElement.jsonObject["next"]?.jsonPrimitive?.contentOrNull)
+                    }
                 }
             }
             409 -> ResponseData(null,NetworkError.CONFLICT)             //If conflict 
