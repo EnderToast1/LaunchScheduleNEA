@@ -11,13 +11,13 @@ data class Agency(
   //Database Variables
     @PrimaryKey(autoGenerate = false)
     var agencyID: String,
-    var name: String,
+    var name: String? = null,
     var launchNumber: Int=0,
 
   //Rest of data needed
-    var country: String,
-    var description: String, //long text
-    var leader: String,
+    var countries: List<String?> = emptyList(),
+    var description: String? = null, //long text
+    var leader: String? = null,
     var leaderType: LeaderType = LeaderType.UnknownLeaderType,
     var founded: Int=0,
     var logoURL: String? = null,

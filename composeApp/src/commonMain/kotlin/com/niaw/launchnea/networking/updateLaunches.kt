@@ -26,6 +26,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import kotlin.collections.List
+
 suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
 
@@ -316,5 +318,33 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
         }
     }
 
+}
+
+fun parseAgency(launchJsonEle: JsonElement): Agency {
+    val agencyJsonObj=launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject  //turns the element into an object
+    val countries= agencyJsonObj?.get("country")?.jsonArray
+    val countriesList : List<String> = countries?.mapNotNull { country ->
+       country.jsonObject["name"]?.jsonPrimitive?.content
+    }?: emptyList()
+    val administratorPair= agencyJsonObj?.get("administrator")?.jsonPrimitive?.content
+    //TODO get every thing before the : and pass through the enum class and everything after as the name
+
+
+    val toReturn = Agency(
+        agencyID = agencyJsonObj?.get("id")?.jsonPrimitive?.content!!,
+        name =   agencyJsonObj["name"]?.jsonPrimitive?.content,
+        launchNumber = agencyJsonObj["total_launch_count"]?.jsonPrimitive?.intOrNull ?: 0,
+        countries =  countriesList,
+        description = agencyJsonObj["description"]?.jsonPrimitive?.content,
+        leader = ,
+        leaderType = ,
+        founded = agencyJsonObj["founding_year"]?.jsonPrimitive?.int ?: 0 ,
+        logoURL = agencyJsonObj["logo"]?.jsonObject?.get("image_url")?.jsonPrimitive?.content,
+        websiteURL = agencyJsonObj["info_url"]?.jsonPrimitive?.content,
+        wikiURL =  agencyJsonObj["wiki_url"]?.jsonPrimitive?.content,
+        socialsURL = ,
+        youtubeURL =
+    )
+    return toReturn
 }
 
