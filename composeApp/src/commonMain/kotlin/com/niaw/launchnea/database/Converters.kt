@@ -11,9 +11,12 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 
 class Converters {
-
+    //A set of variable type converters so abstract types can be placed into the database, and retrieved from it called from the creation of the db
+    
+    // Vaariable to set the rules for turning into a JSON
     private val json = Json { ignoreUnknownKeys = true }
 
+    //Variable to help convert dateTime to a string
     private val zonedFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
 
     // ZonedDateTime ↔ String
@@ -32,6 +35,7 @@ class Converters {
     @TypeConverter fun locationToString(loc: Location?): String? = loc?.let { json.encodeToString(it) }
     @TypeConverter fun stringToLocation(value: String?): Location? = value?.let { json.decodeFromString(it) }
 
+    //TimelineEvents ↔ JSON
     @TypeConverter fun timelineEventListToString(list: List<TimelineEvent>?): String? = list?.let { json.encodeToString(it) }
     @TypeConverter fun stringToTimelineEventList(value: String?): List<TimelineEvent>? = value?.let { json.decodeFromString(it) }
 }
