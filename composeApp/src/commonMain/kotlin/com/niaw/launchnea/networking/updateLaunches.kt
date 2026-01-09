@@ -28,24 +28,24 @@ import java.time.ZonedDateTime
 suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     println("Past")
 
-    //finds last update and stores it
-    var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")
-        println("Last Updated: $databaseLastUpdated")
-    scheduleDao.upsertMetadata(MetaData("lastUpdated",ZonedDateTime.now(ZoneOffset.UTC).toString()))
-    if (databaseLastUpdated == null) {
-        databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable will only be used when Database is reset
+    //finds the last time the database updated and then updates it so it set to now()
+    var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")//Gets lastUpdates time
+        println("Last Updated: $databaseLastUpdated")//LOG
+    scheduleDao.upsertMetadata(MetaData("lastUpdated",ZonedDateTime.now(ZoneOffset.UTC).toString()))  //updates LastUpdated to now in UTC
+    if (databaseLastUpdated == null) {//if it doesn't exist set to some time SHOULD BE TEMP AS WHEN IN PRODUCTION WILL ALWAYS EXIST
+        databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
     }
 
-    //Past launches
-    val TEMPdatabaseLastUpdated= LocalDateTime.of(2025,12,23,0,0)   //Need to implement finding last call date for past
-    TEMPdatabaseLastUpdated.minusDays(1).toString() //minuses one day and turns it into ISO format
-    val pastCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=10&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string with the date as part of it in the API filter system
-    responseToDatabase(scheduleDao,pastCallResponse)        //parses the response and adds each launch to the database
+    //Updates previous launches
+    val TEMPdatabaseLastUpdated= LocalDateTime.of(2025,12,23,0,0)   //TEMP for TESTing and DEVelopment
+    TEMPdatabaseLastUpdated.minusDays(1).toString() //minuses one day and turns it into ISO format TEMP for TESTing and DEVelopment
+    val pastCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=10&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string with the last updated dateTime as part of it in the API filter system
+    responseToDatabase(scheduleDao,pastCallResponse)        //parses the response and adds each launch to the database (inside of the function it checks for other tables that need adding to)
 
-    println("Upcoming")
-    //upcoming launches
-    val upcomingCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=150&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string into the API
-    responseToDatabase(scheduleDao,upcomingCallResponse)
+    println("Upcoming")//LOG
+    //Update upcoming launches
+    val upcomingCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=150&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string into the API and also gives it the lastUpdated string filter
+    responseToDatabase(scheduleDao,upcomingCallResponse)   //parses the response and adds each launch to the database (inside of the function it checks for other tables that need adding to)
 }
 
 
@@ -56,27 +56,30 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
 
 
-
+//parses the response and adds each launch to the database (also calls for a function to check for other tables that need adding to)
 private suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseData) {
+    //checks if there was an error reported when getting the response
     if (callResponse.errorType == null) {
+        //if there was no error it sets it to a JsonArrray and calls a function to parse each launch into a object then adds to db 
         val pastLaunchesJsonArray = callResponse.data
         pastLaunchesJsonArray?.forEach { launchJson ->              //goes though each launch in the return from the API
             val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch
             if (launch != null) {
-                scheduleDao.upsertLaunch(launch) //adds to database
+                scheduleDao.upsertLaunch(launch) //adds to database if not null 
 
-                println(launch.toString())//TEST
+                println(launch.toString()+"\nNEXT Launch\n")//LOG
                 println("NEXT")//TEST
             }
         }
-    } else {
-        println(callResponse.errorType)
+    } else {//if there is an error it logs it 
+        println(callResponse.errorType)//LOG
     }
 }
 
+//parse each launch element into a launch object
 fun parseLaunch(launchJsonEle: JsonElement): Launch? {
-    val launchJsonObj=launchJsonEle.jsonObject
-    val id= launchJsonObj["id"]?.jsonPrimitive?.content ?: return null
+    val launchJsonObj=launchJsonEle.jsonObject  //turns the element into a object
+    val id= launchJsonObj["id"]?.jsonPrimitive?.content ?: return null  //finds the tag of "id" then gets the content after it is made JsonPrimitive if it is null, does not exist or canot be made primitive it is set to null  
     val url = launchJsonObj["url"]?.jsonPrimitive?.content
     val missionName= (launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val padName= (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
@@ -86,19 +89,16 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     val launchTimeUTC: ZonedDateTime? =launchJsonObj["net"]?.jsonPrimitive?.content?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
     val padTimeZoneID = (launchJsonObj["pad"] as? JsonObject)?.get("location")?.jsonObject?.get("timezone_name")?.jsonPrimitive?.content?.takeIf { it.isNotBlank() } // <- ignore empty strings
     val launchTimePad: ZonedDateTime? = if (launchTimeUTC != null && padTimeZoneID != null) {
-        runCatching { launchTimeUTC.withZoneSameInstant(ZoneId.of(padTimeZoneID)) }.getOrNull()
+        runCatching { launchTimeUTC.withZoneSameInstant(ZoneId.of(padTimeZoneID)) }.getOrNull()//gets the pad launch timezone id and the UTC launch time and the applys it if one or both is null or the timezone id is invalid it returns the UTC time
     } else {
-        launchTimeUTC
+        launchTimeUTC//Fallback
     }
-    val launcherStages = launchJsonObj["rocket"]
-        ?.jsonObject?.get("launcher_stage")
-        ?.jsonArray
-    val boosterLandings: List<Reusable> =
-        launcherStages?.mapNotNull { stage ->
+    val launcherStages = launchJsonObj["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray//create an array of all the booster/launcher reuse parts
+    val boosterLandings: List<Reusable> =launcherStages?.mapNotNull { stage -> //goes through all booster reuses and places them in a reuses object
                 val landingLocation =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("name")?.jsonPrimitive?.contentOrNull
                 val landingAbbrev   =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
                 val landingType     =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("type")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
-                val landingTypeInForm= when (landingType) {
+                val landingTypeInForm= when (landingType) {//gets the landingtype as a string then turns it into a LandingType
                     "ASDS" -> LandingType.ASDS
                     "RTLS" -> LandingType.RTLS
                     "PCL" -> LandingType.PCL
@@ -130,11 +130,8 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
             }
             ?: emptyList()
 
-    val spacecraftStages = launchJsonObj["rocket"]
-        ?.jsonObject?.get("spacecraft_stage")
-        ?.jsonArray
-    val capsulesLandings:List<Reusable> =
-        spacecraftStages?.mapNotNull { stage ->
+    val spacecraftStages = launchJsonObj["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray//create an array of all reuseable spacecraft items 
+    val capsulesLandings:List<Reusable> =spacecraftStages?.mapNotNull { stage ->//goes through each one and creates a reusable object of it 
             val capLandingLocation =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("name")?.jsonPrimitive?.contentOrNull
             val capLandingAbbrev   =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("landing_location")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
             val capLandingType     =stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("type")?.takeIf { it != JsonNull }?.jsonObject?.get("abbrev")?.jsonPrimitive?.contentOrNull
@@ -204,7 +201,7 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     val netPrecision = launchJsonObj["net_precision"]?.jsonObject?.get("description")?.jsonPrimitive?.content
     val precisionAbbrev = launchJsonObj["net_precision"]?.jsonObject?.get("abbrev")?.jsonPrimitive?.content
     val weatherConcerns= launchJsonObj["weather_concerns"]?.jsonPrimitive?.content
-
+ //creates a list of timelineEvents which can be nullable
     val timelineEvents: List<TimelineEvent> =
         launchJsonObj["timeline"]?.jsonArray?.mapNotNull { event ->
             val eventObj = event.jsonObject
@@ -231,9 +228,9 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
         else -> ProgramType.UNKNOWN
     }
 
-// need to add launchLiveStream link
+// need to add launchLiveStream link  TODO
     val liveStreamURL="HOLD TEST"
-
+//addes all the variables into a object to return
     val toReturn=Launch(
         launchID = id,
         launchURL=url,
@@ -268,7 +265,7 @@ fun parseLaunch(launchJsonEle: JsonElement): Launch? {
         precisionAbbrev = precisionAbbrev,
         programType = programType
     )
-
+//TODO add a check for other tables 
      return toReturn
 
 }
