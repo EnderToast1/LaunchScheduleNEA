@@ -16,10 +16,12 @@ import androidx.room.PrimaryKey
 data class Rocket(
     @PrimaryKey(autoGenerate = false)
     var rocketID: String,
-    var name: String,
-    var agencyID: String,
+    var name: String?= null,
+    var agencyID: String? = null,
 
-    var imageURL: String,
-    var desc: String, //long
+    var imageURL: String? = null,
+    var imageCredit: String? = null,
+    var licenseType: String? = null,
+    var desc: String? =null, //long
 
   )

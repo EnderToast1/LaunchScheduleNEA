@@ -1,18 +1,25 @@
 package com.niaw.launchnea.networking
 
 import com.niaw.launchnea.LandingType
+import com.niaw.launchnea.LeaderType
 import com.niaw.launchnea.Location
 import com.niaw.launchnea.ProgramType
 import com.niaw.launchnea.Reusable
+import com.niaw.launchnea.ReuseType
 import com.niaw.launchnea.Status
+import com.niaw.launchnea.StatusReuse
 import com.niaw.launchnea.TimelineEvent
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.database.entities.MetaData
+import com.niaw.launchnea.database.entities.Reuse
+import com.niaw.launchnea.database.entities.Rocket
+import com.niaw.launchnea.database.entities.RocketVersion
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.double
@@ -22,6 +29,7 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -34,13 +42,15 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     //finds the last time the database updated and then updates it so it set to now()
     var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")//Gets lastUpdates time
         println("Last Updated: $databaseLastUpdated")//LOG
+
+    //TODO remove 30mins from databaseLastUpdated
     scheduleDao.upsertMetadata(MetaData("lastUpdated",ZonedDateTime.now(ZoneOffset.UTC).toString()))  //updates LastUpdated to now in UTC
     if (databaseLastUpdated == null) {//if it doesn't exist set to some time SHOULD BE TEMP AS WHEN IN PRODUCTION WILL ALWAYS EXIST
         databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
     }
-    var TEMPdatabaseLastUpdated= LocalDateTime.of(2025,12,23,0,0)   //TEMP for TESTing and DEVelopment
+    val TEMPdatabaseLastUpdated= LocalDateTime.of(2025,12,23,0,0)   //TEMP for TESTing and DEVelopment
     TEMPdatabaseLastUpdated.minusDays(1).toString() //minuses one day and turns it into ISO format TEMP for TESTing and DEVelopment
-
+//TODO change lldev to ll only for production not dev
     println("\n\nPast https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=100&last_updated__gte=$TEMPdatabaseLastUpdated")
     //Updates previous launches
     val pastCallResponse=APIFetchRequest("https://lldev.thespacedevs.com/2.3.0/launches/previous/?mode=detailed&limit=100&last_updated__gte=$TEMPdatabaseLastUpdated") //passes the url as a string with the last updated dateTime as part of it in the API filter system
@@ -49,8 +59,6 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
         println("NEXT PAST RESPONSE")
         responseToDatabase(scheduleDao,APIFetchRequest(pastCallResponse.next))
     }
-    //TEST
-    TEMPdatabaseLastUpdated= LocalDateTime.of(2025,10,23,0,0)   //TEMP for TESTing and DEVelopment
 
     println("\n\nUpcoming https://lldev.thespacedevs.com/2.3.0/launches/upcoming/?mode=detailed&limit=100&last_updated__gte=$TEMPdatabaseLastUpdated")//LOG
     //Update upcoming launches
@@ -64,9 +72,6 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 }
 
 
-
-
-
 //parses the response and adds each launch to the database (also calls for a function to check for other tables that need adding to)
 private suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseData) {
     println("Count: ${callResponse.count}\n Next: ${callResponse.next}\n\n")//LOG
@@ -77,19 +82,18 @@ private suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: R
         val pastLaunchesJsonArray = callResponse.data
         pastLaunchesJsonArray?.forEachIndexed {i, launchJson ->              //goes though each launch in the return from the API
             val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch
-            println("NEXT ${i+1} Launch\n$launch\n\n")//LOG
+            println("\n\nLaunch number ${i+1}: \n$launch")//LOG
             if (launch != null) {
-                //TODO add a check for other tables
                 checkForOtherEntities(launchJson,launch, scheduleDao)
-
-                scheduleDao.upsertLaunch(launch) //adds to database if not null 
+                scheduleDao.upsertLaunch(launch) //adds to database if not null
 
 
 
 
             }
         }
-    } else {//if there is an error it logs it 
+    }
+    else {//if there is an error it logs it
         println(callResponse.errorType)//LOG
     }
 }
@@ -102,12 +106,11 @@ suspend fun parseLaunch(launchJsonEle: JsonElement,): Launch? {
     val missionName= (launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val padName= (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val agencyID= launchJsonObj["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content
-    val rocketID= launchJsonObj["rocket"]?.jsonObject?.get("id")?.jsonPrimitive?.content
+    val rocketID= launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content
     val rocketVersionID= launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content
     val launchTimeUTC: ZonedDateTime? =launchJsonObj["net"]?.jsonPrimitive?.content?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
     val padTimeZoneID = (launchJsonObj["pad"] as? JsonObject)?.get("location")?.jsonObject?.get("timezone_name")?.jsonPrimitive?.content?.takeIf { it.isNotBlank() } // <- ignore empty strings
-    val launchTimePad: ZonedDateTime? = if (launchTimeUTC != null && padTimeZoneID != null) {
-        runCatching { launchTimeUTC.withZoneSameInstant(ZoneId.of(padTimeZoneID)) }.getOrNull()//gets the pad launch timezone id and the UTC launch time and the applys it if one or both is null or the timezone id is invalid it returns the UTC time
+    val launchTimePad: ZonedDateTime? = if (launchTimeUTC != null && padTimeZoneID != null) {runCatching { launchTimeUTC.withZoneSameInstant(ZoneId.of(padTimeZoneID)) }.getOrNull()//gets the pad launch timezone id and the UTC launch time and the applys it if one or both is null or the timezone id is invalid it returns the UTC time
     } else {
         launchTimeUTC//Fallback
     }
@@ -143,7 +146,8 @@ suspend fun parseLaunch(launchJsonEle: JsonElement,): Launch? {
                         landingLocationAbbr = landingAbbrev,
                         landingLocationName = landingLocation,
                         landingType = landingTypeInForm,
-                        status =statusReuse
+                        status = statusReuse,
+                        downrangeDistanceKM =  stage.jsonObject["landing"]?.takeIf { it is JsonObject }?.jsonObject?.get("downrange_distance")?.jsonPrimitive?.doubleOrNull,reuseType = ReuseType.BOOSTER
                     )
             }
             ?: emptyList()
@@ -180,7 +184,9 @@ suspend fun parseLaunch(launchJsonEle: JsonElement,): Launch? {
                 landingLocationAbbr = capLandingAbbrev,
                 landingLocationName = capLandingLocation,
                 landingType = capLandingTypeInForm,
-                status =capStatusReuse
+                status =capStatusReuse,
+                downrangeDistanceKM = stage.jsonObject["landing"]?.jsonObject?.get("downrange_distance")?.jsonPrimitive?.doubleOrNull,
+                reuseType = ReuseType.SHIP_CAPSULE
             )
         }
             ?: emptyList()
@@ -220,8 +226,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement,): Launch? {
     val precisionAbbrev = launchJsonObj["net_precision"]?.jsonObject?.get("abbrev")?.jsonPrimitive?.content
     val weatherConcerns= launchJsonObj["weather_concerns"]?.jsonPrimitive?.content
  //creates a list of timelineEvents which can be nullable
-    val timelineEvents: List<TimelineEvent> =
-        launchJsonObj["timeline"]?.jsonArray?.mapNotNull { event ->
+    val timelineEvents: List<TimelineEvent> =launchJsonObj["timeline"]?.jsonArray?.mapNotNull { event ->
             val eventObj = event.jsonObject
             val abbrev = eventObj["type"]?.jsonObject?.get("abbrev")?.jsonPrimitive?.content
             val relativeTime = eventObj["relative_time"]?.jsonPrimitive?.content
@@ -289,30 +294,41 @@ suspend fun parseLaunch(launchJsonEle: JsonElement,): Launch? {
 
 //check if agency,rocket,version or reuse need a record added to and if they are new adds them to the db
 suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,scheduleDao: ScheduleDao){
+
+
+    //TODO currently will not update only make, need to add update but ideally without parsing each-one
     if (launch.agencyID!=null ) {
         if (!scheduleDao.doesAgencyExists(launch.agencyID)) {
-            println("${launch.agencyName} does not exist")
+            println("Agency: ${launch.agencyName} does not exist")
             scheduleDao.upsertAgency(parseAgency(launchJsonEle))
+        }else{
+            println("Agency:${launch.agencyName} already exists")
         }
     }
     if (launch.rocketID!=null){
         if (!scheduleDao.doesRocketExists(launch.rocketID)) {
-            println("${launch.rocketName} does not exist")
+            println("Rocket: ${launch.rocketName}, ${launch.rocketID} does not exist")
             scheduleDao.upsertRocket(parseRocket(launchJsonEle))
+        }else{
+            println("Rocket: ${launch.rocketName} already exists")
         }
     }
     if (launch.rocketVersionID!=null){
         if (!scheduleDao.doesRocketVersionExists(launch.rocketVersionID)) {
-            println("${launch.rocketVersionID} does not exist")
+            println("Version: ${launch.rocketVariantName} does not exist")
             scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle))
+        }else{
+            println("Version: ${launch.rocketVariantName} already exists")
         }
     }
     if (!launch.reusableParts.isEmpty()) {
         for (reusablePart in launch.reusableParts) {
             if (reusablePart.reuseID != null) {
                 if (!scheduleDao.doesReuseExists(reusablePart.reuseID!!)) {
-                    println("${reusablePart.reuseName} does not exist")
+                    println("Reusable: ${reusablePart.reuseName} does not exist")
                     scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart))
+                }else{
+                    println("Reusable:${reusablePart.reuseName} already exists")
                 }
             }
         }
@@ -327,8 +343,15 @@ fun parseAgency(launchJsonEle: JsonElement): Agency {
        country.jsonObject["name"]?.jsonPrimitive?.content
     }?: emptyList()
     val administratorPair= agencyJsonObj?.get("administrator")?.jsonPrimitive?.content
-    //TODO get every thing before the : and pass through the enum class and everything after as the name
-
+    val leaderType=when(administratorPair?.substringBefore(":")){
+        "CEO" -> LeaderType.CEO
+        "Administrator" -> LeaderType.ADMINISTRATOR
+        "Chairman" -> LeaderType.CHAIRMAN
+        "President" -> LeaderType.PRESIDENT
+        "Chairman & President" -> LeaderType.CHAIRMAN_PRESIDENT
+        else -> LeaderType.UnknownLeaderType
+    }
+    val leaderName= administratorPair?.substringAfter(":")
 
     val toReturn = Agency(
         agencyID = agencyJsonObj?.get("id")?.jsonPrimitive?.content!!,
@@ -336,15 +359,99 @@ fun parseAgency(launchJsonEle: JsonElement): Agency {
         launchNumber = agencyJsonObj["total_launch_count"]?.jsonPrimitive?.intOrNull ?: 0,
         countries =  countriesList,
         description = agencyJsonObj["description"]?.jsonPrimitive?.content,
-        leader = ,
-        leaderType = ,
-        founded = agencyJsonObj["founding_year"]?.jsonPrimitive?.int ?: 0 ,
-        logoURL = agencyJsonObj["logo"]?.jsonObject?.get("image_url")?.jsonPrimitive?.content,
+        leader = leaderName,
+        leaderType = leaderType,
+        founded = agencyJsonObj["founding_year"]?.takeIf { it !is JsonNull }?.jsonPrimitive?.intOrNull?: 0,
+    logoURL = agencyJsonObj["logo"]?.jsonObject?.get("image_url")?.jsonPrimitive?.content,
         websiteURL = agencyJsonObj["info_url"]?.jsonPrimitive?.content,
         wikiURL =  agencyJsonObj["wiki_url"]?.jsonPrimitive?.content,
-        socialsURL = ,
-        youtubeURL =
+        socialsURL =null ,   //TODO seems to be broken
+        youtubeURL =null    //TODO seems to be broken
     )
+    println(toReturn)//LOG
     return toReturn
 }
 
+fun parseRocket(launchJsonEle: JsonElement): Rocket {
+    val rocketJsonObj=launchJsonEle.jsonObject["rocket"]?.jsonObject  //turns the element into an object
+
+    val toReturn = Rocket(
+        rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
+        name = rocketJsonObj?.get("configuration")?.jsonObject?.get("name")?.jsonPrimitive?.content,
+        agencyID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        imageURL = rocketJsonObj?.get("configuration")?.jsonObject?.get("image")?.jsonObject?.get("image_url")?.jsonPrimitive?.content,
+        imageCredit= rocketJsonObj?.get("configuration")?.jsonObject?.get("image")?.jsonObject?.get("credit")?.jsonPrimitive?.content,
+        licenseType= rocketJsonObj?.get("configuration")?.jsonObject?.get("image")?.jsonObject?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content,
+        desc = rocketJsonObj?.get("configuration")?.jsonObject?.get("description")?.jsonPrimitive?.content
+    )
+    println(toReturn)//LOG
+    return toReturn
+}
+
+fun parseRocketVersion(launchJsonEle: JsonElement): RocketVersion {
+    val rocketVersionJsonObj=launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject  //turns the element into an object
+
+    val toReturn =RocketVersion(
+        rocketVersionID = rocketVersionJsonObj?.get("id")?.jsonPrimitive?.content!!,
+        name = rocketVersionJsonObj["full_name"]?.jsonPrimitive?.content,
+        active = rocketVersionJsonObj["active"]?.jsonPrimitive?.boolean,
+        launches = rocketVersionJsonObj["total_launch_count"]?.jsonPrimitive?.int,
+        activeSince = rocketVersionJsonObj["maiden_flight"]?.takeIf { it !is JsonNull }?.jsonPrimitive?.content?.let(LocalDate::parse),
+        rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        diameterMe = rocketVersionJsonObj["diameter"]?.jsonPrimitive?.doubleOrNull,
+        lengthMe = rocketVersionJsonObj["length"]?.jsonPrimitive?.doubleOrNull,
+        launchCost = rocketVersionJsonObj["launch_cost"]?.jsonPrimitive?.intOrNull,
+        launchMass = rocketVersionJsonObj["launch_mass"]?.jsonPrimitive?.doubleOrNull,
+        leoCapacity = rocketVersionJsonObj["leo_capacity"]?.jsonPrimitive?.doubleOrNull,
+        gtoCapacity = rocketVersionJsonObj["gto_capacity"]?.jsonPrimitive?.doubleOrNull,
+        liftoffThrust = rocketVersionJsonObj["to_thrust"]?.jsonPrimitive?.doubleOrNull,
+        imageURL = rocketVersionJsonObj["image"]?.jsonObject?.get("image_url")?.jsonPrimitive?.content,
+        imageCredit= rocketVersionJsonObj["image"]?.jsonObject?.get("credit")?.jsonPrimitive?.content,
+        licenseType= rocketVersionJsonObj["image"]?.jsonObject?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content
+    )
+    println(toReturn)//LOG
+    return toReturn
+}
+
+fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable): Reuse {
+    val status: StatusReuse
+    if (reusablePart.reuseType== ReuseType.BOOSTER){
+        val statusID= launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("status")?.jsonObject?.get("id")?.jsonPrimitive?.content
+        status=when(statusID){
+            "1"-> StatusReuse.RETIRED
+            "2"-> StatusReuse.EXPENDED
+            "3"-> StatusReuse.ACTIVE
+            "4"-> StatusReuse.LOST
+            "5"-> StatusReuse.SCRAPPED
+            "6"-> StatusReuse.CONVERTED
+            "7"-> StatusReuse.DESTROYED
+            else -> StatusReuse.UNKNOWN
+        }
+    }else if (reusablePart.reuseType== ReuseType.SHIP_CAPSULE){
+        val statusID= launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("spacecraft")?.jsonObject?.get("status")?.jsonObject?.get("id")?.jsonPrimitive?.content
+        status=when (statusID) {
+            "1"-> StatusReuse.ACTIVE
+            "2"-> StatusReuse.RETIRED
+            "3"-> StatusReuse.DESTROYED
+            "4"-> StatusReuse.EXPENDED
+            else -> StatusReuse.UNKNOWN
+        }
+    }else{
+        status= StatusReuse.UNKNOWN
+    }
+
+
+    val toReturn=Reuse(
+        reuseID = reusablePart.reuseID!!,
+        name = reusablePart.reuseName,
+        activeSince = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("launch_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("first_launch_date")?.jsonPrimitive?.content?.let { LocalDate.parse(it) },
+        versionID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
+        rocketID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        reuseType = reusablePart.reuseType,
+        status =status
+    )
+    println(toReturn)//LOG
+    return toReturn
+}

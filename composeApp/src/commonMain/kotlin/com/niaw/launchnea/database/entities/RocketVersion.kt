@@ -3,7 +3,7 @@ package com.niaw.launchnea.database.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import java.util.Date
+import java.time.LocalDate
 
 @Entity(
     foreignKeys = [
@@ -23,14 +23,24 @@ import java.util.Date
 data class RocketVersion(
     @PrimaryKey(autoGenerate = false)
     var rocketVersionID: String,
-    var name: String,
-    var active: Boolean,
-    var flights: Int,
-    var activeSince: Date? = null,
-    var rocketID: String,
-    var agencyID: String,
+    var name: String? = null,
+    var active: Boolean? = null,
+    var launches: Int? = null,
+    var activeSince: LocalDate? = null,
+    var rocketID: String? = null,
+    var agencyID: String? = null,
+    var diameterMe: Double? = null,
+    var lengthMe: Double? = null,
+    var launchCost: Int? = null,
+    var launchMass: Double? = null,
+    var leoCapacity: Double? = null,
+    var gtoCapacity: Double? = null,
+    var liftoffThrust: Double? = null,
+
 
     var imageURL: String? =null,
+    var imageCredit: String? = null,
+    var licenseType: String? = null,
 
 
     )

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2d032ad59dfc8b80f9f7cf9d0faf1b62",
+    "identityHash": "b70357a9879be0e4fb160bddafa2bcd5",
     "entities": [
       {
         "tableName": "Agency",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`agencyID` TEXT NOT NULL, `name` TEXT NOT NULL, `launchNumber` INTEGER NOT NULL, `country` TEXT NOT NULL, `description` TEXT NOT NULL, `leader` TEXT NOT NULL, `leaderType` TEXT NOT NULL, `founded` INTEGER NOT NULL, `logoURL` TEXT, `websiteURL` TEXT, `wikiURL` TEXT, `socialsURL` TEXT, `youtubeURL` TEXT, PRIMARY KEY(`agencyID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`agencyID` TEXT NOT NULL, `name` TEXT, `launchNumber` INTEGER NOT NULL, `countries` TEXT NOT NULL, `description` TEXT, `leader` TEXT, `leaderType` TEXT NOT NULL, `founded` INTEGER NOT NULL, `logoURL` TEXT, `websiteURL` TEXT, `wikiURL` TEXT, `socialsURL` TEXT, `youtubeURL` TEXT, PRIMARY KEY(`agencyID`))",
         "fields": [
           {
             "fieldPath": "agencyID",
@@ -17,8 +17,7 @@
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "launchNumber",
@@ -27,22 +26,20 @@
             "notNull": true
           },
           {
-            "fieldPath": "country",
-            "columnName": "country",
+            "fieldPath": "countries",
+            "columnName": "countries",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "description",
             "columnName": "description",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "leader",
             "columnName": "leader",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "leaderType",
@@ -352,7 +349,7 @@
       },
       {
         "tableName": "Reuse",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `versionID` TEXT NOT NULL, `rocketID` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`reuseID`), FOREIGN KEY(`versionID`) REFERENCES `RocketVersion`(`rocketVersionID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT, `activeSince` TEXT, `versionID` TEXT NOT NULL, `rocketID` TEXT, `agencyID` TEXT, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`reuseID`), FOREIGN KEY(`versionID`) REFERENCES `RocketVersion`(`rocketVersionID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "reuseID",
@@ -363,19 +360,12 @@
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "flights",
-            "columnName": "flights",
-            "affinity": "INTEGER",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "activeSince",
             "columnName": "activeSince",
-            "affinity": "INTEGER"
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "versionID",
@@ -386,14 +376,12 @@
           {
             "fieldPath": "rocketID",
             "columnName": "rocketID",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "agencyID",
             "columnName": "agencyID",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "reuseType",
@@ -452,7 +440,7 @@
       },
       {
         "tableName": "Rocket",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketID` TEXT NOT NULL, `name` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `imageURL` TEXT NOT NULL, `desc` TEXT NOT NULL, PRIMARY KEY(`rocketID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketID` TEXT NOT NULL, `name` TEXT, `agencyID` TEXT, `imageURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `desc` TEXT, PRIMARY KEY(`rocketID`), FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "rocketID",
@@ -463,26 +451,32 @@
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "agencyID",
             "columnName": "agencyID",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "imageURL",
             "columnName": "imageURL",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageCredit",
+            "columnName": "imageCredit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "licenseType",
+            "columnName": "licenseType",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "desc",
             "columnName": "desc",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -490,11 +484,24 @@
           "columnNames": [
             "rocketID"
           ]
-        }
+        },
+        "foreignKeys": [
+          {
+            "table": "Agency",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "agencyID"
+            ],
+            "referencedColumns": [
+              "agencyID"
+            ]
+          }
+        ]
       },
       {
         "tableName": "RocketVersion",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT NOT NULL, `active` INTEGER NOT NULL, `flights` INTEGER NOT NULL, `activeSince` INTEGER, `rocketID` TEXT NOT NULL, `agencyID` TEXT NOT NULL, `imageURL` TEXT, PRIMARY KEY(`rocketVersionID`), FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT, `active` INTEGER, `launches` INTEGER, `activeSince` TEXT, `rocketID` TEXT, `agencyID` TEXT, `diameterMe` REAL, `lengthMe` REAL, `launchCost` INTEGER, `launchMass` REAL, `leoCapacity` REAL, `gtoCapacity` REAL, `liftoffThrust` REAL, `imageURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, PRIMARY KEY(`rocketVersionID`), FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "rocketVersionID",
@@ -505,41 +512,81 @@
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "active",
             "columnName": "active",
-            "affinity": "INTEGER",
-            "notNull": true
+            "affinity": "INTEGER"
           },
           {
-            "fieldPath": "flights",
-            "columnName": "flights",
-            "affinity": "INTEGER",
-            "notNull": true
+            "fieldPath": "launches",
+            "columnName": "launches",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "activeSince",
             "columnName": "activeSince",
-            "affinity": "INTEGER"
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "rocketID",
             "columnName": "rocketID",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "agencyID",
             "columnName": "agencyID",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "diameterMe",
+            "columnName": "diameterMe",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "lengthMe",
+            "columnName": "lengthMe",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "launchCost",
+            "columnName": "launchCost",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "launchMass",
+            "columnName": "launchMass",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "leoCapacity",
+            "columnName": "leoCapacity",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "gtoCapacity",
+            "columnName": "gtoCapacity",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "liftoffThrust",
+            "columnName": "liftoffThrust",
+            "affinity": "REAL"
           },
           {
             "fieldPath": "imageURL",
             "columnName": "imageURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageCredit",
+            "columnName": "imageCredit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "licenseType",
+            "columnName": "licenseType",
             "affinity": "TEXT"
           }
         ],
@@ -643,7 +690,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2d032ad59dfc8b80f9f7cf9d0faf1b62')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b70357a9879be0e4fb160bddafa2bcd5')"
     ]
   }
 }

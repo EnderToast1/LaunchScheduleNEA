@@ -31,14 +31,16 @@ enum class StatusReuse {
 
 enum class LeaderType {
     CEO,
-    Admin,
+    ADMINISTRATOR,
+    CHAIRMAN,
+    PRESIDENT,
+    CHAIRMAN_PRESIDENT,
     UnknownLeaderType
 }
 @Serializable
 enum class ReuseType{
     BOOSTER,
-    SHIP,
-    CAPSULE,
+    SHIP_CAPSULE,
     UNKNOWN
 }
 
@@ -71,7 +73,9 @@ data class Reusable(
     var flightNumber: Int?=null,
     var landingLocationAbbr: String?=null,
     var landingLocationName: String?=null,
+    var downrangeDistanceKM: Double?=null,
     var landingType: LandingType?=null,
+    var reuseType: ReuseType,
     var status: Boolean?= false
 )
 

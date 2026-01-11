@@ -4,7 +4,7 @@
         Create Database schemas with all tables,
         create actual database in both local types (and ,jvm)
 
-        Function for parsing JSON 🧪(none)🧪(R)🧪(V)🧪(A)🧪(RV)🧪(RA)🧪(VA)🧪(RVA):
+        ✔ Function for parsing JSON 🧪(none)🧪(R)🧪(V)🧪(A)🧪(RV)🧪(RA)🧪(VA)🧪(RVA):
            1) Pass into Launch object then add to list
            2) check if rocket, version or agency exists
            3) if not then add create the object and add to the respective lists
@@ -12,7 +12,7 @@
            5) return flag
 
 
-        Function for API call 🧪(Internet)🧪(No connection)🧪(call limit):
+        ✔ Function for API call 🧪(Internet)🧪(No connection)🧪(call limit):
             1) check internet
             2) call API URL given
             3) check results status code is OK (200)
@@ -39,7 +39,7 @@
             3) call filter function
             4) return results
 
-        Function for updating databases:
+        ✔ Function for updating databases:
             1) update Upcoming
             2) find last past call
             3) from past call -1 update past

@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.ReuseType
 import com.niaw.launchnea.StatusReuse
-import java.util.Date
+import java.time.LocalDate
 
 @Entity(foreignKeys = [
     ForeignKey(
@@ -30,12 +30,11 @@ import java.util.Date
 data class Reuse(
     @PrimaryKey(autoGenerate = false)
     var reuseID: String,
-    var name: String,
-    var flights: Int=0,
-    var activeSince: Date? = null,
+    var name: String? = null,
+    var activeSince: LocalDate? = null,
     var versionID:String,
-    var rocketID:String,
-    var agencyID:String,
+    var rocketID:String? = null,
+    var agencyID:String? = null,
     var reuseType: ReuseType = ReuseType.UNKNOWN,
     var status: StatusReuse = StatusReuse.UNKNOWN
   )

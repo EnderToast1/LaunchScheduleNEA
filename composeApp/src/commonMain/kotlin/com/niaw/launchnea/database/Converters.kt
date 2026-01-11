@@ -8,12 +8,12 @@ import com.niaw.launchnea.TimelineEvent
 import kotlinx.serialization.json.Json
 import java.time.*
 import java.time.format.DateTimeFormatter
-import java.util.Date
+import java.time.LocalDate
 
 class Converters {
     //A set of variable type converters so abstract types can be placed into the database, and retrieved from it called from the creation of the db
     
-    // Vaariable to set the rules for turning into a JSON
+    // Variable to set the rules for turning into a JSON
     private val json = Json { ignoreUnknownKeys = true }
 
     //Variable to help convert dateTime to a string
@@ -24,8 +24,13 @@ class Converters {
     @TypeConverter fun stringToZonedDateTime(value: String?): ZonedDateTime? = value?.let { ZonedDateTime.parse(it, zonedFormatter) }
 
     //Date ↔ Long
-    @TypeConverter fun dateToTimeStamp (date: Date): Long = date.time
-    @TypeConverter fun timeStampToDateTime(timeStamp: Long): Date = Date.from(Instant.ofEpochMilli(timeStamp))
+    @TypeConverter fun fromLocalDate(date: LocalDate?): String? = date?.toString()
+    @TypeConverter fun toLocalDate(value: String?): LocalDate? = value?.let { LocalDate.parse(it)
+    }
+
+    // List<String?>  ↔ JSON
+    @TypeConverter fun listToString(list: List<String?>?): String? = list?.let { json.encodeToString(it) }
+    @TypeConverter fun stringToList(value: String?): List<String?>? = value?.let { json.decodeFromString(it) }
 
     //  List<Reusable> ↔ JSON
     @TypeConverter fun reusableToString(list: List<Reusable>?): String? = list?.let { json.encodeToString(it) }
