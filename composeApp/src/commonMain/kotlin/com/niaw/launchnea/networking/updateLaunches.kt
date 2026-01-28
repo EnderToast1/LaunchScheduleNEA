@@ -296,7 +296,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement,): Launch? {
 suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,scheduleDao: ScheduleDao){
 
 
-    //TODO currently will not update only make, need to add update but ideally without parsing each-one
+    //TODO currently will not update only make, need to add update but ideally without parsing each-one  TODO Need to add last called as a prameter for each object and add a check for if less then lastupdated() in the of selection
     if (launch.agencyID!=null ) {
         if (!scheduleDao.doesAgencyExists(launch.agencyID)) {
             println("Agency: ${launch.agencyName} does not exist")
