@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
             entity = Launch::class,
             parentColumns = ["launchID"],
             childColumns = ["launchID"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE  //TODO Need to change so that it does not delete the actual launch
         )
     ],
     indices = [Index("launchID")]
