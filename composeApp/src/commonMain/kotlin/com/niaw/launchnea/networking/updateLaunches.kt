@@ -299,36 +299,36 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     //TODO currently will not update only make, need to add update but ideally without parsing each-one  TODO Need to add last called as a prameter for each object and add a check for if less then lastupdated() in the of selection
     if (launch.agencyID!=null ) {
         if (!scheduleDao.doesAgencyExists(launch.agencyID) || scheduleDao.doesAgencyNeedUpdating(launch.agencyID, schedulaDao.getMetaData("lastUpdated"))) {
-            println("Agency: ${launch.agencyName} does not exist")
+            println("Agency: ${launch.agencyName} does not exist or needs updating")
             scheduleDao.upsertAgency(parseAgency(launchJsonEle))
         }else{
-            println("Agency:${launch.agencyName} already exists")
+            println("Agency:${launch.agencyName} already exists and is updated")
         }
     }
     if (launch.rocketID!=null){
-        if (!scheduleDao.doesRocketExists(launch.rocketID)) {
-            println("Rocket: ${launch.rocketName}, ${launch.rocketID} does not exist")
+        if (!scheduleDao.doesRocketExists(launch.rocketID)|| scheduleDao.doesRocketNeedUpdating(launch.rocketID, schedulaDao.getMetaData("lastUpdated"))) {
+            println("Rocket: ${launch.rocketName} does not exist or needs updating")
             scheduleDao.upsertRocket(parseRocket(launchJsonEle))
         }else{
-            println("Rocket: ${launch.rocketName} already exists")
+            println("Rocket: ${launch.rocketName} already exists and is updated")
         }
     }
     if (launch.rocketVersionID!=null){
-        if (!scheduleDao.doesRocketVersionExists(launch.rocketVersionID)) {
-            println("Version: ${launch.rocketVariantName} does not exist")
+        if (!scheduleDao.doesRocketVersionExists(launch.rocketVersionID)|| scheduleDao.doesRocketVersionNeedUpdating(launch.rocketVersionID, schedulaDao.getMetaData("lastUpdated"))) {
+            println("Version: ${launch.rocketVariantName} does not exist or needs updating")
             scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle))
         }else{
-            println("Version: ${launch.rocketVariantName} already exists")
+            println("Version: ${launch.rocketVariantName} already exists and is updated")
         }
     }
     if (!launch.reusableParts.isEmpty()) {
         for (reusablePart in launch.reusableParts) {
             if (reusablePart.reuseID != null) {
-                if (!scheduleDao.doesReuseExists(reusablePart.reuseID!!)) {
-                    println("Reusable: ${reusablePart.reuseName} does not exist")
+                if (!scheduleDao.doesReuseExists(reusablePart.reuseID!!)|| scheduleDao.doesReuseNeedUpdating(reusablePart.reuseID, schedulaDao.getMetaData("lastUpdated"))) {
+                    println("Reusable: ${reusablePart.reuseName} does not exist or needs updating")
                     scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart))
                 }else{
-                    println("Reusable:${reusablePart.reuseName} already exists")
+                    println("Reusable:${reusablePart.reuseName} already exists and is updated")
                 }
             }
         }
@@ -366,7 +366,8 @@ fun parseAgency(launchJsonEle: JsonElement): Agency {
         websiteURL = agencyJsonObj["info_url"]?.jsonPrimitive?.content,
         wikiURL =  agencyJsonObj["wiki_url"]?.jsonPrimitive?.content,
         socialsURL =null ,   //TODO seems to be broken
-        youtubeURL =null    //TODO seems to be broken
+        youtubeURL =null,    //TODO seems to be broken
+        lastUpdated=schedulaDao.getMetaData("lastUpdated")?.let{ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)}
     )
     println(toReturn)//LOG
     return toReturn
@@ -382,7 +383,8 @@ fun parseRocket(launchJsonEle: JsonElement): Rocket {
         imageURL = rocketJsonObj?.get("configuration")?.jsonObject?.get("image")?.jsonObject?.get("image_url")?.jsonPrimitive?.content,
         imageCredit= rocketJsonObj?.get("configuration")?.jsonObject?.get("image")?.jsonObject?.get("credit")?.jsonPrimitive?.content,
         licenseType= rocketJsonObj?.get("configuration")?.jsonObject?.get("image")?.jsonObject?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content,
-        desc = rocketJsonObj?.get("configuration")?.jsonObject?.get("description")?.jsonPrimitive?.content
+        desc = rocketJsonObj?.get("configuration")?.jsonObject?.get("description")?.jsonPrimitive?.content,
+        lastUpdated=schedulaDao.getMetaData("lastUpdated")?.let{ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)}
     )
     println(toReturn)//LOG
     return toReturn
@@ -408,7 +410,8 @@ fun parseRocketVersion(launchJsonEle: JsonElement): RocketVersion {
         liftoffThrust = rocketVersionJsonObj["to_thrust"]?.jsonPrimitive?.doubleOrNull,
         imageURL = rocketVersionJsonObj["image"]?.jsonObject?.get("image_url")?.jsonPrimitive?.content,
         imageCredit= rocketVersionJsonObj["image"]?.jsonObject?.get("credit")?.jsonPrimitive?.content,
-        licenseType= rocketVersionJsonObj["image"]?.jsonObject?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content
+        licenseType= rocketVersionJsonObj["image"]?.jsonObject?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content,
+        lastUpdated=schedulaDao.getMetaData("lastUpdated")?.let{ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)}
     )
     println(toReturn)//LOG
     return toReturn
@@ -450,7 +453,8 @@ fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable): Reuse {
         rocketID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
         reuseType = reusablePart.reuseType,
-        status =status
+        status =status,
+        lastUpdated=schedulaDao.getMetaData("lastUpdated")?.let{ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)}
     )
     println(toReturn)//LOG
     return toReturn
