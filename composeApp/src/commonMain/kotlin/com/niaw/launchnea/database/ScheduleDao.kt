@@ -80,6 +80,9 @@ interface ScheduleDao {
     @Query("SELECT EXISTS(SELECT 1 FROM RocketVersion WHERE rocketVersionID = :id)")
     suspend fun doesRocketVersionExists(id: String): Boolean
 
+    @Query("SELECT EXISTS(SELECT 1 FROM Agency WHERE id = :id AND lastUpdated < :dateTime)")
+    suspend fun doesAgencyNeedUpdating(id: String, dateTime: String): Boolean
+
 
 
 }
