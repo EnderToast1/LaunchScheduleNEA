@@ -36,5 +36,6 @@ data class Reuse(
     var rocketID:String? = null,
     var agencyID:String? = null,
     var reuseType: ReuseType = ReuseType.UNKNOWN,
-    var status: StatusReuse = StatusReuse.UNKNOWN
+    var status: StatusReuse = StatusReuse.UNKNOWN,
+    var lastUpdated: ZonedDateTime?=null
   )
