@@ -23,5 +23,5 @@ data class Rocket(
     var imageCredit: String? = null,
     var licenseType: String? = null,
     var desc: String? =null, //long
-
+    var lastUpdated: ZonedDateTime?=null
   )
