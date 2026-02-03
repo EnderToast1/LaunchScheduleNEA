@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.LeaderType
+import java.time.ZonedDateTime
 
 @Entity
 

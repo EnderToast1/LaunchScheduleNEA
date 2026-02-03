@@ -15,18 +15,6 @@ fun App(scheduleDao: ScheduleDao) {
         LaunchedEffect(Unit){
             updateLaunchData(scheduleDao)
             println("Done updateLaunchData")
-            val userInput = "9642cfef-4687-495a-af2e-2ac81fa1e12a"
-            val star= StarredLaunch(userInput)
-            if (scheduleDao.launchExistsById(userInput)) {
-                scheduleDao.starLaunch(star)
-
-            }
-            else{
-                println("not found")
-            }
-            scheduleDao.getStarredLaunches().collect {launch ->
-                println(launch)
-            }
         }
 
     }

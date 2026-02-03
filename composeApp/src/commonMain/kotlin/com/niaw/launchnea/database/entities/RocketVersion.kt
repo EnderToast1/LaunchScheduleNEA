@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.LocalDate
+import java.time.ZonedDateTime
 
 @Entity(
     foreignKeys = [

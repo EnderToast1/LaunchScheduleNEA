@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import com.niaw.launchnea.ReuseType
 import com.niaw.launchnea.StatusReuse
 import java.time.LocalDate
+import java.time.ZonedDateTime
 
 @Entity(foreignKeys = [
     ForeignKey(

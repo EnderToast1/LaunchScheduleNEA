@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b70357a9879be0e4fb160bddafa2bcd5",
+    "identityHash": "09f1104ad9a622f9bad2af64c04ea6c2",
     "entities": [
       {
         "tableName": "Agency",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`agencyID` TEXT NOT NULL, `name` TEXT, `launchNumber` INTEGER NOT NULL, `countries` TEXT NOT NULL, `description` TEXT, `leader` TEXT, `leaderType` TEXT NOT NULL, `founded` INTEGER NOT NULL, `logoURL` TEXT, `websiteURL` TEXT, `wikiURL` TEXT, `socialsURL` TEXT, `youtubeURL` TEXT, PRIMARY KEY(`agencyID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`agencyID` TEXT NOT NULL, `name` TEXT, `launchNumber` INTEGER NOT NULL, `countries` TEXT NOT NULL, `description` TEXT, `leader` TEXT, `leaderType` TEXT NOT NULL, `founded` INTEGER NOT NULL, `logoURL` TEXT, `websiteURL` TEXT, `wikiURL` TEXT, `socialsURL` TEXT, `youtubeURL` TEXT, `lastUpdated` TEXT, PRIMARY KEY(`agencyID`))",
         "fields": [
           {
             "fieldPath": "agencyID",
@@ -76,6 +76,11 @@
           {
             "fieldPath": "youtubeURL",
             "columnName": "youtubeURL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
             "affinity": "TEXT"
           }
         ],
@@ -262,6 +267,35 @@
             "launchID"
           ]
         },
+        "indices": [
+          {
+            "name": "index_Launch_rocketVersionID",
+            "unique": false,
+            "columnNames": [
+              "rocketVersionID"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Launch_rocketVersionID` ON `${TABLE_NAME}` (`rocketVersionID`)"
+          },
+          {
+            "name": "index_Launch_rocketID",
+            "unique": false,
+            "columnNames": [
+              "rocketID"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Launch_rocketID` ON `${TABLE_NAME}` (`rocketID`)"
+          },
+          {
+            "name": "index_Launch_agencyID",
+            "unique": false,
+            "columnNames": [
+              "agencyID"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Launch_agencyID` ON `${TABLE_NAME}` (`agencyID`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "RocketVersion",
@@ -349,7 +383,7 @@
       },
       {
         "tableName": "Reuse",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT, `activeSince` TEXT, `versionID` TEXT NOT NULL, `rocketID` TEXT, `agencyID` TEXT, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`reuseID`), FOREIGN KEY(`versionID`) REFERENCES `RocketVersion`(`rocketVersionID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT, `activeSince` TEXT, `versionID` TEXT NOT NULL, `rocketID` TEXT, `agencyID` TEXT, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, `lastUpdated` TEXT, PRIMARY KEY(`reuseID`), FOREIGN KEY(`versionID`) REFERENCES `RocketVersion`(`rocketVersionID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "reuseID",
@@ -394,6 +428,11 @@
             "columnName": "status",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -440,7 +479,7 @@
       },
       {
         "tableName": "Rocket",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketID` TEXT NOT NULL, `name` TEXT, `agencyID` TEXT, `imageURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `desc` TEXT, PRIMARY KEY(`rocketID`), FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketID` TEXT NOT NULL, `name` TEXT, `agencyID` TEXT, `imageURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `desc` TEXT, `lastUpdated` TEXT, PRIMARY KEY(`rocketID`), FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "rocketID",
@@ -477,6 +516,11 @@
             "fieldPath": "desc",
             "columnName": "desc",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
+            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -501,7 +545,7 @@
       },
       {
         "tableName": "RocketVersion",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT, `active` INTEGER, `launches` INTEGER, `activeSince` TEXT, `rocketID` TEXT, `agencyID` TEXT, `diameterMe` REAL, `lengthMe` REAL, `launchCost` INTEGER, `launchMass` REAL, `leoCapacity` REAL, `gtoCapacity` REAL, `liftoffThrust` REAL, `imageURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, PRIMARY KEY(`rocketVersionID`), FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT, `active` INTEGER, `launches` INTEGER, `activeSince` TEXT, `rocketID` TEXT, `agencyID` TEXT, `diameterMe` REAL, `lengthMe` REAL, `launchCost` INTEGER, `launchMass` REAL, `leoCapacity` REAL, `gtoCapacity` REAL, `liftoffThrust` REAL, `imageURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `lastUpdated` TEXT, PRIMARY KEY(`rocketVersionID`), FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "rocketVersionID",
@@ -587,6 +631,11 @@
           {
             "fieldPath": "licenseType",
             "columnName": "licenseType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
             "affinity": "TEXT"
           }
         ],
@@ -690,7 +739,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b70357a9879be0e4fb160bddafa2bcd5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '09f1104ad9a622f9bad2af64c04ea6c2')"
     ]
   }
 }

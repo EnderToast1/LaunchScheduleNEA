@@ -7,6 +7,7 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
+import io.ktor.network.sockets.SocketTimeoutException
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
@@ -16,13 +17,15 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.net.http.HttpConnectTimeoutException
+import java.net.http.HttpTimeoutException
 
 //Creates an object to connect to the internet and perform the requests
 val httpClient = HttpClient(OkHttp.create()) {
     install(HttpTimeout) {            //Extends Time to time out as the API is sometime slow
-        requestTimeoutMillis = 30*1000 // 30 seconds
+        requestTimeoutMillis = 60*1000 // 60 seconds
         connectTimeoutMillis = 2*1000  //2 seconds
-        socketTimeoutMillis = 30*1000   //30 seconds
+        socketTimeoutMillis = 60*1000   //60 seconds
     }
     install(ContentNegotiation){        //adds JSON functionality to the object
         json(
@@ -40,12 +43,17 @@ val httpClient = HttpClient(OkHttp.create()) {
         val response = try {
             httpClient.get(urlString)                                 //Tries to get request the data from the api
         } catch (_: HttpRequestTimeoutException) {
-              return ResponseData(null, NetworkError.REQUEST_TIMEOUT)          //If the Request timeout it catches it and returns the error
+            return ResponseData(null, NetworkError.REQUEST_TIMEOUT)          //If the Request timeout it catches it and returns the error
+        }catch (_: HttpConnectTimeoutException){
+            return ResponseData(null, NetworkError.CONNECTION_TIMEOUT)
+        }catch (_: SocketTimeoutException){
+            return ResponseData(null, NetworkError.SOCKET_TIMEOUT)
         }catch(_: UnresolvedAddressException){
             return ResponseData(null,NetworkError.NO_INTERNET)                //If the address is invalid for some reason it catches it and returns the error
         }catch(_: SerializationException){
             return ResponseData(null,NetworkError.SERIALIZATION)       //If there is a JSON error it catches it and returns the error
-        }catch(_: Exception){
+        }catch(e: Exception){
+            println(e)
             return ResponseData(null, NetworkError.UNKNOWN)
         }
         return when(response.status.value) {

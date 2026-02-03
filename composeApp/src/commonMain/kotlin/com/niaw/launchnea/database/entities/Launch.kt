@@ -2,6 +2,7 @@ package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.Location
 import com.niaw.launchnea.ProgramType
@@ -29,7 +30,12 @@ import java.time.ZonedDateTime
             parentColumns = ["agencyID"],
             childColumns = ["agencyID"],
             onDelete = ForeignKey.CASCADE
-        )]
+        )],
+    indices = [
+        Index("rocketVersionID"),
+        Index("rocketID"),
+        Index("agencyID")
+    ]
 )
 data class Launch(
     //database search and filter terms

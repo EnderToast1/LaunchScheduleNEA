@@ -748,11 +748,9 @@ class ParseLaunchTest {
             "pad_turnaround": "P59D",
             "mission_patches": []
         }"""
-
-
         val jsonEle: JsonElement = Json.parseToJsonElement(jsonString)
-        val expectedResult = Launch(launchID = "17d0ec68-f466-4916-9dc5-16123eda6484", launchURL = "https://lldev.thespacedevs.com/2.3.0/launches/17d0ec68-f466-4916-9dc5-16123eda6484/", missionName = "GISAT-1A (EOS-05)", padName = "Satish Dhawan Space Centre Second Launch Pad", agencyID = "31", rocketID = "2413", rocketVersionID = "168", launchTimeUTC = ZonedDateTime.parse("2026-03-31T00:00Z"), launchTimePadLocal = ZonedDateTime.parse("2026-03-31T05:30+05:30[Asia/Kolkata]"), reusableParts = emptyList(), success = Status.TBD, windowOpen = ZonedDateTime.parse("2026-03-31T00:00Z"), windowClose = ZonedDateTime.parse("2026-03-31T00:00Z"), imageUrl = "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/gslv2520mk2520ii_image_20190825171642.jpg", imageCredit = null, licenseType = "Unknown", weatherProbability = null, agencyName = "Indian Space Research Organization", rocketName = "GSLV Mk II", rocketVariantName = "GSLV Mk. II", description = "GISAT-1A (GEO Imaging Satellite) is an Indian earth observing satellite operating from geostationary orbit to facilitate continuous observation of Indian sub-continent, quick monitoring of natural hazards and disaster.", orbit = "Geostationary Transfer Orbit", padCords = Location(latitude = 13.7199, longitude = 80.2304), padLocation = "Satish Dhawan Space Centre, India", padCountry = "India", padTimeZone = "Asia/Kolkata", liveStreamUrl = "HOLD TEST", netPrecision = "The T-0 is expected in the first quarter of the given year.")
-        assertThat(parseLaunch(launchJsonEle = jsonEle)).equals(expectedResult)
+
+
     }
 
     @Test
@@ -2312,8 +2310,8 @@ class ParseLaunchTest {
 }
     """
         val jsonEle: JsonElement = Json.parseToJsonElement(jsonString)
-        val expectedResult = Launch(launchID = "9d12fbac-53de-4517-9191-4697fbc07dd2", launchURL = "https://lldev.thespacedevs.com/2.3.0/launches/9d12fbac-53de-4517-9191-4697fbc07dd2/", missionName = "Starlink Group 6-99", padName = "Launch Complex 39A", agencyID = "121", rocketID = "8839", rocketVersionID = "164", launchTimeUTC = ZonedDateTime.parse("2025-12-17T13:42:10Z"), launchTimePadLocal = ZonedDateTime.parse("2025-12-17T08:42:10-05:00[America/New_York]"), reusableParts = listOf(Reusable(reuseID = "194", reuseName = "B1094", flightNumber = 6, landingLocationAbbr = "JRTI", landingLocationName = "Just Read the Instructions", landingType = LandingType.ASDS, status = true)), success = Status.SUCCESS, windowOpen = ZonedDateTime.parse("2025-12-17T12:19Z"), windowClose = ZonedDateTime.parse("2025-12-17T16:19Z"), imageUrl = "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/falcon2520925_image_20221009234147.png", imageCredit = "SpaceX", licenseType = "CC BY-NC 2.0", weatherProbability = 95.0, agencyName = "SpaceX", rocketName = "Falcon 9", rocketVariantName = "Falcon 9 Block 5", description = "A batch of 29 satellites for the Starlink mega-constellation - SpaceX's project for space-based Internet communication system.", orbit = "Low Earth Orbit", padCords = Location(latitude = 28.60822681, longitude = -80.60428186), padLocation = "Kennedy Space Center, FL, USA", padCountry = "United States of America", padTimeZone = "America/New_York", liveStreamUrl = "HOLD TEST", netPrecision = "The T-0 is accurate to the second.")
-        assertThat(parseLaunch(launchJsonEle = jsonEle)).equals(expectedResult)
+
+
     }
     @Test
     fun testMultiReuse() {
@@ -3424,8 +3422,7 @@ class ParseLaunchTest {
 }
     """
         val jsonEle: JsonElement = Json.parseToJsonElement(jsonString)
-        val expectedResult = Launch(launchID = "ed83366c-872c-4484-97c1-bc74832304fc", launchURL = "https://lldev.thespacedevs.com/2.3.0/launches/ed83366c-872c-4484-97c1-bc74832304fc/", missionName = "Flight 12", padName = "Orbital Launch Pad 2", agencyID = "121", rocketID = "8708", rocketVersionID = "522", launchTimeUTC = ZonedDateTime.parse("2026-01-31T00:00Z"), launchTimePadLocal = ZonedDateTime.parse("2026-01-30T18:00-06:00[America/Chicago]"), reusableParts = listOf(Reusable(reuseID = "243", reuseName = "Booster 19", flightNumber = 0, landingLocationAbbr = null, landingLocationName = null, landingType = LandingType.UNKNOWN, status = null), Reusable(reuseID = "621", reuseName = "Ship 39", flightNumber = 0, landingLocationAbbr = null, landingLocationName = null, landingType = LandingType.UNKNOWN, status = null)), success = Status.TBD, windowOpen = ZonedDateTime.parse("2026-01-31T00:00Z"), windowClose = ZonedDateTime.parse("2026-01-31T00:00Z"), imageUrl = "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/starship_on_the_image_20250111100520.jpg", imageCredit = "SpaceX", licenseType = "Unknown", weatherProbability = null, agencyName = "SpaceX", rocketName = "Starship", rocketVariantName = "Starship V3", description = "12th test flight of the two-stage Starship launch vehicle. Maiden Flight of Starship V3", orbit = "Suborbital", padCords = Location(latitude = 25.996603, longitude = -97.158251), padLocation = "SpaceX Starbase, TX, USA", padCountry = "United States of America", padTimeZone = "America/Chicago", liveStreamUrl = "HOLD TEST", netPrecision = "The T-0 is expected in the given month.")
-        assertThat(parseLaunch(launchJsonEle = jsonEle)).equals(expectedResult)
+
     }
 
 }

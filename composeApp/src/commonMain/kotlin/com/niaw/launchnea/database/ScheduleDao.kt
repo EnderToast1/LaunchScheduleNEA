@@ -15,6 +15,7 @@ import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.database.entities.RocketVersion
 import com.niaw.launchnea.database.entities.StarredLaunch
 import kotlinx.coroutines.flow.Flow
+import java.time.ZonedDateTime
 
 @Dao
 interface ScheduleDao {
@@ -80,16 +81,16 @@ interface ScheduleDao {
     @Query("SELECT EXISTS(SELECT 1 FROM RocketVersion WHERE rocketVersionID = :id)")
     suspend fun doesRocketVersionExists(id: String): Boolean
 
-    @Query("SELECT EXISTS(SELECT 1 FROM Agency WHERE id = :id AND lastUpdated < :dateTime)")
-    suspend fun doesAgencyNeedUpdating(id: String, dateTime: ZonedDateTime): Boolean
+    @Query("SELECT EXISTS(SELECT 1 FROM Agency WHERE agencyID = :id AND lastUpdated < :dateTime)")
+    suspend fun doesAgencyNeedUpdating(id: String, dateTime: String): Boolean
 
-    @Query("SELECT EXISTS(SELECT 1 FROM Rocket WHERE id = :id AND lastUpdated < :dateTime)")
-    suspend fun doesRocketNeedUpdating(id: String, dateTime: ZonedDateTime): Boolean
+    @Query("SELECT EXISTS(SELECT 1 FROM Rocket WHERE rocketID = :id AND lastUpdated < :dateTime)")
+    suspend fun doesRocketNeedUpdating(id: String, dateTime: String): Boolean
     
-    @Query("SELECT EXISTS(SELECT 1 FROM RocketVersion WHERE id = :id AND lastUpdated < :dateTime)")
-    suspend fun doesRocketVersionNeedUpdating(id: String, dateTime: ZonedDateTime): Boolean
+    @Query("SELECT EXISTS(SELECT 1 FROM RocketVersion WHERE rocketVersionID = :id AND lastUpdated < :dateTime)")
+    suspend fun doesRocketVersionNeedUpdating(id: String, dateTime: String): Boolean
     
-    @Query("SELECT EXISTS(SELECT 1 FROM Reuse WHERE id = :id AND lastUpdated < :dateTime)")
-    suspend fun doesReuseNeedUpdating(id: String, dateTime: ZonedDateTime): Boolean
+    @Query("SELECT EXISTS(SELECT 1 FROM Reuse WHERE ReuseID = :id AND lastUpdated < :dateTime)")
+    suspend fun doesReuseNeedUpdating(id: String, dateTime: String): Boolean
 
 }
