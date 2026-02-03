@@ -24,5 +24,6 @@ data class Agency(
     var websiteURL: String? =null,
     var wikiURL: String? =null,
     var socialsURL: String? =null,
-    var youtubeURL: String? =null
+    var youtubeURL: String? =null,
+    var lastUpdated: ZonedDateTime?=null
   )
