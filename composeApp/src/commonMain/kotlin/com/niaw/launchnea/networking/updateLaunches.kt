@@ -298,7 +298,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
 
     //TODO currently will not update only make, need to add update but ideally without parsing each-one  TODO Need to add last called as a prameter for each object and add a check for if less then lastupdated() in the of selection
     if (launch.agencyID!=null ) {
-        if (!scheduleDao.doesAgencyExists(launch.agencyID)) {
+        if (!scheduleDao.doesAgencyExists(launch.agencyID) || scheduleDao.doesAgencyNeedUpdating(launch.agencyID, schedulaDao.getMetaData("lastUpdated"))) {
             println("Agency: ${launch.agencyName} does not exist")
             scheduleDao.upsertAgency(parseAgency(launchJsonEle))
         }else{
