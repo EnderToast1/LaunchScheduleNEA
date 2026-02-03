@@ -83,6 +83,13 @@ interface ScheduleDao {
     @Query("SELECT EXISTS(SELECT 1 FROM Agency WHERE id = :id AND lastUpdated < :dateTime)")
     suspend fun doesAgencyNeedUpdating(id: String, dateTime: ZonedDateTime): Boolean
 
-
+    @Query("SELECT EXISTS(SELECT 1 FROM Rocket WHERE id = :id AND lastUpdated < :dateTime)")
+    suspend fun doesRocketNeedUpdating(id: String, dateTime: ZonedDateTime): Boolean
+    
+    @Query("SELECT EXISTS(SELECT 1 FROM RocketVersion WHERE id = :id AND lastUpdated < :dateTime)")
+    suspend fun doesRocketVersionNeedUpdating(id: String, dateTime: ZonedDateTime): Boolean
+    
+    @Query("SELECT EXISTS(SELECT 1 FROM Reuse WHERE id = :id AND lastUpdated < :dateTime)")
+    suspend fun doesReuseNeedUpdating(id: String, dateTime: ZonedDateTime): Boolean
 
 }
