@@ -93,4 +93,8 @@ interface ScheduleDao {
     @Query("SELECT EXISTS(SELECT 1 FROM Reuse WHERE ReuseID = :id AND lastUpdated < :dateTime)")
     suspend fun doesReuseNeedUpdating(id: String, dateTime: String): Boolean
 
+    @Query("SELECT * FROM launch WHERE strftime('%m-%d', launchTimeUTC) = strftime('%m-%d', 'now')")
+suspend fun getOnThisDayLaunches(): List<Launch>
+
+
 }
