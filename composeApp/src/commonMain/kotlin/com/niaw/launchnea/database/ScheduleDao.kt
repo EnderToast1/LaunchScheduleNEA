@@ -94,7 +94,11 @@ interface ScheduleDao {
     suspend fun doesReuseNeedUpdating(id: String, dateTime: String): Boolean
 
     @Query("SELECT * FROM launch WHERE strftime('%m-%d', launchTimeUTC) = strftime('%m-%d', 'now')")
-suspend fun getOnThisDayLaunches(): List<Launch>
+    suspend fun getOnThisDayLaunches(): List<Launch>
+
+    @Query("SELECT * FROM launch WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE")
+    suspend fun getLaunchLikeName(givenName: String): List<Launch>
+
 
 
 }
