@@ -99,7 +99,7 @@ suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseD
         //if there was no error it sets it to a JsonArray and calls a function to parse each launch into an object then adds to db
         val launchesJsonArray = callResponse.data
         launchesJsonArray?.forEachIndexed {i, launchJson ->              //goes though each launch in the return from the API
-            val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch
+            val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch  TODO place in a try loop and catch and print the error
             println("\n\nLaunch number ${i+1}: \n$launch")//LOG
             if (launch != null) {
                 checkForOtherEntities(launchJson,launch, scheduleDao)
@@ -319,7 +319,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     if (launch.agencyID!=null ) {
         if (!scheduleDao.doesAgencyExists(launch.agencyID) || scheduleDao.doesAgencyNeedUpdating(launch.agencyID, lastUpdated)) {
             println("Agency: ${launch.agencyName} does NOT exist or needs updating")
-            scheduleDao.upsertAgency(parseAgency(launchJsonEle,scheduleDao))
+            scheduleDao.upsertAgency(parseAgency(launchJsonEle,scheduleDao))   //TODO place in a try loop and catch and print the error
         }else{
             println("Agency: ${launch.agencyName} ALREADY exists and is updated")
         }
@@ -327,7 +327,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     if (launch.rocketID!=null){
         if (!scheduleDao.doesRocketExists(launch.rocketID)|| scheduleDao.doesRocketNeedUpdating(launch.rocketID, lastUpdated)) {
             println("Rocket: ${launch.rocketName} does NOT exist or needs updating")
-            scheduleDao.upsertRocket(parseRocket(launchJsonEle,scheduleDao))
+            scheduleDao.upsertRocket(parseRocket(launchJsonEle,scheduleDao))      //TODO place in a try loop and catch and print the error
         }else{
             println("Rocket: ${launch.rocketName} ALREADY exists and is updated")
         }
@@ -335,7 +335,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     if (launch.rocketVersionID!=null){
         if (!scheduleDao.doesRocketVersionExists(launch.rocketVersionID)|| scheduleDao.doesRocketVersionNeedUpdating(launch.rocketVersionID, lastUpdated)) {
             println("Version: ${launch.rocketVariantName} does NOT exist or needs updating")
-            scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle,scheduleDao))
+            scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle,scheduleDao))    //TODO place in a try loop and catch and print the error
         }else{
             println("Version: ${launch.rocketVariantName} ALREADY exists and is updated")
         }
@@ -345,7 +345,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
             if (reusablePart.reuseID != null) {
                 if (!scheduleDao.doesReuseExists(reusablePart.reuseID!!)|| scheduleDao.doesReuseNeedUpdating(reusablePart.reuseID!!, lastUpdated)) {
                     println("Reusable: ${reusablePart.reuseName} does NOT exist or needs updating")
-                    scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))
+                    scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))   //TODO place in a try loop and catch and print the error
                 }else{
                     println("Reusable:${reusablePart.reuseName} ALREADY exists and is updated")
                 }
