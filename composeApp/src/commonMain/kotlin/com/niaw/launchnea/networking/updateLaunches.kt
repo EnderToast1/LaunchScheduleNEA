@@ -318,36 +318,36 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
 
     if (launch.agencyID!=null ) {
         if (!scheduleDao.doesAgencyExists(launch.agencyID) || scheduleDao.doesAgencyNeedUpdating(launch.agencyID, lastUpdated)) {
-            println("Agency: ${launch.agencyName} does not exist or needs updating ❌")
+            println("Agency: ${launch.agencyName} does NOT exist or needs updating")
             scheduleDao.upsertAgency(parseAgency(launchJsonEle,scheduleDao))
         }else{
-            println("Agency: ${launch.agencyName} already exists and is updated ✅")
+            println("Agency: ${launch.agencyName} ALREADY exists and is updated")
         }
     }
     if (launch.rocketID!=null){
         if (!scheduleDao.doesRocketExists(launch.rocketID)|| scheduleDao.doesRocketNeedUpdating(launch.rocketID, lastUpdated)) {
-            println("Rocket: ${launch.rocketName} does not exist or needs updating ❌")
+            println("Rocket: ${launch.rocketName} does NOT exist or needs updating")
             scheduleDao.upsertRocket(parseRocket(launchJsonEle,scheduleDao))
         }else{
-            println("Rocket: ${launch.rocketName} already exists and is updated ✅")
+            println("Rocket: ${launch.rocketName} ALREADY exists and is updated")
         }
     }
     if (launch.rocketVersionID!=null){
         if (!scheduleDao.doesRocketVersionExists(launch.rocketVersionID)|| scheduleDao.doesRocketVersionNeedUpdating(launch.rocketVersionID, lastUpdated)) {
-            println("Version: ${launch.rocketVariantName} does not exist or needs updating ❌")
+            println("Version: ${launch.rocketVariantName} does NOT exist or needs updating")
             scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle,scheduleDao))
         }else{
-            println("Version: ${launch.rocketVariantName} already exists and is updated ✅")
+            println("Version: ${launch.rocketVariantName} ALREADY exists and is updated")
         }
     }
     if (!launch.reusableParts.isEmpty()) {
         for (reusablePart in launch.reusableParts) {
             if (reusablePart.reuseID != null) {
                 if (!scheduleDao.doesReuseExists(reusablePart.reuseID!!)|| scheduleDao.doesReuseNeedUpdating(reusablePart.reuseID!!, lastUpdated)) {
-                    println("Reusable: ${reusablePart.reuseName} does not exist or needs updating ❌")
+                    println("Reusable: ${reusablePart.reuseName} does NOT exist or needs updating")
                     scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))
                 }else{
-                    println("Reusable:${reusablePart.reuseName} already exists and is updated ✅")
+                    println("Reusable:${reusablePart.reuseName} ALREADY exists and is updated")
                 }
             }
         }
