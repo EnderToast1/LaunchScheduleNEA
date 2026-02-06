@@ -45,14 +45,14 @@ val httpClient = HttpClient(OkHttp.create()) {
         } catch (_: HttpRequestTimeoutException) {
             return ResponseData(null, NetworkError.REQUEST_TIMEOUT)          //If the Request timeout it catches it and returns the error
         }catch (_: HttpConnectTimeoutException){
-            return ResponseData(null, NetworkError.CONNECTION_TIMEOUT)
+            return ResponseData(null, NetworkError.CONNECTION_TIMEOUT)         //If the connection is timed out it catches and returns the error
         }catch (_: SocketTimeoutException){
-            return ResponseData(null, NetworkError.SOCKET_TIMEOUT)
+            return ResponseData(null, NetworkError.SOCKET_TIMEOUT)           //If the Socket is closed before a responce it catches and return the error
         }catch(_: UnresolvedAddressException){
             return ResponseData(null,NetworkError.NO_INTERNET)                //If the address is invalid for some reason it catches it and returns the error
         }catch(_: SerializationException){
             return ResponseData(null,NetworkError.SERIALIZATION)       //If there is a JSON error it catches it and returns the error
-        }catch(e: Exception){
+        }catch(e: Exception){                                         //If it is another error it catches and prints the error returns unkown error
             println(e)
             return ResponseData(null, NetworkError.UNKNOWN)
         }
