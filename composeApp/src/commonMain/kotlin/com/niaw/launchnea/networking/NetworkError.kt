@@ -7,7 +7,7 @@ enum class NetworkError {
     CONFLICT,
     TOO_MANY_REQUESTS,
     NO_INTERNET,
-    No_DATA,
+    NO_DATA,
     SERVER_ERROR,
     SERIALIZATION,
     UNKNOWN;
