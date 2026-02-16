@@ -46,7 +46,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")//Gets lastUpdates time
         println("Last Updated: $databaseLastUpdated")//LOG    //TODO remove 30mins from databaseLastUpdated
 
-    scheduleDao.upsertMetadata(MetaData("lastUpdated",ZonedDateTime.now(ZoneOffset.UTC).toString()))  //updates LastUpdated to now in UTC
+    //TODO TEMP only for when DB reset
     if (databaseLastUpdated == null) {//if it doesn't exist set to some time SHOULD BE TEMP AS WHEN IN PRODUCTION WILL ALWAYS EXIST
         databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
     }
@@ -61,8 +61,10 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
     //Updates previous launches
     println("\n\nPast $pastCallApiUrl")
+    var pastUpdated=true
     var pastCallResponse=APIFetchRequest(pastCallApiUrl) //passes the url as a string with the last updated dateTime as part of it in the API filter system
     println("NEXT PAST RESPONSE: 1")
+    if (pastCallResponse.errorType!=null) {pastUpdated=false}
     responseToDatabase(scheduleDao,pastCallResponse)        //parses the response and adds each launch to the database (inside the function it checks for other tables that need adding to)
     var i=0
     while ((pastCallResponse.count>=100) and (pastCallResponse.next!=null)) {
@@ -70,13 +72,15 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
         println("NEXT PAST RESPONSE: ${i+1}")
         pastCallResponse=APIFetchRequest(pastCallResponse.next)
         pastCallResponse.count-=(i*100)
-        println("TEST: ${pastCallResponse.count}")
+        if (pastCallResponse.errorType!=null) {pastUpdated=false}
         responseToDatabase(scheduleDao,pastCallResponse)
     }
 
     println("\n\nUpcoming $upcomingCallApiUrl")//LOG
+    var upcomingUpdated=true
     //Update upcoming launches
     var upcomingCallResponse=APIFetchRequest(upcomingCallApiUrl) //passes the url as a string into the API and also gives it the lastUpdated string filter
+    if (pastCallResponse.errorType!=null) {upcomingUpdated=false}
     responseToDatabase(scheduleDao,upcomingCallResponse)   //parses the response and adds each launch to the database (inside the function it checks for other tables that need adding to)
     i=0
     while ((upcomingCallResponse.count>=100) and (upcomingCallResponse.next!=null)) {
@@ -84,7 +88,14 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
         println("NEXT UPCOMING RESPONSE")
         upcomingCallResponse=(APIFetchRequest(upcomingCallResponse.next))
         upcomingCallResponse.count-=(i*100)
+        if (pastCallResponse.errorType!=null) {upcomingUpdated=false}
         responseToDatabase(scheduleDao,upcomingCallResponse)
+    }
+
+
+    if (pastUpdated and upcomingUpdated){
+        scheduleDao.upsertMetadata(MetaData("lastUpdated",ZonedDateTime.now(ZoneOffset.UTC).toString()))  //updates LastUpdated to now in UTC
+        println("LastUpdated Updated")
     }
 }
 
@@ -121,7 +132,10 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     val launchJsonObj=launchJsonEle.jsonObject  //turns the element into an object
     val id= launchJsonObj["id"]?.jsonPrimitive?.content ?: return null  //finds the tag of "id" then gets the content after it is made JsonPrimitive if it is null, does not exist or cannot be made primitive it is set to null
     val url = launchJsonObj["url"]?.jsonPrimitive?.content
-    val missionName= (launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
+    var missionName= (launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
+    if (missionName==null){
+        missionName=launchJsonObj["name"]?.jsonPrimitive?.content
+    }
     val padName= (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val agencyID= launchJsonObj["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content
     val rocketID= launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content

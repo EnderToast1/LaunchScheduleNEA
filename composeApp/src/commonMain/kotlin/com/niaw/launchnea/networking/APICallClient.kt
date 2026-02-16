@@ -64,7 +64,7 @@ val httpClient = HttpClient(OkHttp.create()) {
                 val results = jsonElement.jsonObject["results"]?.jsonArray 
                 if (results.isNullOrEmpty()){
 
-                        ResponseData(null, NetworkError.No_DATA)
+                        ResponseData(null, NetworkError.NO_DATA)
                 }else {
                     val count =jsonElement.jsonObject["count"]?.jsonPrimitive?.int ?:0
                     if (count <=100) {

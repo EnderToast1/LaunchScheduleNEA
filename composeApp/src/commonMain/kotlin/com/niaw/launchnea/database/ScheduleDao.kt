@@ -96,7 +96,7 @@ interface ScheduleDao {
     @Query("SELECT * FROM launch WHERE strftime('%m-%d', launchTimeUTC) = strftime('%m-%d', 'now')")
     fun getOnThisDayLaunches(): Flow<List<Launch>>
 
-    @Query("SELECT * FROM launch WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE")
+    @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE")
     fun getLaunchLikeName(givenName: String): Flow<List<Launch>>
 
 

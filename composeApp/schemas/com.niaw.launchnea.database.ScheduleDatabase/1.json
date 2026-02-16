@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "09f1104ad9a622f9bad2af64c04ea6c2",
+    "identityHash": "b67d8096441b9ce0e5d9d1b9b7d2e887",
     "entities": [
       {
         "tableName": "Agency",
@@ -672,7 +672,7 @@
       },
       {
         "tableName": "starred_launches",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, PRIMARY KEY(`launchID`), FOREIGN KEY(`launchID`) REFERENCES `Launch`(`launchID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`launchID` TEXT NOT NULL, PRIMARY KEY(`launchID`), FOREIGN KEY(`launchID`) REFERENCES `Launch`(`launchID`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "launchID",
@@ -701,7 +701,7 @@
         "foreignKeys": [
           {
             "table": "Launch",
-            "onDelete": "CASCADE",
+            "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
               "launchID"
@@ -739,7 +739,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '09f1104ad9a622f9bad2af64c04ea6c2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b67d8096441b9ce0e5d9d1b9b7d2e887')"
     ]
   }
 }
