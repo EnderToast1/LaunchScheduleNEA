@@ -149,7 +149,7 @@ class ParseLaunchTest {
             "wiki_url": "https://en.wikipedia.org/wiki/Indian_Space_Research_Organization",
             "social_media_links": []
         },
-            "rocket": {
+            "FilledRocket": {
             "id": 2413,
             "configuration": {
             "response_mode": "detailed",
@@ -890,7 +890,7 @@ class ParseLaunchTest {
         "wiki_url": "https://en.wikipedia.org/wiki/SpaceX",
         "social_media_links": []
     },
-    "rocket": {
+    "FilledRocket": {
         "id": 8839,
         "configuration": {
             "response_mode": "detailed",
@@ -1459,7 +1459,7 @@ class ParseLaunchTest {
             },
             "info_url": "https://www.spacex.com/vehicles/falcon-9/",
             "wiki_url": "https://en.wikipedia.org/wiki/Falcon_9",
-            "description": "Falcon 9 is a two-stage rocket designed and manufactured by SpaceX for the reliable and safe transport of satellites and the Dragon spacecraft into orbit. The Block 5 variant is the fifth major interval aimed at improving upon the ability for rapid reusability.",
+            "description": "Falcon 9 is a two-stage FilledRocket designed and manufactured by SpaceX for the reliable and safe transport of satellites and the Dragon spacecraft into orbit. The Block 5 variant is the fifth major interval aimed at improving upon the ability for rapid reusability.",
             "alias": "",
             "min_stage": 2,
             "max_stage": 2,
@@ -1597,7 +1597,7 @@ class ParseLaunchTest {
                         "id": 1,
                         "name": "Autonomous Spaceport Drone Ship",
                         "abbrev": "ASDS",
-                        "description": "An autonomous spaceport drone ship (ASDS) is an ocean-going vessel derived from a deck barge, outfitted with station-keeping engines and a large landing platform. Construction of such ships was commissioned by aerospace company SpaceX to allow for recovery of rocket first-stages at sea for high-velocity missions which do not carry enough fuel to return to the launch site after lofting spacecraft onto an orbital trajectory."
+                        "description": "An autonomous spaceport drone ship (ASDS) is an ocean-going vessel derived from a deck barge, outfitted with station-keeping engines and a large landing platform. Construction of such ships was commissioned by aerospace company SpaceX to allow for recovery of FilledRocket first-stages at sea for high-velocity missions which do not carry enough fuel to return to the launch site after lofting spacecraft onto an orbital trajectory."
                     }
                 },
                 "previous_flight": {
@@ -2120,8 +2120,8 @@ class ParseLaunchTest {
             "priority": 8,
             "source": null,
             "publisher": "Spaceflight Now",
-            "title": "Watch Live: SpaceX launches Starlink satellites on Falcon 9 rocket from NASA's Kennedy Space Center",
-            "description": "Watch live coverage as SpaceX launches a Falcon 9 rocket with another 29 satellites for the company's Starlink internet service. Liftoff from Launch Complex 39A at the Kennedy Space Center is scheduled for Wednesday Dec. 17 at 8:42 a.m. EST (1342 UTC). The first-stage booster for this mission, B1094, making its sixth flight, will land on SpaceX's drone ship 'Just Read the Instructions', stationed in the Atlantic Ocean, a little more than eight minutes after leaving the launch pad.\n\nThe mission, designated Starlink 6-99, will take a south-easterly trajectory on departure from Florida's Space Coast.\n\nOur live coverage with commentary from Spaceflight Now's Will Robinson-Smith will start about one hour prior to launch.\n\nVideos like this are made possible by the support of our members. Jo...",
+            "title": "Watch Live: SpaceX launches Starlink satellites on Falcon 9 FilledRocket from NASA's Kennedy Space Center",
+            "description": "Watch live coverage as SpaceX launches a Falcon 9 FilledRocket with another 29 satellites for the company's Starlink internet service. Liftoff from Launch Complex 39A at the Kennedy Space Center is scheduled for Wednesday Dec. 17 at 8:42 a.m. EST (1342 UTC). The first-stage booster for this mission, B1094, making its sixth flight, will land on SpaceX's drone ship 'Just Read the Instructions', stationed in the Atlantic Ocean, a little more than eight minutes after leaving the launch pad.\n\nThe mission, designated Starlink 6-99, will take a south-easterly trajectory on departure from Florida's Space Coast.\n\nOur live coverage with commentary from Spaceflight Now's Will Robinson-Smith will start about one hour prior to launch.\n\nVideos like this are made possible by the support of our members. Jo...",
             "feature_image": "https://i.ytimg.com/vi/HN03q45_ffo/maxresdefault.jpg",
             "url": "https://www.youtube.com/watch?v=HN03q45_ffo",
             "type": {
@@ -2281,7 +2281,7 @@ class ParseLaunchTest {
             "type": {
                 "id": 23,
                 "abbrev": "Starlink Deployment",
-                "description": "Deployment of the Starlink stack from the rocket"
+                "description": "Deployment of the Starlink stack from the FilledRocket"
             },
             "relative_time": "PT1H4M56S"
         }
@@ -2450,7 +2450,7 @@ class ParseLaunchTest {
         "wiki_url": "https://en.wikipedia.org/wiki/SpaceX",
         "social_media_links": []
     },
-    "rocket": {
+    "FilledRocket": {
         "id": 8708,
         "configuration": {
             "response_mode": "detailed",

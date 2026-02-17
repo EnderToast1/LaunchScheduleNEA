@@ -1,57 +1,140 @@
 package com.niaw.launchnea
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.database.entities.StarredLaunch
-import com.niaw.launchnea.networking.updateLaunchData
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
+import com.niaw.launchnea.navigation.Screens.HomeScreen
+import com.niaw.launchnea.navigation.Screens.LaunchesScreen
+import com.niaw.launchnea.navigation.Screens.SettingsScreen
+import com.niaw.launchnea.navigation.Screens.VehiclesScreen
+import launchnea.composeapp.generated.resources.Res
+import launchnea.composeapp.generated.resources.FilledRocket
+import launchnea.composeapp.generated.resources.filledrocketh
+import org.jetbrains.compose.resources.painterResource
+
+data class NavigationItem(
+    val title: String,
+    val route: String,
+    val selectedIcon: @Composable () -> Unit,
+    val unselectedIcon: @Composable () -> Unit,
+)
+
+@Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 
 @Composable
 fun App(scheduleDao: ScheduleDao) {
-    MaterialTheme{
-        LaunchedEffect(Unit){
+    val navController = rememberNavController()
+
+    MaterialTheme {
+        LaunchedEffect(Unit) {
             //updateLaunchData(scheduleDao)
-            println("Done updateLaunchData")
-            val searchKey="CREW"
-            println("\n\nSearch: $searchKey:")
-            val launchesLIKE= scheduleDao.getLaunchLikeName(searchKey).first()
-            launchesLIKE.forEach { launch ->
-                println(launch.missionName)
-            }
-            println("\n\nAll launches")
-            val launchLIST=scheduleDao.getLaunches().first()
-            launchLIST.forEach { launch ->
-                println("${launch.missionName}  :  ${launch.launchURL}")
-            }
-            println("\n\nOn This Day")
-            val today=scheduleDao.getOnThisDayLaunches().first()
-            today.forEach { launch ->
-                println(launch.missionName)
-            }
-            println("\n\n ${launchesLIKE.size} of name $searchKey , ${launchLIST.size} Total launches\n")
-
-            println("Stared Launches TEST to see if deletion works Expect 2 of the same Text if 1 or 3 it is broken")
-            scheduleDao.starLaunch(StarredLaunch("862b54e3-7bf8-48e5-8cd1-d77257d5fde9"))
-            var stared=scheduleDao.getStarredLaunches().first()
-            stared.forEach { launch ->
-                println(launch.missionName)
-            }
-            scheduleDao.unstarLaunch("862b54e3-7bf8-48e5-8cd1-d77257d5fde9")
-            println(scheduleDao.getLaunchById("862b54e3-7bf8-48e5-8cd1-d77257d5fde9")?.missionName)
-            stared=scheduleDao.getStarredLaunches().first()
-            stared.forEach { launch ->
-                println(launch.missionName)
-            }
-
-
-
-            println("\nEND OF PROGRAM")
+            //daoTest(scheduleDao)
         }
 
+        val items = listOf<NavigationItem>(
+            NavigationItem(
+                title = "Home",
+                route = "home",
+                selectedIcon = {Icon(Icons.Filled.Home,"Home")},
+                unselectedIcon = {Icon(Icons.Outlined.Home,"Home")},
+            ),
+            NavigationItem(
+                title = "Launches",
+                route = "launches",
+                selectedIcon = {Icon(painterResource(Res.drawable.FilledRocket),"Rocket", modifier = Modifier.size(24.dp),
+                    tint = LocalContentColor.current)},
+                unselectedIcon = {Icon(painterResource(Res.drawable.FilledRocket),"Rocket", modifier = Modifier.size(24.dp),
+                    tint = LocalContentColor.current)},
+            ),
+            NavigationItem(
+                title = "Vehicles",
+                route = "vehicles",
+                selectedIcon = {Icon(painterResource(Res.drawable.filledrocketh),"Rocket", modifier = Modifier.size(24.dp),
+                    tint = LocalContentColor.current)},
+                unselectedIcon = {Icon(painterResource(Res.drawable.filledrocketh),"Rocket", modifier = Modifier.size(24.dp),
+                    tint = LocalContentColor.current)},
+            ),
+            NavigationItem(
+                title = "Settings",
+                route = "settings",
+                selectedIcon = {Icon(Icons.Filled.Settings,"Home")},
+                unselectedIcon = {Icon(Icons.Outlined.Settings,"Home")},
+            )
+
+        )
+
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+
+            Scaffold(
+                bottomBar = {
+                    NavigationBar {
+                        items.forEach { item ->
+                            NavigationBarItem(
+                                selected = currentRoute == item.route,
+                                onClick = {
+                                    navController.navigate(item.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                label = {Text(text = item.title)},
+                                icon = {if (currentRoute == item.route) {item.selectedIcon()} else {item.unselectedIcon()}}
+                            )
+                        }
+                    }
+                }
+            ) { innerPadding ->
+
+                NavHost(
+                    navController = navController,
+                    startDestination = "home",
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+                    composable("home") {
+                        HomeScreen()
+                    }
+                    composable("launches") {
+                        LaunchesScreen()
+                    }
+                    composable("vehicles") {
+                        VehiclesScreen()
+                    }
+                    composable("settings") {
+                        SettingsScreen()
+                    }
+                }
+            }
+        }
     }
 }
+
+
