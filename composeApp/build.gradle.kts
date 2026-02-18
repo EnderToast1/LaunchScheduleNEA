@@ -33,11 +33,11 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(libs.kotlinx.serialization.json)
-              implementation(compose.materialIconsExtended)
-            implementation(libs.androidx.navigation.compose)
+            implementation(compose.materialIconsExtended)
 
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.runtime)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -58,6 +58,7 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(compose.material3)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.ktor.client.okhttp)
         }

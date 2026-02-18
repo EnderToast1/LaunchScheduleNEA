@@ -1,5 +1,6 @@
 package com.niaw.launchnea
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,32 +19,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.navigation.Screens.HomeScreen
 import com.niaw.launchnea.navigation.Screens.LaunchesScreen
 import com.niaw.launchnea.navigation.Screens.SettingsScreen
 import com.niaw.launchnea.navigation.Screens.VehiclesScreen
+import com.niaw.launchnea.networking.updateLaunchData
+import com.niaw.launchnea.ui.NavigationItem
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
 import launchnea.composeapp.generated.resources.filledrocketh
 import org.jetbrains.compose.resources.painterResource
 
-data class NavigationItem(
-    val title: String,
-    val route: String,
-    val selectedIcon: @Composable () -> Unit,
-    val unselectedIcon: @Composable () -> Unit,
-)
+
 
 @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 
 @Composable
 fun App(scheduleDao: ScheduleDao) {
-    val navController = rememberNavController()
+    var currentRoute by remember { mutableStateOf("home") }
 
     MaterialTheme {
         LaunchedEffect(Unit) {
@@ -61,10 +55,18 @@ fun App(scheduleDao: ScheduleDao) {
             NavigationItem(
                 title = "Launches",
                 route = "launches",
-                selectedIcon = {Icon(painterResource(Res.drawable.FilledRocket),"Rocket", modifier = Modifier.size(24.dp),
-                    tint = LocalContentColor.current)},
-                unselectedIcon = {Icon(painterResource(Res.drawable.FilledRocket),"Rocket", modifier = Modifier.size(24.dp),
-                    tint = LocalContentColor.current)},
+                selectedIcon = {
+                    Icon(
+                        painterResource(Res.drawable.FilledRocket), "Rocket", modifier = Modifier.size(24.dp),
+                        tint = LocalContentColor.current
+                    )
+                },
+                unselectedIcon = {
+                    Icon(
+                        painterResource(Res.drawable.FilledRocket), "Rocket", modifier = Modifier.size(24.dp),
+                        tint = LocalContentColor.current
+                    )
+                },
             ),
             NavigationItem(
                 title = "Vehicles",
@@ -83,8 +85,7 @@ fun App(scheduleDao: ScheduleDao) {
 
         )
 
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+
 
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -97,15 +98,7 @@ fun App(scheduleDao: ScheduleDao) {
                         items.forEach { item ->
                             NavigationBarItem(
                                 selected = currentRoute == item.route,
-                                onClick = {
-                                    navController.navigate(item.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
+                                onClick = { currentRoute = item.route},
                                 label = {Text(text = item.title)},
                                 icon = {if (currentRoute == item.route) {item.selectedIcon()} else {item.unselectedIcon()}}
                             )
@@ -113,23 +106,12 @@ fun App(scheduleDao: ScheduleDao) {
                     }
                 }
             ) { innerPadding ->
-
-                NavHost(
-                    navController = navController,
-                    startDestination = "home",
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    composable("home") {
-                        HomeScreen()
-                    }
-                    composable("launches") {
-                        LaunchesScreen()
-                    }
-                    composable("vehicles") {
-                        VehiclesScreen()
-                    }
-                    composable("settings") {
-                        SettingsScreen()
+                Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                    when (currentRoute) {
+                        "home" -> HomeScreen()
+                        "launches" -> LaunchesScreen(scheduleDao)
+                        "vehicles" -> VehiclesScreen()
+                        "settings" -> SettingsScreen()
                     }
                 }
             }
