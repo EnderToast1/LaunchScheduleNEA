@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b67d8096441b9ce0e5d9d1b9b7d2e887",
+    "identityHash": "c443a726b66d3ba62132dc5a2a76169c",
     "entities": [
       {
         "tableName": "Agency",
@@ -714,11 +714,11 @@
       },
       {
         "tableName": "MetaData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`data` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`data`))",
         "fields": [
           {
-            "fieldPath": "key",
-            "columnName": "key",
+            "fieldPath": "data",
+            "columnName": "data",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -732,14 +732,14 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "key"
+            "data"
           ]
         }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b67d8096441b9ce0e5d9d1b9b7d2e887')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c443a726b66d3ba62132dc5a2a76169c')"
     ]
   }
 }

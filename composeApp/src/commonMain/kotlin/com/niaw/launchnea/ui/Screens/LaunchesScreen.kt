@@ -1,4 +1,4 @@
-package com.niaw.launchnea.navigation.Screens
+package com.niaw.launchnea.ui.Screens
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
@@ -10,25 +10,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.navigation.ViewModels.PreviousLaunchViewModel
-import com.niaw.launchnea.ui.TabItem
+import com.niaw.launchnea.navigation.TabItem
 import kotlinx.coroutines.launch
 
 
-
+//TODO DOES NOT LASS ROTATIONS
 @Composable
 fun LaunchesScreen(scheduleDao: ScheduleDao) {
     val tabItems = listOf(
@@ -84,7 +76,7 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
                 key = { it } // optional but can help preserve state
             ) { page ->
                 when (page) {
-                    0 -> UpcomingLaunches()
+                    0 -> UpcomingLaunches(scheduleDao)
                     1 -> PreviousLaunches(scheduleDao)
                 }
             }

@@ -1,4 +1,4 @@
-package com.niaw.launchnea.ui
+package com.niaw.launchnea.navigation
 
 data class TabItem(
     val title: String,

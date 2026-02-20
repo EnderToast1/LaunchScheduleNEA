@@ -1,10 +1,10 @@
-package com.niaw.launchnea.navigation.Screens
+package com.niaw.launchnea.ui.Screens
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun UpcomingLaunches() {
-    Text("Upcoming Launches")
+fun HomeScreen() {
+    Text("Home")
     //TODO Make Screen
 }

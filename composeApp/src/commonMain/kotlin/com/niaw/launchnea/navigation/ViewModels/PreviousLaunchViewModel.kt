@@ -14,7 +14,7 @@ class PreviousLaunchViewModel (
     : ViewModel() {
 
         val launches: StateFlow<List<Launch>> =
-            dao.getLaunches()
+            dao.getPreviousLaunches()
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5_000),

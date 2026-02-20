@@ -44,11 +44,17 @@ interface ScheduleDao {
     @Delete
     suspend fun deleteLaunches(launch: Launch)
 
-    @Query("SELECT value FROM MetaData WHERE key = :key")
+    @Query("SELECT value FROM MetaData WHERE data = :key")
     suspend fun getMetaData(key: String): String?
 
     @Query("SELECT * FROM Launch")
     fun getLaunches(): Flow<List<Launch>>
+
+    @Query("SELECT * FROM Launch WHERE launchTimeUTC < CURRENT_TIMESTAMP")
+    fun getPreviousLaunches(): Flow<List<Launch>>
+
+    @Query("SELECT * FROM Launch WHERE launchTimeUTC >= CURRENT_TIMESTAMP")
+    fun getUpcomingLaunches(): Flow<List<Launch>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM Launch WHERE launchID = :id)")
     suspend fun launchExistsById(id: String): Boolean

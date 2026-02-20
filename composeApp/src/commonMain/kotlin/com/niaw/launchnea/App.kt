@@ -17,14 +17,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter.Companion.tint
 import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.navigation.Screens.HomeScreen
-import com.niaw.launchnea.navigation.Screens.LaunchesScreen
-import com.niaw.launchnea.navigation.Screens.SettingsScreen
-import com.niaw.launchnea.navigation.Screens.VehiclesScreen
 import com.niaw.launchnea.networking.updateLaunchData
+import com.niaw.launchnea.ui.Screens.HomeScreen
+import com.niaw.launchnea.ui.Screens.LaunchesScreen
+import com.niaw.launchnea.ui.Screens.SettingsScreen
+import com.niaw.launchnea.ui.Screens.VehiclesScreen
 import com.niaw.launchnea.ui.NavigationItem
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
@@ -41,7 +40,7 @@ fun App(scheduleDao: ScheduleDao) {
 
     MaterialTheme {
         LaunchedEffect(Unit) {
-            //updateLaunchData(scheduleDao)
+            updateLaunchData(scheduleDao)
             //daoTest(scheduleDao)
         }
 
