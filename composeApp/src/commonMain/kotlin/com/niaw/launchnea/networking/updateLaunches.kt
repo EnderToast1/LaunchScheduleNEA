@@ -332,7 +332,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     if (lastUpdated == null) {lastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString() } //some one-time variable will only be used when Database is reset in TESTing
 
     if (launch.agencyID!=null ) {
-        if (!scheduleDao.doesAgencyExists(launch.agencyID) || scheduleDao.doesAgencyNeedUpdating(launch.agencyID, lastUpdated)) {
+        if (!scheduleDao.doesAgencyExist(launch.agencyID) || scheduleDao.doesAgencyNeedUpdating(launch.agencyID, lastUpdated)) {
             println("Agency: ${launch.agencyName} does NOT exist or needs updating")
             scheduleDao.upsertAgency(parseAgency(launchJsonEle,scheduleDao))   //TODO place in a try loop and catch and print the error
         }else{
@@ -340,7 +340,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
         }
     }
     if (launch.rocketID!=null){
-        if (!scheduleDao.doesRocketExists(launch.rocketID)|| scheduleDao.doesRocketNeedUpdating(launch.rocketID, lastUpdated)) {
+        if (!scheduleDao.doesRocketExist(launch.rocketID)|| scheduleDao.doesRocketNeedUpdating(launch.rocketID, lastUpdated)) {
             println("Rocket: ${launch.rocketName} does NOT exist or needs updating")
             scheduleDao.upsertRocket(parseRocket(launchJsonEle,scheduleDao))      //TODO place in a try loop and catch and print the error
         }else{
@@ -348,7 +348,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
         }
     }
     if (launch.rocketVersionID!=null){
-        if (!scheduleDao.doesRocketVersionExists(launch.rocketVersionID)|| scheduleDao.doesRocketVersionNeedUpdating(launch.rocketVersionID, lastUpdated)) {
+        if (!scheduleDao.doesRocketVersionExist(launch.rocketVersionID)|| scheduleDao.doesRocketVersionNeedUpdating(launch.rocketVersionID, lastUpdated)) {
             println("Version: ${launch.rocketVariantName} does NOT exist or needs updating")
             scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle,scheduleDao))    //TODO place in a try loop and catch and print the error
         }else{
@@ -358,7 +358,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     if (!launch.reusableParts.isEmpty()) {
         for (reusablePart in launch.reusableParts) {
             if (reusablePart.reuseID != null) {
-                if (!scheduleDao.doesReuseExists(reusablePart.reuseID!!)|| scheduleDao.doesReuseNeedUpdating(reusablePart.reuseID!!, lastUpdated)) {
+                if (!scheduleDao.doesReuseExist(reusablePart.reuseID!!)|| scheduleDao.doesReuseNeedUpdating(reusablePart.reuseID!!, lastUpdated)) {
                     println("Reusable: ${reusablePart.reuseName} does NOT exist or needs updating")
                     scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))   //TODO place in a try loop and catch and print the error
                 }else{

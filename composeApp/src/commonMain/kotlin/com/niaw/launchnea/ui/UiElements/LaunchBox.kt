@@ -115,7 +115,6 @@ private fun LaunchChipsRow(launch: Launch) {
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
        launch.reusableParts.forEach { reusablePart ->
-            println("ReusablePart: $reusablePart")
             LaunchChip(reusablePart)
         }
 

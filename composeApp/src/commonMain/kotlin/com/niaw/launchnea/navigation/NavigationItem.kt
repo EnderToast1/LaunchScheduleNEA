@@ -1,4 +1,4 @@
-package com.niaw.launchnea.ui
+package com.niaw.launchnea.navigation
 
 import androidx.compose.runtime.Composable
 
