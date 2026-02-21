@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun ReusesScreen() {
+    println("Click on Reuse tab row")
     Text("ReusesScreen")
     //TODO Make Screen
 }

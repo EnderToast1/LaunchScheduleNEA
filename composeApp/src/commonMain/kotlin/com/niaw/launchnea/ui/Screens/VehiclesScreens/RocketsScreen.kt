@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun RocketsScreen() {
+    println("Click on Rockets tab row")
     Text("RocketsScreen")
     //TODO Make Screen
 }

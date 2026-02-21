@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.database.entities.Launch
 
 @Composable
-fun LaunchesList(launches: List<Launch>,listState: LazyListState) {
+fun LaunchesList(launches: List<Launch>,listState: LazyListState,onLaunchClick: (Launch) -> Unit) {
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -23,7 +23,7 @@ fun LaunchesList(launches: List<Launch>,listState: LazyListState) {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(launches, key = { it.launchID }) { launch ->
-            LaunchBox(launch = launch)
+            LaunchBox(launch = launch,onClick = onLaunchClick)
         }
     }
 }

@@ -2,6 +2,7 @@ package com.niaw.launchnea.ui.UiElements
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,10 +50,10 @@ val boxModifier = Modifier
 
 
 @Composable
-fun LaunchBox(launch: Launch) {
+fun LaunchBox(launch: Launch,onClick: (Launch) -> Unit) {
     if (launch.missionName!=null) {
         Box(
-            modifier = boxModifier
+            modifier = boxModifier.clickable { onClick(launch) }
         ) {
             //Content
             LaunchBoxContent(launch)

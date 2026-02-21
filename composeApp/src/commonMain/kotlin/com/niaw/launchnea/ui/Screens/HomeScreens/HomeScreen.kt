@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun HomeScreen() {
+    println("Click on Home bottom navigation.")
     Text("Home")
     //TODO Make Screen
 }

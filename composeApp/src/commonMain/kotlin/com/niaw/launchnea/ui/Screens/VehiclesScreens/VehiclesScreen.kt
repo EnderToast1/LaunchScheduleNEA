@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun VehiclesScreen() {
+    println("Click on Vehicles bottom navigation.")
     val tabItems = listOf(
         TabItem("Rockets"),
         TabItem("Reusable Vehicles"),
