@@ -30,53 +30,54 @@ import com.niaw.launchnea.ReuseType
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.database.entities.Reuse
 
-val cardShape = RoundedCornerShape(
-    topStart = 20.dp,
-    bottomStart = 0.dp,
-    topEnd = 0.dp,
-    bottomEnd = 20.dp
+data class displayItems(
+    val title String,
+    val secondRow String?=null,
+    val thirdRow String?=null,
+    val fourthRow String?=null,
+    val Chips List<Chip>=emptyList()
 )
-val boxModifier = Modifier
-    .fillMaxWidth()
-    .height(140.dp)
-    .border(
-        width = 1.dp,
-        color = Color(0xB3787878),
-        shape = cardShape
-    )
-    .clip(cardShape)
-    .background(Color(0xFFFFFFFF))
-    .padding(16.dp)
+
+data class chip(
+    val abbrev String?=null
+)
+
+
+
+val cardShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 0.dp, topEnd = 0.dp, bottomEnd = 20.dp
+)
+val boxModifier = Modifier.fillMaxWidth().height(140.dp).border(width = 1.dp, color = Color(0xB3787878), shape = cardShape).clip(cardShape).background(Color(0xFFFFFFFF)).padding(16.dp)
 
 
 @Composable
-fun LaunchBox(launch: Launch,onClick: (Launch) -> Unit) {
-    if (launch.missionName!=null) {
-        Box(
-            modifier = boxModifier.clickable { onClick(launch) }
+fun LaunchBox(item: any,onClick: (any) -> Unit) {
+    if (item!=null) {
+        Box(//TODO add colour for success
+            modifier = boxModifier.clickable { onClick(item) }
         ) {
             //Content
-            LaunchBoxContent(launch)
+          Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            val displayItems=LaunchDetail(item)
+            
+            LaunchImage(item)
+            LaunchDetailsDisplay(displayItems)
+    }
         }
     }
 }
 
-@Composable
-fun LaunchBoxContent(launch: Launch) {
 
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-
-        LaunchImage(launch)
-
-        LaunchDetails(launch)
-    }
+private fun LaunchDetail(item:any):DisplayItems{//TODO make interface
+    
+    
 }
 
+
 @Composable
-private fun LaunchImage(launch: Launch) {
+private fun LaunchImage(item: displayItems) {
     Box(
         modifier = Modifier
             .size(88.dp)
@@ -91,45 +92,48 @@ private fun LaunchImage(launch: Launch) {
     }
 }
 
+
+
 @Composable
-private fun LaunchDetails(launch: Launch) {
+private fun LaunchDetailsDisplay(item: DisplayItems) {
     Column(
         modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
 
-        LaunchChipsRow(launch)
+        LaunchChipsRow(item.chips)
 
-        launch.missionName?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
+        item.title?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
 
-        Text("${launch.agencyName} | ${launch.rocketName}", style = MaterialTheme.typography.bodySmall)
+        item.secondRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)
 
-        launch.padName?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+        item.thirdRow?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
 
-        Text(launch.launchTimeUTC.toString(), style = MaterialTheme.typography.bodySmall)//TODO add change to time zone and a custom toString
+        item.fourthRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)
     }
 }
 
 @Composable
-private fun LaunchChipsRow(launch: Launch) {
+private fun LaunchChipsRow(chips: List<Chip>) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-       launch.reusableParts.forEach { reusablePart ->
-            LaunchChip(reusablePart)
+    ) {//TODO add 
+       chips.forEach { chip ->
+            LaunchChip(chip)
         }
 
     }
 }
 
 @Composable
-private fun LaunchChip(reusablePart: Reusable ) {
+private fun LaunchChip(chip: Chip ) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(Color(0xFFD0D0D0))
             .padding(horizontal = 5.dp, vertical = 1.dp)
     ) {
-        reusablePart.landingLocationAbbr?.let { Text(it, style = MaterialTheme.typography.labelMedium) }
+        //TODO add row with image and colour for success
+        chip.abbrv?.let { Text(it, style = MaterialTheme.typography.labelMedium) }
     }
 }
