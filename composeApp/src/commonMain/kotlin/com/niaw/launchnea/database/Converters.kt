@@ -23,6 +23,11 @@ class Converters {
     @TypeConverter fun zonedDateTimeToString(dt: ZonedDateTime?): String? = dt?.format(zonedFormatter)
     @TypeConverter fun stringToZonedDateTime(value: String?): ZonedDateTime? = value?.let { ZonedDateTime.parse(it, zonedFormatter) }
 
+    // LocalDateTime ↔ String
+    @TypeConverter fun localDateTimeToString(dt: LocalDateTime?): String? = dt?.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+    @TypeConverter fun stringToLocalDateTime(value: String?): LocalDateTime? = value?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
+
+
     //Date ↔ Long
     @TypeConverter fun fromLocalDate(date: LocalDate?): String? = date?.toString()
     @TypeConverter fun toLocalDate(value: String?): LocalDate? = value?.let { LocalDate.parse(it)

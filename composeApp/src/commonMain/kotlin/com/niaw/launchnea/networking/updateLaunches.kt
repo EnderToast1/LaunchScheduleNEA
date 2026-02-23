@@ -37,7 +37,7 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import kotlin.collections.List
 import java.time.format.DateTimeFormatter
-
+import java.time.temporal.ChronoUnit
 
 
 suspend fun updateLaunchData(scheduleDao: ScheduleDao){
@@ -46,9 +46,11 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")//Gets lastUpdates time
     println("Last Updated: $databaseLastUpdated")//LOG    //TODO remove 30mins from databaseLastUpdated
 
+
     //TODO TEMP only for when DB reset
     if (databaseLastUpdated == null) {//if it doesn't exist set to some time SHOULD BE TEMP AS WHEN IN PRODUCTION WILL ALWAYS EXIST
-        databaseLastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
+        databaseLastUpdated=(LocalDateTime.of(2025,12,24,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
+        scheduleDao.upsertMetadata(MetaData("lastUpdated",databaseLastUpdated))
     }
 
     //TODO TEMP
@@ -94,8 +96,8 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
 
     if (pastUpdated and upcomingUpdated){
-        scheduleDao.upsertMetadata(MetaData("lastUpdated",ZonedDateTime.now(ZoneOffset.UTC).toString()))  //updates LastUpdated to now in UTC
-        println("LastUpdated Updated")
+        scheduleDao.upsertMetadata(MetaData("lastUpdated",LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() ))  //updates LastUpdated to now
+        println("LastUpdated Updated to ${scheduleDao.getMetaData("lastUpdated")}")
     }
     println("\nDone updateLaunchData")
 }
@@ -329,13 +331,15 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
 suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,scheduleDao: ScheduleDao){
 
     var lastUpdated=scheduleDao.getMetaData("lastUpdated")
+    println("In Comparison to $lastUpdated")
     if (lastUpdated == null) {lastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString() } //some one-time variable will only be used when Database is reset in TESTing
 
     if (launch.agencyID!=null ) {
         if (!scheduleDao.doesAgencyExist(launch.agencyID) || scheduleDao.doesAgencyNeedUpdating(launch.agencyID, lastUpdated)) {
-            println("Agency: ${launch.agencyName} does NOT exist or needs updating")
+            println("Agency: ${launch.agencyName} does NOT exist or needs updating ")
             scheduleDao.upsertAgency(parseAgency(launchJsonEle,scheduleDao))   //TODO place in a try loop and catch and print the error
-        }else{
+
+        } else {
             println("Agency: ${launch.agencyName} ALREADY exists and is updated")
         }
     }
@@ -401,7 +405,7 @@ suspend fun parseAgency(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ag
         wikiURL =  agencyJsonObj["wiki_url"]?.jsonPrimitive?.content,
         socialsURL =null ,   //TODO seems to be broken
         youtubeURL =null,    //TODO seems to be broken
-        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let{ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)}
+        lastUpdated= scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
     )
     println("      $toReturn")//LOG
     return toReturn
@@ -413,12 +417,12 @@ suspend fun parseRocket(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ro
     val toReturn = Rocket(
         rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
         name = rocketJsonObj?.get("configuration")?.jsonObject?.get("name")?.jsonPrimitive?.content,
-        agencyID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
         imageURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("image_url")?.jsonPrimitive?.content,
         imageCredit =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
         licenseType=(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("license")?.let { it as? JsonObject }?.get("name")?.let { it as? JsonPrimitive }?.contentOrNull,
         desc = rocketJsonObj?.get("configuration")?.jsonObject?.get("description")?.jsonPrimitive?.content,
-        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let{ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)}
+        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
     )
     println("      $toReturn")//LOG
     return toReturn
@@ -445,7 +449,7 @@ suspend fun parseRocketVersion(launchJsonEle: JsonElement,scheduleDao: ScheduleD
         imageURL = rocketVersionJsonObj["image"]?.let { it as? JsonObject }?.get("image_url")?.jsonPrimitive?.content,
         imageCredit =rocketVersionJsonObj["image"]?.let { it as? JsonObject }?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
         licenseType=rocketVersionJsonObj["image"]?.let { it as? JsonObject }?.get("license")?.let { it as? JsonObject }?.get("name")?.let { it as? JsonPrimitive }?.contentOrNull,
-        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let{ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)}
+        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
     )
     println("      $toReturn")//LOG
     return toReturn
@@ -490,7 +494,7 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
         reuseType = reusablePart.reuseType,
         status =status,
-        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let{ZonedDateTime.parse(it, DateTimeFormatter.ISO_ZONED_DATE_TIME)}
+        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
     )
     println("      $toReturn")//LOG
     return toReturn

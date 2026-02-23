@@ -9,10 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.niaw.launchnea.database.entities.Launch
 
 @Composable
-fun LaunchesList(launches: List<Launch>,listState: LazyListState,onLaunchClick: (Launch) -> Unit) {
+fun <T : ListBoxItem> ListOfBoxes(listOfItem: List<T>, listState: LazyListState, onItemClick: (T) -> Unit) {
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -22,8 +21,8 @@ fun LaunchesList(launches: List<Launch>,listState: LazyListState,onLaunchClick: 
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        items(launches, key = { it.launchID }) { launch ->
-            LaunchBox(launch = launch,onClick = onLaunchClick)
+        items(listOfItem) { item ->
+            listBox(item = item, onClick =onItemClick )
         }
     }
 }

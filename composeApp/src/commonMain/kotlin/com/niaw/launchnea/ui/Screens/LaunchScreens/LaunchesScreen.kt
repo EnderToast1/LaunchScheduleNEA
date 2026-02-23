@@ -94,12 +94,11 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
 
                     HorizontalPager(
                         state = pagerState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .pointerInput(pagerState) {
+                        modifier = Modifier.fillMaxSize().pointerInput(pagerState) {
                                 detectHorizontalDragGestures(
                                     onDragEnd = {
                                         scope.launch {
+                                            // Snap to nearest page
                                             val page = pagerState.currentPage
                                             val offset = pagerState.currentPageOffsetFraction
                                             val threshold = 0.1f
@@ -110,7 +109,7 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
                                     },
                                     onHorizontalDrag = { change, dragAmount ->
                                         change.consume()
-                                        scope.launch { pagerState.scrollBy(-dragAmount) }
+                                        scope.launch { pagerState.scrollBy(-dragAmount)}
                                     }
                                 )
                             },
@@ -119,12 +118,12 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
                         when (page) {
                             0 -> {
                                 println("Click on Upcoming tab row")
-                                listLaunchesScreen(remember { UpcomingLaunchViewModel(scheduleDao) }, searchText) { launch ->selectedLaunch = launch}
+                                ListLaunchesScreen(remember { UpcomingLaunchViewModel(scheduleDao) }, searchText) { launch ->selectedLaunch = launch}
                             }
 
                             1 -> {
                                 println("Click on Previous tab row")
-                                listLaunchesScreen(remember { PreviousLaunchViewModel(scheduleDao) },searchText) { launch -> selectedLaunch = launch }
+                                ListLaunchesScreen(remember { PreviousLaunchViewModel(scheduleDao) },searchText) { launch -> selectedLaunch = launch }
                             }
 
                         }

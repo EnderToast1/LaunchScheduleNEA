@@ -101,6 +101,9 @@ interface ScheduleDao {
     @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE")
     fun getLaunchLikeName(givenName: String): Flow<List<Launch>>
 
+    @Query("SELECT * FROM rocket WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE")
+    fun getRocketLikeName(givenName: String): Flow<List<Rocket>>
+
 
 
 }

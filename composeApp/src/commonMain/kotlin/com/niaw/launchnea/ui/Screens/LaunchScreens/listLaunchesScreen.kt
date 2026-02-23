@@ -7,17 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.navigation.ViewModels.LaunchesViewModel
 import com.niaw.launchnea.ui.SliderPlatform
-import com.niaw.launchnea.ui.UiElements.LaunchesList
+import com.niaw.launchnea.ui.UiElements.ListOfBoxes
 
 @Composable
-fun listLaunchesScreen(viewModel: LaunchesViewModel, searchText: String,onClick: (Launch) -> Unit) {
+fun ListLaunchesScreen(viewModel: LaunchesViewModel, searchText: String,onClick: (Launch) -> Unit) {
 
     val launches by viewModel.launches.collectAsState()
     val listState = rememberLazyListState()
@@ -31,8 +28,7 @@ fun listLaunchesScreen(viewModel: LaunchesViewModel, searchText: String,onClick:
     Box(modifier = Modifier.fillMaxSize()) {
 
             // Show list of launches
-            LaunchesList(launches, listState) { launch ->onClick(launch)
-            }
+            ListOfBoxes(launches, listState,onClick)
             SliderPlatform(launches, listState)
         }
 

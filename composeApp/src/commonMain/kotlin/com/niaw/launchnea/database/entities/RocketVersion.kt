@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 @Entity(
@@ -42,6 +43,6 @@ data class RocketVersion(
     var imageURL: String? =null,
     var imageCredit: String? = null,
     var licenseType: String? = null,
-    var lastUpdated: ZonedDateTime?=null
+    var lastUpdated: LocalDateTime?=null,
 
     )

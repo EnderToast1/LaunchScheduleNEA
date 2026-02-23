@@ -9,6 +9,9 @@ import com.niaw.launchnea.ProgramType
 import com.niaw.launchnea.Status
 import com.niaw.launchnea.Reusable
 import com.niaw.launchnea.TimelineEvent
+import com.niaw.launchnea.ui.UiElements.Chip
+import com.niaw.launchnea.ui.UiElements.DisplayItems
+import com.niaw.launchnea.ui.UiElements.ListBoxItem
 import java.time.ZonedDateTime
 
 @Entity(
@@ -51,7 +54,6 @@ data class Launch(
     val launchTimePadLocal: ZonedDateTime? = null,
     var reusableParts: List<Reusable> = emptyList(),
 
-
     //Rest of data needed
     var success: Status = Status.UNKNOWN,
     var windowOpen: ZonedDateTime? = null,
@@ -75,5 +77,6 @@ data class Launch(
     var timeline: List<TimelineEvent> = emptyList(),
     var precisionAbbrev: String? = null,
     val programType: ProgramType?= ProgramType.UNKNOWN
-    )
-
+    ): ListBoxItem {
+    override fun listBoxText() = DisplayItems(missionName,"$agencyName | $rocketName", padName,launchTimeUTC.toString())
+}

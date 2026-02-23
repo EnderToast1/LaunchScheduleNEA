@@ -25,23 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.niaw.launchnea.Reusable
-import com.niaw.launchnea.ReuseType
-import com.niaw.launchnea.database.entities.Launch
-import com.niaw.launchnea.database.entities.Reuse
-
-data class displayItems(
-    val title String,
-    val secondRow String?=null,
-    val thirdRow String?=null,
-    val fourthRow String?=null,
-    val Chips List<Chip>=emptyList()
-)
-
-data class chip(
-    val abbrev String?=null
-)
-
 
 
 val cardShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 0.dp, topEnd = 0.dp, bottomEnd = 20.dp
@@ -50,34 +33,34 @@ val boxModifier = Modifier.fillMaxWidth().height(140.dp).border(width = 1.dp, co
 
 
 @Composable
-fun LaunchBox(item: any,onClick: (any) -> Unit) {
-    if (item!=null) {
+fun <T : ListBoxItem> listBox(item: T, onClick: (T) -> Unit) {
+
         Box(//TODO add colour for success
             modifier = boxModifier.clickable { onClick(item) }
         ) {
-            //Content
-          Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            val displayItems=LaunchDetail(item)
-            
-            LaunchImage(item)
-            LaunchDetailsDisplay(displayItems)
-    }
+                //Content
+              Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                  val displayItems = item.listBoxText()
+
+                    boxLeftImage(displayItems)
+                    boxDetailsDisplay(displayItems)
+
+            }
         }
-    }
+
 }
 
-
-private fun LaunchDetail(item:any):DisplayItems{//TODO make interface
-    
-    
+interface ListBoxItem {
+    fun listBoxText(): DisplayItems
 }
+
 
 
 @Composable
-private fun LaunchImage(item: displayItems) {
+private fun boxLeftImage(item: DisplayItems) {
     Box(
         modifier = Modifier
             .size(88.dp)
@@ -95,38 +78,36 @@ private fun LaunchImage(item: displayItems) {
 
 
 @Composable
-private fun LaunchDetailsDisplay(item: DisplayItems) {
+private fun boxDetailsDisplay(item: DisplayItems) {
+    boxChipsRow(item.chips)
     Column(
         modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-
-        LaunchChipsRow(item.chips)
-
         item.title?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
 
-        item.secondRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)
+        item.secondRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)}
 
         item.thirdRow?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
 
-        item.fourthRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)
+        item.fourthRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)}
     }
 }
 
 @Composable
-private fun LaunchChipsRow(chips: List<Chip>) {
+fun boxChipsRow(chips: List<Chip>) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {//TODO add 
        chips.forEach { chip ->
-            LaunchChip(chip)
+            boxChip(chip)
         }
 
     }
 }
 
 @Composable
-private fun LaunchChip(chip: Chip ) {
+fun boxChip(chip: Chip ) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
@@ -134,6 +115,6 @@ private fun LaunchChip(chip: Chip ) {
             .padding(horizontal = 5.dp, vertical = 1.dp)
     ) {
         //TODO add row with image and colour for success
-        chip.abbrv?.let { Text(it, style = MaterialTheme.typography.labelMedium) }
+        chip.abbrev?.let { Text(it, style = MaterialTheme.typography.labelMedium) }
     }
 }

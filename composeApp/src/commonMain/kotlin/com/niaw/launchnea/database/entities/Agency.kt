@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.LeaderType
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 @Entity
@@ -26,5 +27,5 @@ data class Agency(
     var wikiURL: String? =null,
     var socialsURL: String? =null,
     var youtubeURL: String? =null,
-    var lastUpdated: ZonedDateTime?=null
+    var lastUpdated: LocalDateTime?=null,
   )

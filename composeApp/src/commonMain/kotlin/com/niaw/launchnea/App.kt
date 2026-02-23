@@ -40,7 +40,7 @@ fun App(scheduleDao: ScheduleDao) {
 
     MaterialTheme {
         LaunchedEffect(Unit) {
-            //updateLaunchData(scheduleDao)
+            updateLaunchData(scheduleDao)
             //daoTest(scheduleDao)
         }
 
@@ -107,9 +107,9 @@ fun App(scheduleDao: ScheduleDao) {
             ) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                     when (currentRoute) {
-                        "home" -> HomeScreen()
+                        "home"     -> HomeScreen()
                         "launches" -> LaunchesScreen(scheduleDao)
-                        "vehicles" -> VehiclesScreen()
+                        "vehicles" -> VehiclesScreen(scheduleDao)
                         "settings" -> SettingsScreen()
                     }
                 }

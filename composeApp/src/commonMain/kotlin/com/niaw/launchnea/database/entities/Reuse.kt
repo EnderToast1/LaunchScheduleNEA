@@ -5,7 +5,10 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.ReuseType
 import com.niaw.launchnea.StatusReuse
+import com.niaw.launchnea.ui.UiElements.DisplayItems
+import com.niaw.launchnea.ui.UiElements.ListBoxItem
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 @Entity(foreignKeys = [
@@ -38,5 +41,7 @@ data class Reuse(
     var agencyID:String? = null,
     var reuseType: ReuseType = ReuseType.UNKNOWN,
     var status: StatusReuse = StatusReuse.UNKNOWN,
-    var lastUpdated: ZonedDateTime?=null
-  )
+    var lastUpdated: LocalDateTime?=null,
+  ): ListBoxItem {
+    override fun listBoxText() = DisplayItems(name, activeSince.toString(), status.toString(), rocketID)
+}
