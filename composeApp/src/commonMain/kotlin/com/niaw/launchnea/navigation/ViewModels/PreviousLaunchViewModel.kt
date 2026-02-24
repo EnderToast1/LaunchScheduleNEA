@@ -29,7 +29,7 @@ class PreviousLaunchViewModel (
                 if (query.isBlank()) {
                     dao.getPreviousLaunches()
                 } else {
-                    dao.getLaunchLikeName(query)
+                    dao.getPreviousLaunchesLikeName(query)
                 }
             }
             .stateIn(
