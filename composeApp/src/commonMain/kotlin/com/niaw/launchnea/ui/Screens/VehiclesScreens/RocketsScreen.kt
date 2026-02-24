@@ -20,7 +20,7 @@ import com.niaw.launchnea.ui.UiElements.ListOfBoxes
 @Composable
 fun RocketsScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (Rocket) -> Unit) {
     val viewModel= remember{ RocketViewModel(scheduleDao)}
-    val rockets by viewModel.launches.collectAsState()
+    val rockets by viewModel.rocket.collectAsState()
     val listState = rememberLazyListState()
 
 
