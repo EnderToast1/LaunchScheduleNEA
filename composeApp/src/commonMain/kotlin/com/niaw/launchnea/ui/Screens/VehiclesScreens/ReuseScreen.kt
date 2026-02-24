@@ -19,7 +19,7 @@ import com.niaw.launchnea.ui.UiElements.ListOfBoxes
 @Composable
 fun ReusesScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (Reuse) -> Unit) {
     val viewModel= remember{ ReuseViewModel(scheduleDao)}
-    val reuse by viewModel.reuseList.collectAsState()
+    val reuse by viewModel.reuse.collectAsState()
     val listState = rememberLazyListState()
 
 
