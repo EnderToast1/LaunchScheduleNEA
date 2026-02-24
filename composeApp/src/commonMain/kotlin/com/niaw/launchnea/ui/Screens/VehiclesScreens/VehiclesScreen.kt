@@ -79,7 +79,12 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
                         label = { Text("Search") },
                         singleLine = true
                     )
-
+                    LaunchedEffect(pagerState.currentPage) {
+                        when (pagerState.currentPage) {
+                            0 -> println("Click on Rocket tab row")
+                            1 -> println("Click on Reuse tab row")
+                        }
+                    }
                     // HorizontalPager handles swipe gestures on desktop and Android
                     HorizontalPager(
                         state = pagerState,
@@ -107,12 +112,10 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
                         when (page) {
 
                             0 -> {
-                                println("Click on Rocket tab row")
                                 RocketsScreen(searchText,scheduleDao){ rocket ->selectedRocket = rocket}
                             }
 
                             1 -> {
-                                println("Click on Reuse tab row")
                                 ReusesScreen(searchText,scheduleDao){ reuse ->selectedReuse = reuse}
                             }
 

@@ -2,31 +2,12 @@ package com.niaw.launchnea.ui.Screens.LaunchScreens
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -91,6 +72,12 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
                         label = { Text("Search missions") },
                         singleLine = true
                     )
+                    LaunchedEffect(pagerState.currentPage) {
+                        when (pagerState.currentPage) {
+                            0 -> println("Click on Upcoming tab row")
+                            1 -> println("Click on Previous tab row")
+                        }
+                    }
 
                     HorizontalPager(
                         state = pagerState,
@@ -115,14 +102,13 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
                             },
                         key = { it }
                     ) { page ->
+
                         when (page) {
                             0 -> {
-                                println("Click on Upcoming tab row")
                                 ListLaunchesScreen(remember { UpcomingLaunchViewModel(scheduleDao) }, searchText) { launch ->selectedLaunch = launch}
                             }
 
                             1 -> {
-                                println("Click on Previous tab row")
                                 ListLaunchesScreen(remember { PreviousLaunchViewModel(scheduleDao) },searchText) { launch -> selectedLaunch = launch }
                             }
 
