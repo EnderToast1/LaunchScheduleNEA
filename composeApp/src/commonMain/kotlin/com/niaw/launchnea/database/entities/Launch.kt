@@ -80,5 +80,5 @@ data class Launch(
     ): ListBoxItem {
     override fun listBoxText() = DisplayItems(missionName,"$agencyName | $rocketName", padName,launchTimeUTC.toString(),getChips())
 
-    fun getChips():List<Chip>  = reusableParts.map { Chip(it.abbrev) }
+    fun getChips():List<Chip>  = reusableParts.map { Chip(it.landingLocationAbbr) }
 }
