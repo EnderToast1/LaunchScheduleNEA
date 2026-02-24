@@ -23,7 +23,7 @@ class RocketViewModel(
         }
 
         @OptIn(ExperimentalCoroutinesApi::class)
-        val launches: StateFlow<List<Rocket>> =
+        val rocket: StateFlow<List<Rocket>> =
             searchQuery
                 .flatMapLatest { query ->
                     if (query.isBlank()) {
