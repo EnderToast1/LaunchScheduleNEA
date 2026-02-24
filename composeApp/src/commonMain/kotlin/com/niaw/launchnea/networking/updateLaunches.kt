@@ -30,6 +30,7 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -38,6 +39,7 @@ import java.time.ZonedDateTime
 import kotlin.collections.List
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+
 
 
 suspend fun updateLaunchData(scheduleDao: ScheduleDao){
@@ -90,7 +92,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
         println("NEXT UPCOMING RESPONSE")
         upcomingCallResponse=(APIFetchRequest(upcomingCallResponse.next))
         upcomingCallResponse.count-=(i*100)
-        if (pastCallResponse.errorType!=null) {upcomingUpdated=false}
+        if (upcomingCallResponse.errorType!=null) {upcomingUpdated=false}
         responseToDatabase(scheduleDao,upcomingCallResponse)
     }
 
@@ -488,7 +490,7 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
     val toReturn=Reuse(
         reuseID = reusablePart.reuseID!!,
         name = reusablePart.reuseName,
-        activeSince = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("launch_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("first_launch_date")?.jsonPrimitive?.content?.let { LocalDate.parse(it) },
+        activeSince = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("first_launch_date")?.jsonPrimitive?.content ?.takeIf { it != "null" }?.let {Instant.parse(it).atZone(ZoneOffset.UTC).toLocalDate()},
         versionID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
         rocketID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,

@@ -22,7 +22,7 @@ fun <T : ListBoxItem> ListOfBoxes(listOfItem: List<T>, listState: LazyListState,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(listOfItem) { item ->
-            listBox(item = item, onClick =onItemClick )
+            ListBox(item = item, onClick =onItemClick )
         }
     }
 }

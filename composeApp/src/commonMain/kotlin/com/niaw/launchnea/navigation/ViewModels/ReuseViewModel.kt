@@ -1,3 +1,5 @@
+package com.niaw.launchnea.navigation.ViewModels
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.niaw.launchnea.database.ScheduleDao

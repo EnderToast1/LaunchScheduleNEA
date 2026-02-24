@@ -113,7 +113,7 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
 
                             1 -> {
                                 println("Click on Reuse tab row")
-                                ReusesScreen()
+                                ReusesScreen(searchText,scheduleDao){ reuse ->selectedReuse = reuse}
                             }
 
                         }

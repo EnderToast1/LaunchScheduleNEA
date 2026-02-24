@@ -3,19 +3,10 @@ package com.niaw.launchnea.ui.UiElements
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.NoDrinks
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,7 +24,7 @@ val boxModifier = Modifier.fillMaxWidth().height(140.dp).border(width = 1.dp, co
 
 
 @Composable
-fun <T : ListBoxItem> listBox(item: T, onClick: (T) -> Unit) {
+fun <T : ListBoxItem> ListBox(item: T, onClick: (T) -> Unit) {
 
         Box(//TODO add colour for success
             modifier = boxModifier.clickable { onClick(item) }
@@ -45,8 +36,8 @@ fun <T : ListBoxItem> listBox(item: T, onClick: (T) -> Unit) {
             ) {
                   val displayItems = item.listBoxText()
 
-                    boxLeftImage(displayItems)
-                    boxDetailsDisplay(displayItems)
+                  BoxLeftImage(displayItems)
+                  BoxDetailsDisplay(displayItems)
 
             }
         }
@@ -60,30 +51,32 @@ interface ListBoxItem {
 
 
 @Composable
-private fun boxLeftImage(item: DisplayItems) {
+private fun BoxLeftImage(item: DisplayItems) {
     Box(
         modifier = Modifier
             .size(88.dp)
-            .background(Color(0xFF1C1C22)),
+            .background(Color(0xFF000000)),
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Default.Image,//TODO add image URL display
-            contentDescription = null
+            imageVector = Icons.Filled.NoDrinks,
+            contentDescription = null,
+            tint = Color.White
         )
-        //TODO add licence and credit
+
     }
 }
 
 
 
 @Composable
-private fun boxDetailsDisplay(item: DisplayItems) {
-    boxChipsRow(item.chips)
+private fun BoxDetailsDisplay(item: DisplayItems) {
+
     Column(
         modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
+        BoxChipsRow(item.chips)
         item.title?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
 
         item.secondRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)}
@@ -95,19 +88,19 @@ private fun boxDetailsDisplay(item: DisplayItems) {
 }
 
 @Composable
-fun boxChipsRow(chips: List<Chip>) {
+fun BoxChipsRow(chips: List<Chip>) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {//TODO add 
        chips.forEach { chip ->
-            boxChip(chip)
+            BoxChip(chip)
         }
 
     }
 }
 
 @Composable
-fun boxChip(chip: Chip ) {
+fun BoxChip(chip: Chip ) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
