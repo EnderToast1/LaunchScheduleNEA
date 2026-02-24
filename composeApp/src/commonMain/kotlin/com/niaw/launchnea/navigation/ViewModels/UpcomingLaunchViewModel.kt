@@ -29,7 +29,7 @@ class UpcomingLaunchViewModel (
                 if (query.isBlank()) {
                     dao.getUpcomingLaunches()
                 } else {
-                    dao.getLaunchLikeName(query)
+                    dao.getUpcomingLaunchesLikeName(query)
                 }
             }
             .stateIn(
