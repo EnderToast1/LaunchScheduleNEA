@@ -78,5 +78,14 @@ data class Launch(
     var precisionAbbrev: String? = null,
     val programType: ProgramType?= ProgramType.UNKNOWN
     ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(missionName,"$agencyName | $rocketName", padName,launchTimeUTC.toString())
+    override fun listBoxText() = DisplayItems(missionName,"$agencyName | $rocketName", padName,launchTimeUTC.toString(),getChips())
+
+    fun getChips():List<Chip>{
+        var chips:List<Chip>
+        reusableParts.forEach {reusable->
+            chips.add(Chip(reuasable.abbrev))            
+  
+        }
+        
+    }
 }
