@@ -99,11 +99,19 @@ interface ScheduleDao {
     fun getOnThisDayLaunches(): Flow<List<Launch>>
 
     @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE")
-    fun getLaunchLikeName(givenName: String): Flow<List<Launch>>
+    fun getLaunchLikeName(givenName: String): Flow<List<Launch>>//TODO split into past and upcoming
+
+    @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE AND launchTimeUTC < CURRENT_TIMESTAMP")
+    fun getPreviousLaunchesLikeName(givenName : String): Flow<List<Launch>>
+
+    @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE AND launchTimeUTC > CURRENT_TIMESTAMP")
+    fun getUpcomigLaunchesLikeName(givenName : String): Flow<List<Launch>>
 
     @Query("SELECT * FROM rocket WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE")
     fun getRocketLikeName(givenName: String): Flow<List<Rocket>>
 
+    @Query("SELECT * FROM reuse WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE")
+    fun getReuseLikeName(givenName: String): Flow<List<Reuse>>
 
 
 }
