@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import com.niaw.launchnea.ReuseType
 import com.niaw.launchnea.StatusReuse
 import com.niaw.launchnea.ui.UiElements.DisplayItems
+import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -43,5 +44,7 @@ data class Reuse(
     var status: StatusReuse = StatusReuse.UNKNOWN,
     var lastUpdated: LocalDateTime?=null,
   ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(name, activeSince.toString(), status.toString(), rocketID)
+
+    //TODO add RocketImage in ImageGroup and change show to true
+    override fun listBoxText() = DisplayItems(name, ImageGroup(show=false),activeSince.toString(), status.toString(), rocketID)
 }

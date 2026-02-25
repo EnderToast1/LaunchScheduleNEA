@@ -29,12 +29,15 @@ assertk = "0.28.1"
 coreKtx = "1.7.0"
 composeTest = "1.9.3"
 ui = "1.9.3"
+coil = "3.0.0-rc01"
 
 
 
 [libraries]
 
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "ui" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 compose-ui-util = { module = "org.jetbrains.compose.ui:ui-util", version.ref = "ui" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "foundation" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }

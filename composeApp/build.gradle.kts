@@ -34,7 +34,8 @@ kotlin {
             implementation(compose.runtime)
             implementation(libs.kotlinx.serialization.json)
             implementation(compose.materialIconsExtended)
-
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.runtime)

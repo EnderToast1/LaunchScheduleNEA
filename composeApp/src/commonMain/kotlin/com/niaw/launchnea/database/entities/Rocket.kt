@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.ui.UiElements.DisplayItems
+import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -29,5 +30,5 @@ data class Rocket(
     var desc: String? =null, //long
     var lastUpdated: LocalDateTime?=null,
   ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(this.name,this.agencyID,"Flights", "Time since last fight")
+    override fun listBoxText() = DisplayItems(this.name,ImageGroup(imageURL, imageCredit, licenseType,true),this.agencyID,"Flights", "Time since last fight")
 }

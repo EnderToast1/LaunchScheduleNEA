@@ -16,8 +16,8 @@ fun <T : ListBoxItem> ListOfBoxes(listOfItem: List<T>, listState: LazyListState,
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            horizontal = 16.dp,
-            vertical = 12.dp
+            horizontal = 10.dp,
+            vertical = 10.dp
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {

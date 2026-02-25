@@ -45,7 +45,7 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
 
         Box(modifier = Modifier.fillMaxSize()) {
             if (selectedLaunch != null) {
-                    println("Clicked on ${selectedLaunch!!.missionName}")
+                    println("Clicked on ${selectedLaunch!!.missionName},  \n$selectedLaunch")
                     IndividualLaunchScreen(selectedLaunch!!){
                         println("Backed out of ${selectedLaunch!!.missionName}")
                         selectedLaunch = null

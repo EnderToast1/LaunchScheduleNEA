@@ -245,7 +245,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     }
     val windowOpenUTC: ZonedDateTime? =launchJsonObj["window_start"]?.jsonPrimitive?.content?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
     val windowCloseUTC: ZonedDateTime? =launchJsonObj["window_end"]?.jsonPrimitive?.content?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
-    val imageUrl = (launchJsonObj["image"] as? JsonObject)?.jsonObject?.get("image_url")?.jsonPrimitive?.content
+    val imageUrl = (launchJsonObj["image"] as? JsonObject)?.jsonObject?.get("thumbnail_url")?.jsonPrimitive?.content
     val imageCredit = (launchJsonObj["image"] as? JsonObject)?.jsonObject?.get("credit")?.jsonPrimitive?.content
     val imageLicenseType = (launchJsonObj["image"] as? JsonObject)?.jsonObject?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content
     val weatherProbability = launchJsonObj["probability"]?.jsonPrimitive?.doubleOrNull
@@ -420,7 +420,7 @@ suspend fun parseRocket(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ro
         rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
         name = rocketJsonObj?.get("configuration")?.jsonObject?.get("name")?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
-        imageURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("image_url")?.jsonPrimitive?.content,
+        imageURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("thumbnail_url")?.jsonPrimitive?.content,
         imageCredit =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
         licenseType=(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("license")?.let { it as? JsonObject }?.get("name")?.let { it as? JsonPrimitive }?.contentOrNull,
         desc = rocketJsonObj?.get("configuration")?.jsonObject?.get("description")?.jsonPrimitive?.content,

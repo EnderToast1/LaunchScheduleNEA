@@ -11,6 +11,7 @@ import com.niaw.launchnea.Reusable
 import com.niaw.launchnea.TimelineEvent
 import com.niaw.launchnea.ui.UiElements.Chip
 import com.niaw.launchnea.ui.UiElements.DisplayItems
+import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
 import java.time.ZonedDateTime
 
@@ -78,7 +79,7 @@ data class Launch(
     var precisionAbbrev: String? = null,
     val programType: ProgramType?= ProgramType.UNKNOWN
     ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(missionName,"$agencyName | $rocketName", padName,launchTimeUTC.toString(),getChips())
+    override fun listBoxText() = DisplayItems(missionName,ImageGroup(imageUrl, imageCredit, licenseType,true),"$agencyName | $rocketName", padName,launchTimeUTC.toString(),getChips())
 
     fun getChips():List<Chip>  = reusableParts.map { Chip(it.landingLocationAbbr) }
 }
