@@ -1,8 +1,15 @@
 package com.niaw.launchnea.database.entities
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Business
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Numbers
+import androidx.compose.material.icons.outlined.Rocket
+import androidx.compose.material.icons.outlined.Timer
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
@@ -30,5 +37,14 @@ data class Rocket(
     var desc: String? =null, //long
     var lastUpdated: LocalDateTime?=null,
   ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(this.name,ImageGroup(imageURL, imageCredit, licenseType,true),this.agencyID,"Flights", "Time since last fight")
+    override fun listBoxText() = DisplayItems(
+            title = this.name,
+            imageGroup = ImageGroup(imageURL, imageCredit, licenseType,true),
+            secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Business),
+            secondRow = this.agencyID,
+            thirdRowIcon = DisplayIcon.Vector(Icons.Outlined.Numbers),
+            thirdRow = "Flights",
+            fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
+            fourthRow = "Time since last flight"
+    )
 }

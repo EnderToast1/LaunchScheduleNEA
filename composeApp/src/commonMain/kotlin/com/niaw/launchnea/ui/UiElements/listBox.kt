@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
+import org.jetbrains.compose.resources.painterResource
 
 
 interface ListBoxItem {
@@ -131,11 +132,50 @@ private fun BoxDetailsDisplay(item: DisplayItems) {
         BoxChipsRow(item.chips)
         item.title?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
 
-        item.secondRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)}
+        LowerRow(item.secondRowIcon,item.secondRow)
+        LowerRow(item.thirdRowIcon,item.thirdRow)
+        LowerRow(item.fourthRowIcon,item.fourthRow)
 
-        item.thirdRow?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+    }
+}
 
-        item.fourthRow?.let { Text(it, style = MaterialTheme.typography.bodySmall)}
+@Composable
+fun LowerRow(icon: DisplayIcon?,value:String?) {
+    if (icon != null || value != null) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.width(20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                when (icon) {
+                    is DisplayIcon.Vector ->
+                        Icon(
+                            imageVector = icon.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+
+                    is DisplayIcon.Resource ->
+                        Icon(
+                            painter = painterResource(icon.res),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+
+                    null -> Unit
+                }
+            }
+
+            if (value != null) {
+                Spacer(modifier = Modifier.width(3.dp))
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
     }
 }
 
@@ -160,6 +200,9 @@ fun BoxChip(chip: Chip ) {
             .padding(horizontal = 5.dp, vertical = 1.dp)
     ) {
         //TODO add row with image and colour for success
-        chip.abbrev?.let { Text(it, style = MaterialTheme.typography.labelMedium) }
+        Text(
+            text = chip.abbrev ?: "Unknown",
+            style = MaterialTheme.typography.labelMedium
+        )
     }
 }

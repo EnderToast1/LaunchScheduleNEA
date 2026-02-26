@@ -1,10 +1,25 @@
 package com.niaw.launchnea.database.entities
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Help
+import androidx.compose.material.icons.filled.Rocket
+import androidx.compose.material.icons.outlined.AirplanemodeActive
+import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material.icons.outlined.Help
+import androidx.compose.material.icons.outlined.ImageNotSupported
+import androidx.compose.material.icons.outlined.Rocket
+import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material.icons.outlined.Timer
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.ReuseType
 import com.niaw.launchnea.StatusReuse
+import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
@@ -46,5 +61,27 @@ data class Reuse(
   ): ListBoxItem {
 
     //TODO add RocketImage in ImageGroup and change show to true
-    override fun listBoxText() = DisplayItems(name, ImageGroup(show=false),activeSince.toString(), status.toString(), rocketID)
+    override fun listBoxText() = DisplayItems(
+        title = name,
+        imageGroup = ImageGroup(show = false),
+        secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Timer),
+        secondRow = activeSince.toString(),
+        thirdRowIcon = statusReuseIcon(),
+        thirdRow = status.toString(),
+        fourthRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
+        fourthRow = rocketID
+    )
+
+    fun statusReuseIcon(): DisplayIcon.Vector {//TODO need Editing
+        return when (this.status) {
+            StatusReuse.RETIRED,
+            StatusReuse.EXPENDED -> DisplayIcon.Vector(Icons.Outlined.CheckCircle)
+            StatusReuse.ACTIVE -> DisplayIcon.Vector(Icons.Outlined.AirplanemodeActive)
+            StatusReuse.LOST -> DisplayIcon.Vector(Icons.Outlined.Error)
+            StatusReuse.SCRAPPED -> DisplayIcon.Vector(Icons.Outlined.Delete)
+            StatusReuse.CONVERTED -> DisplayIcon.Vector(Icons.Outlined.SwapHoriz)
+            StatusReuse.DESTROYED -> DisplayIcon.Vector(Icons.Outlined.Cancel)
+            StatusReuse.UNKNOWN -> DisplayIcon.Vector(Icons.AutoMirrored.Outlined.Help)
+        }
+    }
 }

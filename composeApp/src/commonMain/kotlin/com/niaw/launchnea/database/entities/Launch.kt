@@ -1,5 +1,15 @@
 package com.niaw.launchnea.database.entities
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Rocket
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Pin
+import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.Rocket
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.Icon
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -10,6 +20,7 @@ import com.niaw.launchnea.Status
 import com.niaw.launchnea.Reusable
 import com.niaw.launchnea.TimelineEvent
 import com.niaw.launchnea.ui.UiElements.Chip
+import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
@@ -79,7 +90,17 @@ data class Launch(
     var precisionAbbrev: String? = null,
     val programType: ProgramType?= ProgramType.UNKNOWN
     ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(missionName,ImageGroup(imageUrl, imageCredit, licenseType,true),"$agencyName | $rocketName", padName,launchTimeUTC.toString(),getChips())
+    override fun listBoxText() = DisplayItems(
+            title = missionName,
+            imageGroup = ImageGroup(imageUrl, imageCredit, licenseType,true),
+            secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
+            secondRow = "$rocketName | $agencyName",
+            thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Place),
+            thirdRow = padName,
+            fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),
+            fourthRow = launchTimeUTC.toString(),
+            chips = getChips()
+    )
 
-    fun getChips():List<Chip>  = reusableParts.map { Chip(it.landingLocationAbbr) }
+    fun getChips():List<Chip>  = reusableParts.map { Chip(it.landingLocationAbbr) }//TODO add change to landing Name if abbr not part of select list of "known" locations
 }
