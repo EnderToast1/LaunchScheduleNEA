@@ -113,7 +113,9 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit){
 
 @Composable
 fun MissionMainBox(){
-        Box(Modifier.fillMaxWidth().height(300.dp).background(Color.Yellow))
+        Box(Modifier.fillMaxWidth().height(300.dp).background(Color.Yellow)){
+                LaunchWindowTimeline()
+        }
 }
 
 @Composable
@@ -210,65 +212,6 @@ fun MissionDetailsBody(launch:Launch){
 }
 
 
-@Composable
-fun MissionHeaderCard() {
-        Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
-                shape = RoundedCornerShape(16.dp)
-        ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-
-                        Text(
-                                text = "Mission Name",
-                                style = MaterialTheme.typography.headlineMedium
-                        )
-
-                        Spacer(Modifier.height(8.dp))
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                        text = "Lift-off Time (Time-Zone)",
-                                        style = MaterialTheme.typography.labelMedium
-                                )
-                                Icon(
-                                        imageVector = Icons.Default.ArrowDropDown,
-                                        contentDescription = null
-                                )
-                        }
-
-                        Spacer(Modifier.height(8.dp))
-
-                        Text(
-                                text = "00:00",
-                                style = MaterialTheme.typography.displayMedium
-                        )
-
-                        Spacer(Modifier.height(12.dp))
-
-                        InfoRow(icon = Icons.Default.CalendarMonth, text = "DAY DATE")
-                        InfoRow(icon = Icons.Default.Place, text = "Pad Name")
-
-                        Spacer(Modifier.height(16.dp))
-
-                        LaunchWindowTimeline()
-                }
-        }
-}
-
-@Composable
-fun InfoRow(icon: ImageVector, text: String) {
-        Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 4.dp)
-        ) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(text, style = MaterialTheme.typography.bodyMedium)
-        }
-}
 
 @Composable
 fun LaunchWindowTimeline() {
@@ -319,39 +262,3 @@ fun TimelineDot(color: Color) {
         )
 }
 
-@Composable
-fun LivestreamButton() {
-        Button(
-                onClick = { /* open stream */ },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB00000)),
-                shape = RoundedCornerShape(50)
-        ) {
-                Text("Watch Livestream")
-                Spacer(Modifier.weight(1f))
-                Icon(Icons.Default.Link, contentDescription = null)
-        }
-}
-
-@Composable
-fun MissionDetailsCard() {
-        Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
-                shape = RoundedCornerShape(16.dp)
-        ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                                text = "Mission Name",
-                                style = MaterialTheme.typography.titleMedium
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                                text = "Details",
-                                style = MaterialTheme.typography.bodyMedium
-                        )
-                }
-        }
-}
