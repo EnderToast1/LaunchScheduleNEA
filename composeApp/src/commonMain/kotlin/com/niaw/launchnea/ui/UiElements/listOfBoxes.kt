@@ -12,6 +12,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun <T : ListBoxItem> ListOfBoxes(listOfItem: List<T>, listState: LazyListState, onItemClick: (T) -> Unit) {
+
+    //TODO if List empty display no items
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),

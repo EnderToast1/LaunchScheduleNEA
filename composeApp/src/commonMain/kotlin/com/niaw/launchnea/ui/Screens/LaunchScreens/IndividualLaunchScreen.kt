@@ -3,36 +3,14 @@ package com.niaw.launchnea.ui.Screens.LaunchScreens
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Business
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,10 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.abbreviate
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.navigation.setBackHandler
+import launchnea.composeapp.generated.resources.Res
+import launchnea.composeapp.generated.resources.search_book
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
@@ -58,9 +40,12 @@ fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
         Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(16.dp)) {
                 HeaderRow(launch, onBack)//Back and Agency boxes
 
-                Box(Modifier.fillMaxWidth().height(100.dp).background(Color.Yellow)) //TODO Mission and Time Box
-                //TODO LiveStream Box
-                //TODO Mission details
+                MissionMainBox() //TODO Mission and Time Box
+                Spacer(Modifier.height(10.dp))
+                LiveStreamBox()
+                Spacer(Modifier.height(15.dp))
+                MissionDetails(launch)
+
                 //TODO Rocket Section
                 //TODO Reuse
                 //TODO Pad
@@ -126,6 +111,103 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit){
 }
 
 
+@Composable
+fun MissionMainBox(){
+        Box(Modifier.fillMaxWidth().height(300.dp).background(Color.Yellow))
+}
+
+@Composable
+fun LiveStreamBox(){//TODO add click functionality
+        Box(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clip(RoundedCornerShape(percent = 50)) // pill shape
+                        .background(Color(0xFFC40000))
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+        ) {
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                ) {
+                        Text(
+                                text = "Watch Livestream",
+                                color = Color.White,
+                                style = MaterialTheme.typography.labelLarge
+                        )
+
+                        Icon(
+                                imageVector = Icons.Outlined.Link,
+                                contentDescription = "Livestream link",
+                                tint = Color.White
+                        )
+                }
+        }
+}
+
+@Composable
+fun MissionDetails(launch:Launch){
+        MissionDetailsHeader()
+        Spacer(Modifier.height(10.dp))
+        MissionDetailsBody(launch)
+
+}
+
+@Composable
+fun MissionDetailsHeader(){
+        val textStyle = MaterialTheme.typography.headlineLarge
+        val iconSize = with(LocalDensity.current) {
+                textStyle.fontSize.toDp()
+        }
+
+        Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+        ) {
+                Icon(
+                        painter = painterResource(Res.drawable.search_book),
+                        contentDescription = "Mission Details",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(iconSize)
+                )
+
+                Spacer(modifier = Modifier.width(7.dp))
+
+                Text(
+                        text = "Mission Details",
+                        style = textStyle,
+                        color = MaterialTheme.colorScheme.primary
+                )
+        }
+}
+
+@Composable
+fun MissionDetailsBody(launch:Launch){
+        Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.primaryContainer)) {
+                Box(Modifier.padding(10.dp)) {
+                        launch.missionName?.let {
+                                Text(
+                                        it,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                        }
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                Box(Modifier.padding(10.dp)) {
+                        launch.description?.let {
+                                Text(
+                                        it,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                        }
+                }
+        }
+
+}
 
 
 @Composable
