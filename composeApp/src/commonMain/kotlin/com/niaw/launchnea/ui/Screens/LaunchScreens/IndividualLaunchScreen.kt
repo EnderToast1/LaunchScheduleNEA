@@ -14,13 +14,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.abbreviate
 import com.niaw.launchnea.database.entities.Launch
@@ -28,6 +31,7 @@ import com.niaw.launchnea.navigation.setBackHandler
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.search_book
 import org.jetbrains.compose.resources.painterResource
+import java.time.LocalTime
 
 @Composable
 fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
@@ -113,9 +117,76 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit){
 
 @Composable
 fun MissionMainBox(){
-        Box(Modifier.fillMaxWidth().height(300.dp).background(Color.Yellow)){
-                LaunchWindowTimeline()
+        var selectedZone by remember {mutableStateOf(LiftoffTimeZone.PAD_LOCAL)}
+
+        Box(modifier = Modifier.background(Color.Yellow).height(300.dp).fillMaxWidth().padding(10.dp)) {
+                Column(Modifier.fillMaxWidth()) {
+                        Text(
+                                "Mission Name",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        TimeDropDown(selected = selectedZone, onSelected = { selectedZone = it }, modifier = Modifier.fillMaxWidth())
+
+                        Spacer(Modifier.height(15.dp))
+                        LaunchWindowTimeline(LocalTime.of(3, 23), LocalTime.of(3, 30), LocalTime.of(4, 32))
+                }
         }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimeDropDown(
+        selected: LiftoffTimeZone,
+        onSelected: (LiftoffTimeZone) -> Unit,
+        modifier: Modifier = Modifier
+        ) {
+        var expanded by remember { mutableStateOf(false) }
+
+        Box(modifier.clip(RoundedCornerShape(12.dp))) {
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                                .clickable { expanded = true }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                        Text(
+                                text = "Lift-off Time (${selected.label})",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary
+                        )
+
+                        Spacer(Modifier.width(0.dp))
+
+                        Icon(
+                                imageVector = Icons.Filled.ArrowDropDown,
+                                contentDescription = "Select time zone"
+                        )
+                }
+
+                DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                ) {
+                        LiftoffTimeZone.entries.forEach { zone ->
+                                DropdownMenuItem(
+                                        text = { Text(zone.label) },
+                                        onClick = {
+                                                onSelected(zone)
+                                                expanded = false
+                                        }
+                                )
+                        }
+                }
+        }
+}
+
+
+enum class LiftoffTimeZone(val label: String) {
+        PAD_LOCAL("Pad local"),
+        UTC("UTC"),
+        DEVICE_LOCAL("Device local")
 }
 
 @Composable
@@ -212,53 +283,107 @@ fun MissionDetailsBody(launch:Launch){
 }
 
 
-
 @Composable
-fun LaunchWindowTimeline() {
+fun LaunchWindowTimeline(timeOpen: LocalTime, timeLaunch: LocalTime, timeClose: LocalTime) {
+        val openSeconds = timeOpen.toSecondOfDay()
+        val launchSeconds = timeLaunch.toSecondOfDay()
+        val closeSeconds = timeClose.toSecondOfDay()
+
+        val progress = ((launchSeconds - openSeconds).toFloat() /
+                (closeSeconds - openSeconds))
+                .coerceIn(0f, 1f)
+
         Column {
-                Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                BoxWithConstraints(
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp) // space for label + timeline
                 ) {
-                        TimelineDot(color = Color.Gray)
+                        val dotSize = 10.dp
+                        val usableWidth = maxWidth - dotSize
+                        val markerX = usableWidth * progress
 
-                        Divider(
+                        // === Timeline base ===
+                        Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                        .weight(1f)
-                                        .height(4.dp),
-                                color = Color.DarkGray
-                        )
+                                        .fillMaxWidth()
+                                        .align(Alignment.Center)
+                        ) {
+                                TimelineDot(color = Color.Gray, Modifier)
 
-                        TimelineDot(color = Color.Green)
+                                Divider(
+                                        modifier = Modifier
+                                                .weight(1f)
+                                                .height(4.dp),
+                                        color = Color.DarkGray
+                                )
 
-                        Divider(
+                                Divider(
+                                        modifier = Modifier
+                                                .weight(1f)
+                                                .height(4.dp),
+                                        color = Color.DarkGray
+                                )
+
+                                TimelineDot(color = Color.Gray, Modifier)
+                        }
+
+                        // === Planned Liftoff label (above line) ===
+                        Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                        .weight(1f)
-                                        .height(4.dp),
-                                color = Color.DarkGray
-                        )
+                                        .offset(x = markerX-4.5.dp,y= (-5).dp)
+                                        .align(Alignment.TopStart)
+                        ) {
+                                Icon(
+                                        imageVector = Icons.Filled.Rocket,
+                                        contentDescription = "Planned Launch"
+                                )
 
-                        TimelineDot(color = Color.Gray)
+                                Spacer(modifier = Modifier.width(4.dp))
+
+                                Text(
+                                        text = "Planned Liftoff",
+                                        style = MaterialTheme.typography.labelSmall
+                                )
+                        }
+
+                        // === Green launch dot (on the line) ===
+                        TimelineDot(
+                                color = Color.Green,
+                                modifier = Modifier
+                                        .offset(x = markerX)
+                                        .align(Alignment.CenterStart)
+                        )
                 }
 
                 Spacer(Modifier.height(4.dp))
 
+                // === Window labels ===
                 Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                        Text("Window Open\n00:00", style = MaterialTheme.typography.labelSmall)
-                        Text("Window Close\n00:00", style = MaterialTheme.typography.labelSmall)
+                        Text(
+                                text = "Window Open\n$timeOpen",
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.Start
+                        )
+
+                        Text(
+                                text = "Window Close\n$timeClose",
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.End
+                        )
                 }
         }
 }
 
 @Composable
-fun TimelineDot(color: Color) {
+fun TimelineDot(color: Color,modifier: Modifier) {
         Box(
-                modifier = Modifier
-                        .size(16.dp)
-                        .background(color, CircleShape)
+                modifier = modifier.size(16.dp).background(color, CircleShape)
         )
 }
 
