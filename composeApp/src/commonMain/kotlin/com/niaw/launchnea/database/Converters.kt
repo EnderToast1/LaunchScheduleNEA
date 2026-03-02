@@ -2,9 +2,9 @@ package com.niaw.launchnea.database
 
 
 import androidx.room.TypeConverter
-import com.niaw.launchnea.Location
-import com.niaw.launchnea.Reusable
-import com.niaw.launchnea.TimelineEvent
+import com.niaw.launchnea.utils.Location
+import com.niaw.launchnea.utils.Reusable
+import com.niaw.launchnea.utils.TimelineEvent
 import kotlinx.serialization.json.Json
 import java.time.*
 import java.time.format.DateTimeFormatter

@@ -30,6 +30,7 @@ coreKtx = "1.7.0"
 composeTest = "1.9.3"
 ui = "1.9.3"
 coil = "3.0.0-rc01"
+datastore="1.1.1"
 
 
 
@@ -65,6 +66,9 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtx" }
+datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+
 
 
 [plugins]

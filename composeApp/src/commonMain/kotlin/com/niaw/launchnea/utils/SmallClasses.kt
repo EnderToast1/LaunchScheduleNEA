@@ -1,4 +1,4 @@
-package com.niaw.launchnea
+package com.niaw.launchnea.utils
 
 import kotlinx.serialization.Serializable
 

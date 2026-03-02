@@ -1,4 +1,4 @@
-package com.niaw.launchnea.ui.Screens.VehiclesScreens
+package com.niaw.launchnea.ui.Screens.IndividualScreens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,13 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.navigation.setBackHandler
 
 @Composable
-fun IndividualReuseScreen(reuse: Reuse,  onBack: () -> Unit) {
-    LaunchedEffect(reuse) {
+fun IndividualRocketScreen(rocket: Rocket,  onBack: () -> Unit) {
+    LaunchedEffect(rocket) {
         setBackHandler(enabled = true) {
             onBack()
         }
@@ -28,7 +27,7 @@ fun IndividualReuseScreen(reuse: Reuse,  onBack: () -> Unit) {
         Button(onClick = onBack, modifier = Modifier.padding(8.dp)) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
-        reuse.name?.let { Text(it) }
+        rocket.name?.let { Text(it) }
     }
 
 }

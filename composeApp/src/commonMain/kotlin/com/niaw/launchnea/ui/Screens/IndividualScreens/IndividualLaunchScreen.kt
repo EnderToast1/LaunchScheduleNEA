@@ -1,4 +1,4 @@
-package com.niaw.launchnea.ui.Screens.LaunchScreens
+package com.niaw.launchnea.ui.Screens.IndividualScreens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -11,27 +11,25 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.niaw.launchnea.abbreviate
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.navigation.setBackHandler
+import com.niaw.launchnea.ui.UiElements.IconTextRow
+import com.niaw.launchnea.utils.LaunchTimesFormated
+import com.niaw.launchnea.utils.abbreviate
+import com.niaw.launchnea.utils.getLaunchTimesAsNeededFormat
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.search_book
 import org.jetbrains.compose.resources.painterResource
-import java.time.LocalTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
@@ -41,19 +39,21 @@ fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
                 }
         }
 
-        Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(16.dp)) {
+        Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                 HeaderRow(launch, onBack)//Back and Agency boxes
 
-                MissionMainBox() //TODO Mission and Time Box
-                Spacer(Modifier.height(10.dp))
-                LiveStreamBox()
-                Spacer(Modifier.height(15.dp))
-                MissionDetails(launch)
+                MissionMainBox(launch) //TODO Mission and Time Box
+                Spacer(Modifier.height(5.dp))
+                Column(Modifier.fillMaxWidth().padding(10.dp)) {
+                        LiveStreamBox()
+                        Spacer(Modifier.height(15.dp))
+                        MissionDetails(launch)
 
-                //TODO Rocket Section
-                //TODO Reuse
-                //TODO Pad
-                //TODO Stats
+                        //TODO Rocket Section
+                        //TODO Reuse
+                        //TODO Pad
+                        //TODO Stats
+                }
         }
 }
 
@@ -77,7 +77,7 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit){
                             .weight(1f)
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(12.dp, 12.dp))
-                            .background(Color.Green)
+                            .background(MaterialTheme.colorScheme.primaryContainer)
                             .padding(horizontal = 4.dp, vertical = 8.dp)
                             .clickable { onBack() }
             ) {
@@ -98,7 +98,7 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit){
                             .weight(animatedWeight)
                             .fillMaxHeight()
                             .clip(RoundedCornerShape(12.dp, 12.dp))
-                            .background(Color.Red)
+                            .background(MaterialTheme.colorScheme.primaryContainer)
                             .padding(horizontal = 4.dp, vertical = 8.dp)
             ) {
                     Row(
@@ -116,32 +116,44 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit){
 
 
 @Composable
-fun MissionMainBox(){
-        var selectedZone by remember {mutableStateOf(LiftoffTimeZone.PAD_LOCAL)}
+fun MissionMainBox(launch:Launch){
+        var selectedZone by remember {mutableStateOf(LiftoffTimeZone.DEVICE_LOCAL)}
 
-        Box(modifier = Modifier.background(Color.Yellow).height(300.dp).fillMaxWidth().padding(10.dp)) {
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer).fillMaxWidth().padding(10.dp)) {
                 Column(Modifier.fillMaxWidth()) {
-                        Text(
-                                "Mission Name",
-                                style = MaterialTheme.typography.headlineMedium,
+                        launch.missionName?.let {
+                            Text(
+                                it,
+                                style = MaterialTheme.typography.displaySmall,
                                 color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(Modifier.height(8.dp))
+                            )
+                        }
+                        Spacer(Modifier.height(5.dp))
                         TimeDropDown(selected = selectedZone, onSelected = { selectedZone = it }, modifier = Modifier.fillMaxWidth())
 
+                        val dateFormatter = DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy")
+                        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+                        val launchTimes=getLaunchTimesAsNeededFormat(launch, dateFormatter, timeFormatter)
+
+                        Text(
+                                text=launchTimes.liftoffTime,
+                                style = MaterialTheme.typography.displayMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        IconTextRow(launchTimes.liftoffDate,"Launch Date",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.CalendarMonth),Modifier,MaterialTheme.colorScheme.onPrimaryContainer)
+                        Spacer(Modifier.height(4.dp))
+                    launch.padName?.let { IconTextRow(it,"pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier,MaterialTheme.colorScheme.onPrimaryContainer) }
+
                         Spacer(Modifier.height(15.dp))
-                        LaunchWindowTimeline(LocalTime.of(3, 23), LocalTime.of(3, 30), LocalTime.of(4, 32))
+                        LaunchWindowTimeline(launchTimes)
                 }
         }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimeDropDown(
-        selected: LiftoffTimeZone,
-        onSelected: (LiftoffTimeZone) -> Unit,
-        modifier: Modifier = Modifier
-        ) {
+fun TimeDropDown(selected: LiftoffTimeZone, onSelected: (LiftoffTimeZone) -> Unit, modifier: Modifier = Modifier) {
         var expanded by remember { mutableStateOf(false) }
 
         Box(modifier.clip(RoundedCornerShape(12.dp))) {
@@ -190,7 +202,7 @@ enum class LiftoffTimeZone(val label: String) {
 }
 
 @Composable
-fun LiveStreamBox(){//TODO add click functionality
+fun LiveStreamBox() {//TODO add click functionality
         Box(
                 modifier = Modifier
                         .fillMaxWidth()
@@ -220,41 +232,25 @@ fun LiveStreamBox(){//TODO add click functionality
         }
 }
 
+
 @Composable
 fun MissionDetails(launch:Launch){
-        MissionDetailsHeader()
-        Spacer(Modifier.height(10.dp))
+
+                IconTextRow(
+                        "Mission Details",
+                        "Mission Details",
+                        MaterialTheme.typography.headlineLarge,
+                        painterResource(Res.drawable.search_book),
+                        Modifier,
+                        MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.height(10.dp))
+
         MissionDetailsBody(launch)
 
 }
 
-@Composable
-fun MissionDetailsHeader(){
-        val textStyle = MaterialTheme.typography.headlineLarge
-        val iconSize = with(LocalDensity.current) {
-                textStyle.fontSize.toDp()
-        }
 
-        Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-        ) {
-                Icon(
-                        painter = painterResource(Res.drawable.search_book),
-                        contentDescription = "Mission Details",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(iconSize)
-                )
-
-                Spacer(modifier = Modifier.width(7.dp))
-
-                Text(
-                        text = "Mission Details",
-                        style = textStyle,
-                        color = MaterialTheme.colorScheme.primary
-                )
-        }
-}
 
 @Composable
 fun MissionDetailsBody(launch:Launch){
@@ -284,14 +280,20 @@ fun MissionDetailsBody(launch:Launch){
 
 
 @Composable
-fun LaunchWindowTimeline(timeOpen: LocalTime, timeLaunch: LocalTime, timeClose: LocalTime) {
-        val openSeconds = timeOpen.toSecondOfDay()
-        val launchSeconds = timeLaunch.toSecondOfDay()
-        val closeSeconds = timeClose.toSecondOfDay()
+fun LaunchWindowTimeline(launchTimes: LaunchTimesFormated) {
+        val windowOpen = launchTimes.windowOpen
+        val windowClose = launchTimes.windowClose
+        val liftoff = launchTimes.liftoff
 
-        val progress = ((launchSeconds - openSeconds).toFloat() /
-                (closeSeconds - openSeconds))
-                .coerceIn(0f, 1f)
+        if (windowClose == windowOpen) return//If There is no window then do not display anything
+
+        // Total seconds relative to window open
+        val totalWindowSeconds = windowClose.toEpochSecond(ZoneOffset.UTC) - windowOpen.toEpochSecond(ZoneOffset.UTC)
+        val progressSeconds = liftoff.toEpochSecond(ZoneOffset.UTC) - windowOpen.toEpochSecond(ZoneOffset.UTC)
+
+        val progress = (progressSeconds.toFloat() / totalWindowSeconds).coerceIn(0f, 1f)
+
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm") // only show time
 
         Column {
                 BoxWithConstraints(
@@ -311,47 +313,38 @@ fun LaunchWindowTimeline(timeOpen: LocalTime, timeLaunch: LocalTime, timeClose: 
                                         .align(Alignment.Center)
                         ) {
                                 TimelineDot(color = Color.Gray, Modifier)
-
                                 Divider(
                                         modifier = Modifier
                                                 .weight(1f)
                                                 .height(4.dp),
                                         color = Color.DarkGray
                                 )
-
                                 Divider(
                                         modifier = Modifier
                                                 .weight(1f)
                                                 .height(4.dp),
                                         color = Color.DarkGray
                                 )
-
                                 TimelineDot(color = Color.Gray, Modifier)
                         }
 
-                        // === Planned Liftoff label (above line) ===
-                        Row(
-                                verticalAlignment = Alignment.CenterVertically,
+
+                        Box(
                                 modifier = Modifier
-                                        .offset(x = markerX-4.5.dp,y= (-5).dp)
+                                        .offset(x = markerX - 4.5.dp, y = (-5).dp)
                                         .align(Alignment.TopStart)
                         ) {
                                 Icon(
                                         imageVector = Icons.Filled.Rocket,
-                                        contentDescription = "Planned Launch"
+                                        contentDescription = "Planned Launch",
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                 )
 
-                                Spacer(modifier = Modifier.width(4.dp))
-
-                                Text(
-                                        text = "Planned Liftoff",
-                                        style = MaterialTheme.typography.labelSmall
-                                )
                         }
 
                         // === Green launch dot (on the line) ===
                         TimelineDot(
-                                color = Color.Green,
+                                color = Color(0xFF067D00),
                                 modifier = Modifier
                                         .offset(x = markerX)
                                         .align(Alignment.CenterStart)
@@ -366,13 +359,12 @@ fun LaunchWindowTimeline(timeOpen: LocalTime, timeLaunch: LocalTime, timeClose: 
                         horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                         Text(
-                                text = "Window Open\n$timeOpen",
+                                text = "Window Open\n${windowOpen.format(timeFormatter)}",
                                 style = MaterialTheme.typography.labelSmall,
                                 textAlign = TextAlign.Start
                         )
-
                         Text(
-                                text = "Window Close\n$timeClose",
+                                text = "Window Close\n${windowClose.format(timeFormatter)}",
                                 style = MaterialTheme.typography.labelSmall,
                                 textAlign = TextAlign.End
                         )
@@ -381,9 +373,8 @@ fun LaunchWindowTimeline(timeOpen: LocalTime, timeLaunch: LocalTime, timeClose: 
 }
 
 @Composable
-fun TimelineDot(color: Color,modifier: Modifier) {
+fun TimelineDot(color: Color, modifier: Modifier) {
         Box(
                 modifier = modifier.size(16.dp).background(color, CircleShape)
         )
 }
-

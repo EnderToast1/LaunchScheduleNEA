@@ -1,14 +1,14 @@
 package com.niaw.launchnea.networking
 
-import com.niaw.launchnea.LandingType
-import com.niaw.launchnea.LeaderType
-import com.niaw.launchnea.Location
-import com.niaw.launchnea.ProgramType
-import com.niaw.launchnea.Reusable
-import com.niaw.launchnea.ReuseType
-import com.niaw.launchnea.Status
-import com.niaw.launchnea.StatusReuse
-import com.niaw.launchnea.TimelineEvent
+import com.niaw.launchnea.utils.LandingType
+import com.niaw.launchnea.utils.LeaderType
+import com.niaw.launchnea.utils.Location
+import com.niaw.launchnea.utils.ProgramType
+import com.niaw.launchnea.utils.Reusable
+import com.niaw.launchnea.utils.ReuseType
+import com.niaw.launchnea.utils.Status
+import com.niaw.launchnea.utils.StatusReuse
+import com.niaw.launchnea.utils.TimelineEvent
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.Launch

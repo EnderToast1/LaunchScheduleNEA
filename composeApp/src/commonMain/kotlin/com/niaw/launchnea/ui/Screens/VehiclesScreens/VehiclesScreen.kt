@@ -15,6 +15,8 @@ import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.navigation.TabItem
+import com.niaw.launchnea.ui.Screens.IndividualScreens.IndividualReuseScreen
+import com.niaw.launchnea.ui.Screens.IndividualScreens.IndividualRocketScreen
 import kotlinx.coroutines.launch
 
 

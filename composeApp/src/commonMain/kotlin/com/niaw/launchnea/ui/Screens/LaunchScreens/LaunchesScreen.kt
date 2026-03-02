@@ -16,6 +16,7 @@ import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.navigation.TabItem
 import com.niaw.launchnea.navigation.ViewModels.PreviousLaunchViewModel
 import com.niaw.launchnea.navigation.ViewModels.UpcomingLaunchViewModel
+import com.niaw.launchnea.ui.Screens.IndividualScreens.IndividualLaunchScreen
 import kotlinx.coroutines.launch
 
 
@@ -46,10 +47,10 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (selectedLaunch != null) {
                     println("Clicked on ${selectedLaunch!!.missionName},  \n$selectedLaunch")
-                    IndividualLaunchScreen(selectedLaunch!!){
-                        println("Backed out of ${selectedLaunch!!.missionName}")
-                        selectedLaunch = null
-                    }
+                IndividualLaunchScreen(selectedLaunch!!) {
+                    println("Backed out of ${selectedLaunch!!.missionName}")
+                    selectedLaunch = null
+                }
             } else {
                 // Show the tab row, search, and list only when no launch is selected
                 Column(modifier = Modifier.fillMaxSize()) {

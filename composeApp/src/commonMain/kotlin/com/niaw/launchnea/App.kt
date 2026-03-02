@@ -1,5 +1,7 @@
 package com.niaw.launchnea
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,8 +18,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.networking.updateLaunchData
 import com.niaw.launchnea.ui.Screens.HomeScreens.HomeScreen
@@ -25,18 +33,22 @@ import com.niaw.launchnea.ui.Screens.LaunchScreens.LaunchesScreen
 import com.niaw.launchnea.ui.Screens.SettingsScreen
 import com.niaw.launchnea.ui.Screens.VehiclesScreens.VehiclesScreen
 import com.niaw.launchnea.navigation.NavigationItem
+import kotlinx.coroutines.launch
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
 import launchnea.composeapp.generated.resources.filledrocketh
 import org.jetbrains.compose.resources.painterResource
 
 
-
 @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 
 @Composable
 fun App(scheduleDao: ScheduleDao) {
-    var currentRoute by remember { mutableStateOf("home") }
+    var currentRoute by rememberSaveable  { mutableStateOf("home") }
+
+
+
+
 
     MaterialTheme {
         LaunchedEffect(Unit) {
@@ -88,10 +100,10 @@ fun App(scheduleDao: ScheduleDao) {
 
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+            color = Color.Red
         ) {
 
-            Scaffold(
+            Scaffold(modifier = Modifier.fillMaxSize(),
                 bottomBar = {
                     NavigationBar {
                         items.forEach { item ->

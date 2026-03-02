@@ -1,4 +1,4 @@
-package com.niaw.launchnea
+package com.niaw.launchnea.utils
 
 fun abbreviate(name: String, maxWords: Int = 4): String {
     if (name=="China Aerospace Science and Technology Corporation") {//special case as They do not abbreviate normally

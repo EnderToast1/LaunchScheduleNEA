@@ -1,4 +1,4 @@
-package com.niaw.launchnea
+package com.niaw.launchnea.utils
 
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.StarredLaunch

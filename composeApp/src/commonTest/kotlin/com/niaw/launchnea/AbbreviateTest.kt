@@ -2,6 +2,7 @@ package com.niaw.launchnea
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.niaw.launchnea.utils.abbreviate
 import kotlin.test.Test
 
 class AbbreviateTest{

@@ -5,12 +5,18 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.niaw.launchnea.database.getDatabase
 
-fun main() = application {
-    val dao = remember { getDatabase().ScheduleDao() }
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "launchnea",
-    ) {
-        App(dao)
+
+fun main() {
+
+    val dao = getDatabase().ScheduleDao()
+
+    application {
+
+        Window(
+            onCloseRequest = ::exitApplication,
+            title = "Launch TimeTable",
+        ) {
+            App(remember{dao})
+        }
     }
 }

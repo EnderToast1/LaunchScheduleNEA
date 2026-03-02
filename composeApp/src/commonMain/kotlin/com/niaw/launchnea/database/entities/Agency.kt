@@ -1,11 +1,9 @@
 package com.niaw.launchnea.database.entities
 
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.niaw.launchnea.LeaderType
+import com.niaw.launchnea.utils.LeaderType
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
 
 @Entity
 
