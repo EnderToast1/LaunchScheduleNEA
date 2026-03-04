@@ -49,8 +49,8 @@ fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
                         Spacer(Modifier.height(15.dp))
                         MissionDetails(launch)
 
-                        RocketSection()
-                        //TODO Rocket Section
+                        val vehicle = Rocket(launch.rocketID)//DAO TO GET ROCKET WITH ID
+                        RocketSection(launch,vehicle)//TODO Rocket Section
                         //TODO Reuse
                         //TODO Pad
                         //TODO Stats
