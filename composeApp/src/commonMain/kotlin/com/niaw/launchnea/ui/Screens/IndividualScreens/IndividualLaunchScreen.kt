@@ -49,6 +49,7 @@ fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
                         Spacer(Modifier.height(15.dp))
                         MissionDetails(launch)
 
+                        RocketSection()
                         //TODO Rocket Section
                         //TODO Reuse
                         //TODO Pad
@@ -377,4 +378,151 @@ fun TimelineDot(color: Color, modifier: Modifier) {
         Box(
                 modifier = modifier.size(16.dp).background(color, CircleShape)
         )
+}
+
+@Composable
+fun RocketSection(launch:Launch, vehicle:Rocket){
+        IconTextRow("Rocket","Rocket",MaterialTheme.typography.displayMedium,painterResource(Res.drawable.FilledRocket),Modifier,MaterialTheme.colorScheme.primary)
+        Box(modifier=Modifier.background(MaterialTheme.colorScheme.primaryContainer).fillMaxWidth()){
+                //TODO image and row
+                Box(){
+                        RocketInfomationSection()
+                }
+        }
+}
+
+@Composable
+fun RocketInfomationSection(vehicle:Rocket){
+        //TODO get data
+    val pricePerLaunch=1000
+    val liftoffThrust=20000
+    val rocketDiameter = 3.1
+    val rocketHeight = 3.2
+    val fairingDiameter = 4.1
+    val fairingHeight = 4.2
+    val payloadToOrbitLEO = 51
+    val payloadToOrbitGTO = 52
+    val stages = 2
+        
+        
+        
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item { SpecCard("Price per launch", pricePerLaunch, "$") }
+        item { SpecCard("Liftoff thrust", liftoffThrust, "kN") }
+
+        item {
+            CompoundSpecCard(
+                title = "Rocket",
+                items = listOf(
+                    "Diameter" to "$rocketDiameter m",
+                    "Height" to "$rocketHeight m"
+                )
+            )
+        }
+
+        item {
+            CompoundSpecCard(
+                title = "Fairing",
+                items = listOf(
+                    "Diameter" to "$fairingDiameter m",
+                    "Height" to "$fairingHeight m"
+                )
+            )
+        }
+
+        item {
+                CompoundSpecCard(
+                        title="Payload to Orbit",
+                        items=listOf(
+                                "LEO" to "$payloadToOrbitLEO kg",
+                                "LEO" to "$payloadToOrbitLEO kg"
+                        )
+                )
+        }
+        
+
+        item { SpecCard("Stages", stages, null) }
+    }
+        
+}
+
+@Composable
+fun SpecCard(
+    title: String,
+    value: String,
+    unit: String?
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(12.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(Modifier.height(6.dp))
+
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge
+            )
+            unit?.let {
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CompoundSpecCard(
+    title: String,
+    items: List<Pair<String, String>>
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(12.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        items.forEach {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = it.first,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = it.second,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
 }
