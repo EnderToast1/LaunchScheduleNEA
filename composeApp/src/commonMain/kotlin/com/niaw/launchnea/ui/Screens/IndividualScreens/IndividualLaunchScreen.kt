@@ -51,9 +51,10 @@ fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
 
                         val vehicle = Rocket(launch.rocketID)//DAO TO GET ROCKET WITH ID
                         RocketSection(launch,vehicle)//TODO Rocket Section
-                        //TODO Reuse
-                        //TODO Pad
-                        //TODO Stats
+                        AgencyBox(launch)//TODO add click
+                        ReuseDetails(launch)//TODO Reuse
+                        PadLocation(launch.padCords)//TODO Pad
+                        //TODO Stats maybe cut
                 }
         }
 }
@@ -525,4 +526,41 @@ fun CompoundSpecCard(
             }
         }
     }
+}
+
+@Composable
+fun AgencyBox(launch:Launch) {//TODO add click functionality
+        Box(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clip(RoundedCornerShape(percent = 50)) // pill shape
+                        .background(MaterialTheme.colorScheme.secondary)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+        ) {
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                ) {
+                        Text(
+                                text = launch.agencyName,
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                style = MaterialTheme.typography.labelLarge
+                        )
+
+                        Icon(
+                                imageVector = Icons.Filled.arrow_right,
+                                contentDescription = "Agency Link",
+                                tint = MaterialTheme.colorScheme.secondaryContainer,
+                        )
+                }
+        }
+}
+
+@Composable
+fun ReuseDetails(launch:Launch){
+        IconTextRow()
+        
 }
