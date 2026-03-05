@@ -561,6 +561,36 @@ fun AgencyBox(launch:Launch) {//TODO add click functionality
 
 @Composable
 fun ReuseDetails(launch:Launch){
-        IconTextRow()
-        
+        Box(modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(horizontal = 5.dp, vertical = 1.dp)){
+        IconTextRow("Vehicle Reuse", "Reuseable Parts", MaterialTheme.typography.labelLarge,rememberVectorPainter(Icons.Filled.recycling),Modifier,MaterialTheme.colorScheme.primary)
+        }
+        launch.reusableParts.forEach{reusable ->
+
+                //TODO
+        }
 }
+
+@Composable
+fun PadLocation(){
+        IconTextRow("Pad Location", "Pad Location", MaterialTheme.typography.labelMedium,rememberVectorPainter(Icons.Filled.Place),Modifier,MaterialTheme.colorScheme.primary)
+        Box(modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .padding(horizontal = 5.dp, vertical = 1.dp)){
+                val location = LatLng(lat, lon)
+
+            Map(
+                modifier = Modifier.fillMaxSize(),
+                cameraPosition = CameraPosition(location, zoom = 8f)
+            ) {
+                Marker(
+                    position = location,
+                    title = "Launch Site"
+                )
+    }
+        }
+}
+        
+
