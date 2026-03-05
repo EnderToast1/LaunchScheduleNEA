@@ -50,7 +50,7 @@ fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
                         MissionDetails(launch)
 
                         val vehicle = Rocket(launch.rocketID)//DAO TO GET ROCKET WITH ID
-                        RocketSection(launch,vehicle)//TODO Rocket Section
+                        RocketSection(launch,vehicle)//TODO Rocket Section and click
                         AgencyBox(launch)//TODO add click
                         ReuseDetails(launch)//TODO Reuse
                         PadLocation(launch.padCords)//TODO Pad
