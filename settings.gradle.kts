@@ -5,9 +5,7 @@ pluginManagement {
     repositories {
         google {
             mavenContent {
-                includeGroupAndSubgroups("androidx")
-                includeGroupAndSubgroups("com.android")
-                includeGroupAndSubgroups("com.google")
+
             }
         }
         mavenCentral()
@@ -17,14 +15,10 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        google {
-            mavenContent {
-                includeGroupAndSubgroups("androidx")
-                includeGroupAndSubgroups("com.android")
-                includeGroupAndSubgroups("com.google")
-            }
-        }
+        google()
         mavenCentral()
+        // Software Mansion often publishes to Sonatype S01
+        maven("https://s01.oss.sonatype.org/content/repositories/releases/")
     }
 }
 

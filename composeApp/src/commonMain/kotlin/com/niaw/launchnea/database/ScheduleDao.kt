@@ -60,6 +60,14 @@ interface ScheduleDao {
     @Query("SELECT * FROM Launch WHERE launchID = :id")
     suspend fun getLaunchById(id: String): Launch?
 
+    @Query("SELECT * FROM Agency WHERE agencyID = :id")
+    suspend fun getAgencyById(id: String): Agency?
+
+    @Query("SELECT * FROM Rocket WHERE rocketID = :id")
+    suspend fun getRocketById(id: String): Rocket?
+
+    @Query("SELECT * FROM Reuse WHERE reuseID = :id")
+    suspend fun getReuseById(id: String): Reuse?
 
     //Stared Launch
     @Insert(onConflict = OnConflictStrategy.IGNORE)

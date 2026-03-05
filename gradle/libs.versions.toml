@@ -13,6 +13,7 @@ composeHotReload = "1.0.0"
 composeMultiplatform = "1.9.3"
 desugar_jdk_libs = "2.1.5"
 foundation = "1.9.3"
+geojson = "0.3.0"
 junit = "4.13.2"
 kotlin = "2.3.10"
 kotlinx-coroutines = "1.10.2"
@@ -22,7 +23,7 @@ navigationCompose = "2.9.7"
 roomRuntime = "2.8.4"
 sqliteBundled = "2.6.2"
 room = "2.8.4"
-ksp = "2.0.20-1.0.25"  # Match  Kotlin version
+ksp = "2.0.20-1.0.25"
 kotlinx-serialization = "1.9.0"
 ktor ="3.4.0"
 assertk = "0.28.1"
@@ -31,6 +32,7 @@ composeTest = "1.9.3"
 ui = "1.9.3"
 coil = "3.0.0-rc01"
 datastore="1.1.1"
+maplibreCompose = "0.12.1"
 
 
 
@@ -46,6 +48,9 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+geojson = { module = "io.github.dellisd.spatialk:geojson", version.ref = "geojson" }
+maplibre-maps = { module = "org.maplibre.compose:maplibre-compose", version.ref = "maplibreCompose" }
+maplibre-m3 = { module = "org.maplibre.compose:maplibre-compose-material3", version.ref = "maplibreCompose" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }

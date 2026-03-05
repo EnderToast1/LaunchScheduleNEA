@@ -2,15 +2,23 @@ package com.niaw.launchnea.ui.Screens.IndividualScreens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapPosition.Center.position
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,47 +28,131 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.navigation.setBackHandler
 import com.niaw.launchnea.ui.UiElements.IconTextRow
 import com.niaw.launchnea.utils.LaunchTimesFormated
+import com.niaw.launchnea.utils.Location
 import com.niaw.launchnea.utils.abbreviate
 import com.niaw.launchnea.utils.getLaunchTimesAsNeededFormat
+import launchnea.composeapp.generated.resources.FilledRocket
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.search_book
 import org.jetbrains.compose.resources.painterResource
+import org.maplibre.compose.camera.CameraPosition
+import org.maplibre.compose.camera.rememberCameraState
+import org.maplibre.compose.map.MaplibreMap
+import org.maplibre.compose.style.BaseStyle
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import kotlin.collections.listOf
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.niaw.launchnea.Platform
+import com.niaw.launchnea.database.ScheduleDao
+import com.niaw.launchnea.database.entities.Agency
+import com.niaw.launchnea.database.entities.Reuse
+import com.niaw.launchnea.getPlatform
+import com.niaw.launchnea.ui.UiElements.cardShape
+import kotlinx.coroutines.launch
+import org.maplibre.compose.expressions.dsl.const
+import org.maplibre.compose.expressions.dsl.image
+import org.maplibre.compose.expressions.value.SymbolAnchor
+import org.maplibre.compose.layers.SymbolLayer
+import org.maplibre.compose.sources.GeoJsonData
+import org.maplibre.compose.sources.rememberGeoJsonSource
+import org.maplibre.spatialk.geojson.Position
+
 
 @Composable
-fun IndividualLaunchScreen(launch: Launch,  onBack: () -> Unit) {
-        LaunchedEffect(launch) {
+fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBack: () -> Unit) {
+    val scrollState = rememberScrollState()
+    var selectedRocket by remember { mutableStateOf<Rocket?>(null) } // track selected Rocket
+    var selectedReuse by remember { mutableStateOf<Reuse?>(null) } // track selected Reuse
+    var selectedAgency by remember { mutableStateOf<Agency?>(null) } // track selected Agency
+    val coroutineScope = rememberCoroutineScope()
+
+
+    LaunchedEffect(launch) {
                 setBackHandler(enabled = true) {
                         onBack()
                 }
         }
-
-        Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                HeaderRow(launch, onBack)//Back and Agency boxes
-
-                MissionMainBox(launch) //TODO Mission and Time Box
-                Spacer(Modifier.height(5.dp))
-                Column(Modifier.fillMaxWidth().padding(10.dp)) {
-                        LiveStreamBox()
-                        Spacer(Modifier.height(15.dp))
-                        MissionDetails(launch)
-
-                        val vehicle = Rocket(launch.rocketID)//DAO TO GET ROCKET WITH ID
-                        RocketSection(launch,vehicle)//TODO Rocket Section and click
-                        AgencyBox(launch)//TODO add click
-                        ReuseDetails(launch)//TODO Reuse
-                        PadLocation(launch.padCords)//TODO Pad
-                        //TODO Stats maybe cut
-                }
+    if (selectedRocket != null) {
+        println("Clicked on ${selectedRocket!!.name},  \n$selectedRocket")
+        IndividualRocketScreen(selectedRocket!!) {
+            println("Backed out of ${selectedRocket!!.name}")
+            selectedRocket = null
         }
+    }else if (selectedReuse != null) {
+        println("Clicked on ${selectedReuse!!.name}\n $selectedReuse")
+        IndividualReuseScreen(selectedReuse!!) {
+            println("Backed out of ${selectedReuse!!.name}")
+            selectedReuse = null
+        }
+    }else if (selectedAgency != null) {
+        println("Clicked on ${selectedAgency!!.name},  \n$selectedAgency")
+        IndividualAgencyScreen(selectedAgency!!) {
+            println("Backed out of${selectedAgency!!.name}")
+            selectedAgency = null
+        }
+    } else {
+
+        Column(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                .verticalScroll(scrollState)
+        ) {
+            HeaderRow(launch, onBack) { agencyID ->         //Back and Agency boxes
+                coroutineScope.launch {
+                    selectedAgency = scheduleDao.getAgencyById(id = agencyID)
+                }
+            }
+
+            MissionMainBox(launch)
+            Spacer(Modifier.height(5.dp))
+            Column(Modifier.fillMaxWidth().padding(10.dp)) {
+                LiveStreamBox()
+                Spacer(Modifier.height(15.dp))
+
+                MissionDetails(launch)
+                Spacer(Modifier.height(10.dp))
+
+                var vehicle by remember { mutableStateOf<Rocket?>(null) }
+                LaunchedEffect(launch) {
+                    vehicle= launch.rocketID?.let { scheduleDao.getRocketById(it) }
+                }
+
+                RocketSection(launch, vehicle){ rocket -> selectedRocket=rocket }
+                Spacer(Modifier.height(5.dp))
+
+                AgencyBox(launch) { agencyID ->
+                    coroutineScope.launch {
+                        selectedAgency = scheduleDao.getAgencyById(id = agencyID)
+                    }
+                }
+                Spacer(Modifier.height(10.dp))
+
+                ReuseDetails(launch){ reuseID ->
+                    coroutineScope.launch {
+                        selectedReuse = scheduleDao.getReuseById(id = reuseID)
+                    }
+                }//TODO Reuse
+                Spacer(Modifier.height(10.dp))
+
+                PadLocation(launch.padCords)
+                Spacer(Modifier.height(10.dp))
+
+                //TODO Stats maybe cut
+            }
+        }
+    }
 }
 
 @Composable
-fun HeaderRow(launch: Launch,onBack: () -> Unit){
+fun HeaderRow(launch: Launch,onBack: () -> Unit,onClick: (String) -> Unit){
+    val id = launch.agencyID
+    if (id != null) {
     val agencyName=abbreviate(launch.agencyName?: "Unknown")
 
     val calculatedWeight = remember(agencyName) {
@@ -74,48 +166,49 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit){
 
     Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
 
-            Box(
-                    modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(12.dp, 12.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = 4.dp, vertical = 8.dp)
-                            .clickable { onBack() }
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(12.dp, 12.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(horizontal = 4.dp, vertical = 8.dp)
+                .clickable { onBack() }
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                    Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically
-                    ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Back", style = MaterialTheme.typography.bodyMedium)
-                    }
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Back", style = MaterialTheme.typography.bodyMedium)
             }
+        }
 
-            Spacer(modifier = Modifier.weight(1.5f))
+        Spacer(modifier = Modifier.weight(1.5f))
 
-            Box(
-                    modifier = Modifier
-                            .weight(animatedWeight)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(12.dp, 12.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = 4.dp, vertical = 8.dp)
+        Box(
+            modifier = Modifier
+                .weight(animatedWeight)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(12.dp, 12.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(horizontal = 4.dp, vertical = 8.dp)
+                .clickable { onClick(id) }
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
             ) {
-                    Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                    ) {
-                            Icon(Icons.Filled.Business, contentDescription = "Agency")
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(agencyName, style = MaterialTheme.typography.bodyMedium)
-                    }
+                Icon(Icons.Filled.Business, contentDescription = "Agency")
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(agencyName, style = MaterialTheme.typography.bodyMedium)
             }
+        }
+    }
     }
 }
-
 
 @Composable
 fun MissionMainBox(launch:Launch){
@@ -196,7 +289,6 @@ fun TimeDropDown(selected: LiftoffTimeZone, onSelected: (LiftoffTimeZone) -> Uni
         }
 }
 
-
 enum class LiftoffTimeZone(val label: String) {
         PAD_LOCAL("Pad local"),
         UTC("UTC"),
@@ -234,7 +326,6 @@ fun LiveStreamBox() {//TODO add click functionality
         }
 }
 
-
 @Composable
 fun MissionDetails(launch:Launch){
 
@@ -252,11 +343,10 @@ fun MissionDetails(launch:Launch){
 
 }
 
-
-
 @Composable
 fun MissionDetailsBody(launch:Launch){
-        Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.primaryContainer)) {
+        Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).border(0.5.dp, Color.Gray,
+            RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.primaryContainer)) {
                 Box(Modifier.padding(10.dp)) {
                         launch.missionName?.let {
                                 Text(
@@ -279,7 +369,6 @@ fun MissionDetailsBody(launch:Launch){
         }
 
 }
-
 
 @Composable
 fun LaunchWindowTimeline(launchTimes: LaunchTimesFormated) {
@@ -315,19 +404,17 @@ fun LaunchWindowTimeline(launchTimes: LaunchTimesFormated) {
                                         .align(Alignment.Center)
                         ) {
                                 TimelineDot(color = Color.Gray, Modifier)
-                                Divider(
-                                        modifier = Modifier
-                                                .weight(1f)
-                                                .height(4.dp),
-                                        color = Color.DarkGray
-                                )
-                                Divider(
-                                        modifier = Modifier
-                                                .weight(1f)
-                                                .height(4.dp),
-                                        color = Color.DarkGray
-                                )
-                                TimelineDot(color = Color.Gray, Modifier)
+                            HorizontalDivider(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(4.dp), thickness = 3.dp, color = Color.DarkGray
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(4.dp), thickness = 3.dp, color = Color.DarkGray
+                            )
+                            TimelineDot(color = Color.Gray, Modifier)
                         }
 
 
@@ -382,18 +469,31 @@ fun TimelineDot(color: Color, modifier: Modifier) {
 }
 
 @Composable
-fun RocketSection(launch:Launch, vehicle:Rocket){
-        IconTextRow("Rocket","Rocket",MaterialTheme.typography.displayMedium,painterResource(Res.drawable.FilledRocket),Modifier,MaterialTheme.colorScheme.primary)
-        Box(modifier=Modifier.background(MaterialTheme.colorScheme.primaryContainer).fillMaxWidth()){
-                //TODO image and row
-                Box(){
-                        RocketInfomationSection()
-                }
+fun RocketSection(launch:Launch, vehicle:Rocket?,onClick: (Rocket) -> Unit){
+    if (vehicle != null) {
+        IconTextRow(
+            "Rocket",
+            "Rocket",
+            MaterialTheme.typography.displayMedium,
+            painterResource(Res.drawable.FilledRocket),
+            Modifier,
+            MaterialTheme.colorScheme.primary
+        )
+        Column(modifier = Modifier.clip(RoundedCornerShape(12.dp)).fillMaxWidth().border(0.5.dp, Color.Gray,
+            RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.primaryContainer).clickable(onClick = { onClick(vehicle) })) {
+            //TODO image and row
+            Box(Modifier.fillMaxWidth().padding(5.dp)) {
+                Text("TEMP", style = MaterialTheme.typography.headlineSmall)
+            }
+            Box(modifier = Modifier.border(0.5.dp, Color.Gray, RoundedCornerShape(12.dp)).padding(10.dp)) {
+               RocketInformationSection(vehicle)
+            }
         }
+    }
 }
 
 @Composable
-fun RocketInfomationSection(vehicle:Rocket){
+fun RocketInformationSection(vehicle:Rocket){
         //TODO get data
     val pricePerLaunch=1000
     val liftoffThrust=20000
@@ -404,193 +504,144 @@ fun RocketInfomationSection(vehicle:Rocket){
     val payloadToOrbitLEO = 51
     val payloadToOrbitGTO = 52
     val stages = 2
-        
-        
-        
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item { SpecCard("Price per launch", pricePerLaunch, "$") }
-        item { SpecCard("Liftoff thrust", liftoffThrust, "kN") }
 
-        item {
-            CompoundSpecCard(
-                title = "Rocket",
-                items = listOf(
-                    "Diameter" to "$rocketDiameter m",
-                    "Height" to "$rocketHeight m"
-                )
-            )
+
+
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // Row 1
+        Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Price Per Launch:\n $$pricePerLaunch million", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            Text("Liftoff Thrust:\n $liftoffThrust Kilonewton", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
         }
 
-        item {
-            CompoundSpecCard(
-                title = "Fairing",
-                items = listOf(
-                    "Diameter" to "$fairingDiameter m",
-                    "Height" to "$fairingHeight m"
-                )
-            )
+        // Row 2
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Rocket:\n Diameter: ${rocketDiameter}m\n Height: ${rocketHeight}m", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            Text("Fairing:\n Diameter: ${fairingDiameter}m\n Height: ${fairingHeight}m", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
         }
 
-        item {
-                CompoundSpecCard(
-                        title="Payload to Orbit",
-                        items=listOf(
-                                "LEO" to "$payloadToOrbitLEO kg",
-                                "LEO" to "$payloadToOrbitLEO kg"
-                        )
-                )
-        }
-        
-
-        item { SpecCard("Stages", stages, null) }
-    }
-        
-}
-
-@Composable
-fun SpecCard(
-    title: String,
-    value: String,
-    unit: String?
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(12.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(Modifier.height(6.dp))
-
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge
-            )
-            unit?.let {
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+        // Row 3
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Payload to orbit:\n LEO: ${payloadToOrbitLEO}Kg\n GTO: ${payloadToOrbitGTO}Kg", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            Text("Stages:\n #$stages", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-fun CompoundSpecCard(
-    title: String,
-    items: List<Pair<String, String>>
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(12.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        items.forEach {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = it.first,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = it.second,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun AgencyBox(launch:Launch) {//TODO add click functionality
+fun AgencyBox(launch:Launch,onClick: (String) -> Unit) {
+    val id=launch.agencyID
+    val name= launch.agencyName
+    if (id != null && name != null) {
         Box(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .clip(RoundedCornerShape(percent = 50)) // pill shape
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                contentAlignment = Alignment.Center
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clip(RoundedCornerShape(percent = 50)) // pill shape
+                .background(MaterialTheme.colorScheme.secondary)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clickable { onClick(id) },
+            contentAlignment = Alignment.Center
         ) {
-                Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                ) {
-                        Text(
-                                text = launch.agencyName,
-                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                style = MaterialTheme.typography.labelLarge
-                        )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
 
-                        Icon(
-                                imageVector = Icons.Filled.arrow_right,
-                                contentDescription = "Agency Link",
-                                tint = MaterialTheme.colorScheme.secondaryContainer,
-                        )
-                }
+                    Text(
+                        text = name,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowRight,
+                    contentDescription = "Agency Link",
+                    tint = MaterialTheme.colorScheme.secondaryContainer,
+                )
+            }
         }
+    }
 }
 
 @Composable
-fun ReuseDetails(launch:Launch){
+fun ReuseDetails(launch:Launch,onClick: (String) -> Unit){
         Box(modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(horizontal = 5.dp, vertical = 1.dp)){
-        IconTextRow("Vehicle Reuse", "Reuseable Parts", MaterialTheme.typography.labelLarge,rememberVectorPainter(Icons.Filled.recycling),Modifier,MaterialTheme.colorScheme.primary)
+        IconTextRow("Vehicle Reuse", "Reusable Parts", MaterialTheme.typography.headlineMedium,rememberVectorPainter(Icons.Filled.Recycling),Modifier,MaterialTheme.colorScheme.primary)
         }
         launch.reusableParts.forEach{reusable ->
 
-                //TODO
+                //TODO with onClick
         }
 }
 
 @Composable
-fun PadLocation(){
-        IconTextRow("Pad Location", "Pad Location", MaterialTheme.typography.labelMedium,rememberVectorPainter(Icons.Filled.Place),Modifier,MaterialTheme.colorScheme.primary)
-        Box(modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .padding(horizontal = 5.dp, vertical = 1.dp)){
-                val location = LatLng(lat, lon)
+fun PadLocation(location: Location) {
+    val lat = location.latitude
+    val lon = location.longitude
 
-            Map(
-                modifier = Modifier.fillMaxSize(),
-                cameraPosition = CameraPosition(location, zoom = 8f)
-            ) {
-                Marker(
-                    position = location,
-                    title = "Launch Site"
+    if (lat != null && lon != null) {
+        val siteCoordinates = remember(lon, lat) { Position(lon, lat) }
+
+        val camera = rememberCameraState(firstPosition = CameraPosition(target = siteCoordinates, zoom = 11.5))
+
+
+        if (getPlatform().name == "Android") {
+            val markerGeoJson = remember(lon, lat) {
+                """
+            {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [$lon, $lat]
+                        },
+                        "properties": {}
+                    }
+                ]
+            }
+            """.trimIndent()
+            }
+
+
+            Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).height(220.dp)) {
+                MaplibreMap(
+                    baseStyle = BaseStyle.Uri("https://api.maptiler.com/maps/hybrid/style.json?key=nCtZa4uILboOm2evI9Dy"),
+                    cameraState = camera
+                ) {
+                    val source = rememberGeoJsonSource(
+                        data = GeoJsonData.JsonString(markerGeoJson)
+                    )
+                    SymbolLayer(
+                        id = "marker-layer",
+                        source = source,
+                        iconImage = image(
+                            rememberVectorPainter(Icons.Filled.Place),
+                            drawAsSdf = true
+                        ),          // ← Use the vector icon directly!
+                        iconColor = const(Color.Red),                   // Works great because vector icons are tintable
+                        iconSize = const(1.8f),                         // Bigger (adjust 1.5f–2.5f as needed)
+                        iconAnchor = const(SymbolAnchor.Bottom),        // Pinpoint at the bottom
+                        iconAllowOverlap = const(true),
+                        iconIgnorePlacement = const(true)
+                    )
+
+                }
+            }
+        }else{
+            Box(modifier = Modifier.fillMaxWidth().height(220.dp)) {
+                MaplibreMap(
+                    baseStyle = BaseStyle.Uri("https://api.maptiler.com/maps/hybrid/style.json?key=nCtZa4uILboOm2evI9Dy"),
+                    cameraState = camera
                 )
-    }
+            }
         }
+    }
 }
-        
-

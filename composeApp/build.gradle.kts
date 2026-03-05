@@ -40,7 +40,9 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.runtime)
             implementation(compose.ui)
-            implementation("io.github.universal-ks:kmaps-compose:0.4.0")
+            implementation(libs.maplibre.maps)
+            implementation(libs.geojson)
+            implementation(libs.maplibre.m3)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(compose.preview)
@@ -66,6 +68,11 @@ kotlin {
             implementation(compose.material3)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.ktor.client.okhttp)
+            runtimeOnly("org.maplibre.compose:maplibre-native-bindings-jni:0.12.1") {
+                capabilities {
+                    requireCapability("org.maplibre.compose:maplibre-native-bindings-jni-windows-amd64-opengl")
+                }
+            }
         }
     }
 }
