@@ -53,12 +53,16 @@ data class Reuse(
     var reuseType: ReuseType = ReuseType.UNKNOWN,
     var status: StatusReuse = StatusReuse.UNKNOWN,
     var lastUpdated: LocalDateTime?=null,
+    var imageURL: String? = null,
+    var imageThumbURL: String? = null,
+    var imageCredit: String? = null,
+    var licenseType: String? = null,
   ): ListBoxItem {
 
     //TODO add RocketImage in ImageGroup and change show to true
     override fun listBoxText() = DisplayItems(
         title = name,
-        imageGroup = ImageGroup(show = false),
+        imageGroup = ImageGroup(imageThumbURL,imageCredit,licenseType,show = false),
         secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Timer),
         secondRow = activeSince.toString(),
         thirdRowIcon = statusReuseIcon(),

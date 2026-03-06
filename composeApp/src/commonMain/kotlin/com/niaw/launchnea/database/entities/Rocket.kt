@@ -32,6 +32,7 @@ data class Rocket(
     var agencyID: String? = null,
 
     var imageURL: String? = null,
+    var imageThumbURL: String? = null,
     var imageCredit: String? = null,
     var licenseType: String? = null,
     var desc: String? =null, //long
@@ -39,7 +40,7 @@ data class Rocket(
   ): ListBoxItem {
     override fun listBoxText() = DisplayItems(
             title = this.name,
-            imageGroup = ImageGroup(imageURL, imageCredit, licenseType,true),
+            imageGroup = ImageGroup(imageThumbURL, imageCredit, licenseType,true),
             secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Business),
             secondRow = this.agencyID,
             thirdRowIcon = DisplayIcon.Vector(Icons.Outlined.Numbers),

@@ -41,6 +41,7 @@ data class RocketVersion(
 
 
     var imageURL: String? =null,
+    var imageThumbURL: String? =null,
     var imageCredit: String? = null,
     var licenseType: String? = null,
     var lastUpdated: LocalDateTime?=null,

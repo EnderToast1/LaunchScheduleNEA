@@ -420,7 +420,8 @@ suspend fun parseRocket(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ro
         rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
         name = rocketJsonObj?.get("configuration")?.jsonObject?.get("name")?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
-        imageURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("thumbnail_url")?.jsonPrimitive?.content,
+        imageURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("image_url")?.jsonPrimitive?.content,
+        imageThumbURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("thumbnail_url")?.jsonPrimitive?.content,
         imageCredit =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
         licenseType=(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("license")?.let { it as? JsonObject }?.get("name")?.let { it as? JsonPrimitive }?.contentOrNull,
         desc = rocketJsonObj?.get("configuration")?.jsonObject?.get("description")?.jsonPrimitive?.content,
@@ -449,6 +450,7 @@ suspend fun parseRocketVersion(launchJsonEle: JsonElement,scheduleDao: ScheduleD
         gtoCapacity = rocketVersionJsonObj["gto_capacity"]?.jsonPrimitive?.doubleOrNull,
         liftoffThrust = rocketVersionJsonObj["to_thrust"]?.jsonPrimitive?.doubleOrNull,
         imageURL = rocketVersionJsonObj["image"]?.let { it as? JsonObject }?.get("image_url")?.jsonPrimitive?.content,
+        imageThumbURL =rocketVersionJsonObj["image"]?.let { it as? JsonObject }?.get("thumbnail_url")?.jsonPrimitive?.content,
         imageCredit =rocketVersionJsonObj["image"]?.let { it as? JsonObject }?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
         licenseType=rocketVersionJsonObj["image"]?.let { it as? JsonObject }?.get("license")?.let { it as? JsonObject }?.get("name")?.let { it as? JsonPrimitive }?.contentOrNull,
         lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
@@ -459,6 +461,11 @@ suspend fun parseRocketVersion(launchJsonEle: JsonElement,scheduleDao: ScheduleD
 
 suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, scheduleDao: ScheduleDao): Reuse {
     val status: StatusReuse
+    var imageUrl:String?=null
+    var thumbnailUrl:String?=null
+    var imageCredit:String?=null
+    var imageLicence:String?=null
+
     when (reusablePart.reuseType) {
         ReuseType.BOOSTER -> {val statusID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("status")?.jsonObject?.get("id")?.jsonPrimitive?.content
             status = when (statusID) {
@@ -471,6 +478,12 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
                 "7" -> StatusReuse.DESTROYED
                 else -> StatusReuse.UNKNOWN
             }
+            val image =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("image") as? JsonObject
+
+             imageUrl = image?.get("image_url")?.jsonPrimitive?.content
+             thumbnailUrl = image?.get("thumbnail_url")?.jsonPrimitive?.content
+             imageCredit = image?.get("credit")?.jsonPrimitive?.content
+             imageLicence = image?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content
         }
         ReuseType.SHIP_CAPSULE -> {val statusID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("spacecraft")?.jsonObject?.get("status")?.jsonObject?.get("id")?.jsonPrimitive?.content
             status = when (statusID) {
@@ -480,23 +493,44 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
                 "4" -> StatusReuse.EXPENDED
                 else -> StatusReuse.UNKNOWN
             }
+            val image =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("image") as? JsonObject
+
+            imageUrl = image?.get("image_url")?.jsonPrimitive?.content
+            thumbnailUrl = image?.get("thumbnail_url")?.jsonPrimitive?.content
+            imageCredit = image?.get("credit")?.jsonPrimitive?.content
+            imageLicence = image?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content
+
         }
         else -> {
             status = StatusReuse.UNKNOWN
+
         }
+
+
     }
 
 
     val toReturn=Reuse(
         reuseID = reusablePart.reuseID!!,
         name = reusablePart.reuseName,
-        activeSince = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("first_launch_date")?.jsonPrimitive?.content ?.takeIf { it != "null" }?.let {Instant.parse(it).atZone(ZoneOffset.UTC).toLocalDate()},
+        activeSince = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get(
+            "launcher"
+        )?.jsonObject?.get("first_launch_date")?.jsonPrimitive?.content?.takeIf { it != "null" }
+            ?.let { Instant.parse(it).atZone(ZoneOffset.UTC).toLocalDate() },
         versionID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
-        rocketID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get(
+            "id"
+        )?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
+
         reuseType = reusablePart.reuseType,
-        status =status,
-        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
+        status = status,
+        lastUpdated = scheduleDao.getMetaData("lastUpdated")
+            ?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) },
+        imageURL = imageUrl,
+        imageThumbURL =thumbnailUrl ,
+        imageCredit = imageCredit,
+        licenseType =imageLicence
     )
     println("      $toReturn")//LOG
     return toReturn

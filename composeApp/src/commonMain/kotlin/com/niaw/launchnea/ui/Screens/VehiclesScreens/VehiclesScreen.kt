@@ -47,7 +47,7 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (selectedRocket != null) {
                 println("Clicked on ${selectedRocket!!.name}\n $selectedRocket")
-                IndividualRocketScreen(selectedRocket!!) {
+                IndividualRocketScreen(scheduleDao,selectedRocket!!) {
                     println("Backed out of ${selectedRocket!!.name}")
                     selectedRocket = null
                 }

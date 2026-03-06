@@ -67,7 +67,7 @@ fun <T : ListBoxItem> ListBox(item: T, onClick: (T) -> Unit) {
 
 
 @Composable
-private fun BoxLeftImage( item: DisplayItems) {
+fun BoxLeftImage( item: DisplayItems) {
     val url = item.imageGroup?.imageUrl
     val shouldShow = url != null && item.imageGroup.show
 
@@ -104,7 +104,7 @@ private fun BoxLeftImage( item: DisplayItems) {
 }
 
 @Composable
-private fun ImagePlaceholder() {
+fun ImagePlaceholder() {
     Box(
         modifier = Modifier
             .width(140.dp)
@@ -123,7 +123,7 @@ private fun ImagePlaceholder() {
 
 
 @Composable
-private fun BoxDetailsDisplay(item: DisplayItems) {
+fun BoxDetailsDisplay(item: DisplayItems) {
 
     Column(
         modifier = Modifier.fillMaxHeight(),

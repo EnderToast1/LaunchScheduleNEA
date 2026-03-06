@@ -25,8 +25,8 @@ import kotlinx.coroutines.launch
 fun LaunchesScreen(scheduleDao: ScheduleDao) {
     println("Click on Launches bottom navigation.")
     var searchText by rememberSaveable { mutableStateOf("") }
-    var selectedLaunch by remember { mutableStateOf<Launch?>(null) } // track selected launch
-
+    var selectedLaunchID by rememberSaveable { mutableStateOf<String?>(null) } // track selected launch
+    var selectedLaunch by remember { mutableStateOf<Launch?>(null) }
 
     val tabItems = listOf(
         TabItem("Upcoming"),
@@ -39,19 +39,24 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
     val scope = rememberCoroutineScope()
 
 
-    Surface(
-        modifier= Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ){
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (selectedLaunch != null) {
-                    println("Clicked on ${selectedLaunch!!.missionName},  \n$selectedLaunch")
-                IndividualLaunchScreen(scheduleDao,selectedLaunch!!) {
-                    println("Backed out of ${selectedLaunch!!.missionName}")
-                    selectedLaunch = null
+    if (selectedLaunchID != null) {
+                LaunchedEffect(selectedLaunchID){
+                selectedLaunch = scheduleDao.getLaunchById(id = selectedLaunchID!!)
                 }
-            } else {
+                selectedLaunch?.let { launch ->
+                    println("Clicked on ${launch.missionName},  \n$launch")
+                    IndividualLaunchScreen(scheduleDao,launch) {
+                        println("Backed out of ${launch.missionName}")
+                        selectedLaunch = null
+                        selectedLaunchID = null
+                    }
+                }
+            }
+    else {
+                Surface(
+                    modifier= Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ){
                 // Show the tab row, search, and list only when no launch is selected
                 Column(modifier = Modifier.fillMaxSize()) {
                     SecondaryTabRow(selectedTabIndex = pagerState.currentPage) {
@@ -106,11 +111,11 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
 
                         when (page) {
                             0 -> {
-                                ListLaunchesScreen(remember { UpcomingLaunchViewModel(scheduleDao) }, searchText) { launch ->selectedLaunch = launch}
+                                ListLaunchesScreen(remember { UpcomingLaunchViewModel(scheduleDao) }, searchText) { launch ->selectedLaunchID = launch.launchID }
                             }
 
                             1 -> {
-                                ListLaunchesScreen(remember { PreviousLaunchViewModel(scheduleDao) },searchText) { launch -> selectedLaunch = launch }
+                                ListLaunchesScreen(remember { PreviousLaunchViewModel(scheduleDao) },searchText) { launch -> selectedLaunchID = launch.launchID }
                             }
 
                         }
@@ -118,5 +123,5 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
                 }
             }
         }
-    }
+
 }

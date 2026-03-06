@@ -23,7 +23,7 @@ fun IconTextRow(text:String, description: String, textStyle: TextStyle, painter:
     }
 
     Row(
-        modifier.fillMaxWidth(),
+        modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

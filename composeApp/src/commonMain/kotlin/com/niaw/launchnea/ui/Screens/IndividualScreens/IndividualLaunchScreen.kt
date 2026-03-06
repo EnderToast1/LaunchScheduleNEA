@@ -48,6 +48,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.collections.listOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.niaw.launchnea.Platform
 import com.niaw.launchnea.database.ScheduleDao
@@ -68,46 +69,66 @@ import org.maplibre.spatialk.geojson.Position
 @Composable
 fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBack: () -> Unit) {
     val scrollState = rememberScrollState()
-    var selectedRocket by remember { mutableStateOf<Rocket?>(null) } // track selected Rocket
-    var selectedReuse by remember { mutableStateOf<Reuse?>(null) } // track selected Reuse
-    var selectedAgency by remember { mutableStateOf<Agency?>(null) } // track selected Agency
-    val coroutineScope = rememberCoroutineScope()
-
+    var selectedRocketID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Rocket
+    var selectedReuseID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Reuse
+    var selectedAgencyID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Agency
+    var selectedRocket by remember { mutableStateOf<Rocket?>(null) }
+    var selectedReuse by remember { mutableStateOf<Reuse?>(null) }
+    var selectedAgency by remember { mutableStateOf<Agency?>(null) }
 
     LaunchedEffect(launch) {
                 setBackHandler(enabled = true) {
                         onBack()
                 }
         }
-    if (selectedRocket != null) {
-        println("Clicked on ${selectedRocket!!.name},  \n$selectedRocket")
-        IndividualRocketScreen(selectedRocket!!) {
-            println("Backed out of ${selectedRocket!!.name}")
-            selectedRocket = null
+
+    if (selectedRocketID != null) {
+        LaunchedEffect(selectedRocketID){
+            selectedRocket = scheduleDao.getRocketById(id = selectedRocketID!!)
         }
-    }else if (selectedReuse != null) {
-        println("Clicked on ${selectedReuse!!.name}\n $selectedReuse")
-        IndividualReuseScreen(selectedReuse!!) {
-            println("Backed out of ${selectedReuse!!.name}")
-            selectedReuse = null
+        selectedRocket?.let { rocket ->
+            println("Clicked on ${rocket.name},  \n$rocket")
+            IndividualRocketScreen(scheduleDao,rocket) {
+                println("Backed out of ${rocket.name}")
+                selectedRocket = null
+                selectedRocketID = null
+            }
         }
-    }else if (selectedAgency != null) {
-        println("Clicked on ${selectedAgency!!.name},  \n$selectedAgency")
-        IndividualAgencyScreen(selectedAgency!!) {
-            println("Backed out of${selectedAgency!!.name}")
-            selectedAgency = null
+    }
+    else if (selectedReuseID != null) {
+        LaunchedEffect(selectedReuseID){
+            selectedReuse = scheduleDao.getReuseById(id = selectedReuseID!!)
         }
-    } else {
+        selectedReuse?.let { reuse ->
+            println("Clicked on ${reuse.name},  \n$launch")
+            IndividualReuseScreen(reuse) {
+                println("Backed out of ${reuse.name}")
+                selectedReuse = null
+                selectedReuseID = null
+            }
+        }
+    }
+    else if (selectedAgencyID != null) {
+        LaunchedEffect(selectedAgencyID){
+            selectedAgency = scheduleDao.getAgencyById(id = selectedAgencyID!!)
+        }
+        selectedAgency?.let { agency ->
+            println("Clicked on ${agency.name},  \n$agency")
+            IndividualAgencyScreen(agency) {
+                println("Backed out of ${agency.name}")
+                selectedAgency = null
+                selectedAgencyID = null
+            }
+        }
+    }
+    else {
 
         Column(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
         ) {
-            HeaderRow(launch, onBack) { agencyID ->         //Back and Agency boxes
-                coroutineScope.launch {
-                    selectedAgency = scheduleDao.getAgencyById(id = agencyID)
-                }
-            }
+            HeaderRow(launch, onBack) { agencyID ->selectedAgencyID =agencyID}
+
 
             MissionMainBox(launch)
             Spacer(Modifier.height(5.dp))
@@ -121,23 +142,14 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBack: () 
                 var vehicle by remember { mutableStateOf<Rocket?>(null) }
                 LaunchedEffect(launch) {
                     vehicle= launch.rocketID?.let { scheduleDao.getRocketById(it) }
-                }
-
-                RocketSection(launch, vehicle){ rocket -> selectedRocket=rocket }
+                    }
+                RocketSection(launch, vehicle){ rocket -> selectedRocketID=rocket.rocketID }
                 Spacer(Modifier.height(5.dp))
 
-                AgencyBox(launch) { agencyID ->
-                    coroutineScope.launch {
-                        selectedAgency = scheduleDao.getAgencyById(id = agencyID)
-                    }
-                }
+                AgencyBox(launch.agencyID,launch.agencyName) { agencyID ->selectedAgencyID = agencyID }
                 Spacer(Modifier.height(10.dp))
 
-                ReuseDetails(launch){ reuseID ->
-                    coroutineScope.launch {
-                        selectedReuse = scheduleDao.getReuseById(id = reuseID)
-                    }
-                }//TODO Reuse
+                ReuseDetails(launch){ reuseID ->selectedReuseID = reuseID}}//TODO Reuse
                 Spacer(Modifier.height(10.dp))
 
                 PadLocation(launch.padCords)
@@ -146,7 +158,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBack: () 
                 //TODO Stats maybe cut
             }
         }
-    }
+
 }
 
 @Composable
@@ -236,9 +248,9 @@ fun MissionMainBox(launch:Launch){
                                 color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(4.dp))
-                        IconTextRow(launchTimes.liftoffDate,"Launch Date",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.CalendarMonth),Modifier,MaterialTheme.colorScheme.onPrimaryContainer)
+                        IconTextRow(launchTimes.liftoffDate,"Launch Date",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.CalendarMonth),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
                         Spacer(Modifier.height(4.dp))
-                    launch.padName?.let { IconTextRow(it,"pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier,MaterialTheme.colorScheme.onPrimaryContainer) }
+                    launch.padName?.let { IconTextRow(it,"pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer) }
 
                         Spacer(Modifier.height(15.dp))
                         LaunchWindowTimeline(launchTimes)
@@ -334,7 +346,7 @@ fun MissionDetails(launch:Launch){
                         "Mission Details",
                         MaterialTheme.typography.headlineLarge,
                         painterResource(Res.drawable.search_book),
-                        Modifier,
+                        Modifier.fillMaxWidth(),
                         MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.height(10.dp))
@@ -476,7 +488,7 @@ fun RocketSection(launch:Launch, vehicle:Rocket?,onClick: (Rocket) -> Unit){
             "Rocket",
             MaterialTheme.typography.displayMedium,
             painterResource(Res.drawable.FilledRocket),
-            Modifier,
+            Modifier.fillMaxWidth(),
             MaterialTheme.colorScheme.primary
         )
         Column(modifier = Modifier.clip(RoundedCornerShape(12.dp)).fillMaxWidth().border(0.5.dp, Color.Gray,
@@ -529,9 +541,8 @@ fun RocketInformationSection(vehicle:Rocket){
 }
 
 @Composable
-fun AgencyBox(launch:Launch,onClick: (String) -> Unit) {
-    val id=launch.agencyID
-    val name= launch.agencyName
+fun AgencyBox(id:String?, name:String?, onClick: (String) -> Unit) {
+
     if (id != null && name != null) {
         Box(
             modifier = Modifier
@@ -572,7 +583,7 @@ fun ReuseDetails(launch:Launch,onClick: (String) -> Unit){
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(horizontal = 5.dp, vertical = 1.dp)){
-        IconTextRow("Vehicle Reuse", "Reusable Parts", MaterialTheme.typography.headlineMedium,rememberVectorPainter(Icons.Filled.Recycling),Modifier,MaterialTheme.colorScheme.primary)
+        IconTextRow("Vehicle Reuse", "Reusable Parts", MaterialTheme.typography.headlineMedium,rememberVectorPainter(Icons.Filled.Recycling),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.primary)
         }
         launch.reusableParts.forEach{reusable ->
 
