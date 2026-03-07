@@ -33,6 +33,8 @@ import com.niaw.launchnea.ui.Screens.LaunchScreens.LaunchesScreen
 import com.niaw.launchnea.ui.Screens.SettingsScreen
 import com.niaw.launchnea.ui.Screens.VehiclesScreens.VehiclesScreen
 import com.niaw.launchnea.navigation.NavigationItem
+import com.niaw.launchnea.utils.AppTheme
+import com.niaw.launchnea.utils.ThemeSettings
 import kotlinx.coroutines.launch
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
@@ -43,14 +45,17 @@ import org.jetbrains.compose.resources.painterResource
 @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 
 @Composable
-fun App(scheduleDao: ScheduleDao) {
+fun App(scheduleDao: ScheduleDao,themeSettings: ThemeSettings) {
     var currentRoute by rememberSaveable  { mutableStateOf("home") }
+    var currentTheme by remember { mutableStateOf(themeSettings.getTheme()) }
+
+
+
+    AppTheme(selectedMode = currentTheme) {
 
 
 
 
-
-    MaterialTheme {
         LaunchedEffect(Unit) {
             //updateLaunchData(scheduleDao)
             //daoTest(scheduleDao)
@@ -122,12 +127,19 @@ fun App(scheduleDao: ScheduleDao) {
                         "home"     -> HomeScreen()
                         "launches" -> LaunchesScreen(scheduleDao)
                         "vehicles" -> VehiclesScreen(scheduleDao)
-                        "settings" -> SettingsScreen()
+                        "settings" -> SettingsScreen(
+                                currentTheme = currentTheme,
+                                onThemeChanged = { newMode ->
+                                    currentTheme = newMode         // Updates the UI state
+                                    themeSettings.saveTheme(newMode) // Persists to Disk
+                            }
+                        )
                     }
                 }
             }
         }
     }
+
 }
 
 

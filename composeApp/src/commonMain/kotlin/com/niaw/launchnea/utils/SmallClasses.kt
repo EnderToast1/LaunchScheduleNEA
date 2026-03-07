@@ -26,7 +26,11 @@ enum class StatusReuse {
     SCRAPPED,
     CONVERTED,
     DESTROYED,
-    UNKNOWN
+    UNKNOWN;
+
+    override fun toString(): String {
+        return name.lowercase().replaceFirstChar { it.uppercase() }
+    }
 }
 
 enum class LeaderType {
@@ -99,3 +103,10 @@ data class TimelineEvent(
     val abbrev: String,
     val relativeTime: String
 )
+
+
+enum class ThemeMode {
+    Light,
+    Dark,
+    System
+}

@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Link
@@ -100,8 +102,8 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBack: () 
             selectedReuse = scheduleDao.getReuseById(id = selectedReuseID!!)
         }
         selectedReuse?.let { reuse ->
-            println("Clicked on ${reuse.name},  \n$launch")
-            IndividualReuseScreen(reuse) {
+            println("Clicked on ${reuse.name},  \n$reuse")
+            IndividualReuseScreen(scheduleDao, reuse) {
                 println("Backed out of ${reuse.name}")
                 selectedReuse = null
                 selectedReuseID = null
@@ -127,7 +129,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBack: () 
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
         ) {
-            HeaderRow(launch, onBack) { agencyID ->selectedAgencyID =agencyID}
+            HeaderRow(launch, onBack) { agencyID -> selectedAgencyID = agencyID }
 
 
             MissionMainBox(launch)
@@ -141,23 +143,24 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBack: () 
 
                 var vehicle by remember { mutableStateOf<Rocket?>(null) }
                 LaunchedEffect(launch) {
-                    vehicle= launch.rocketID?.let { scheduleDao.getRocketById(it) }
-                    }
-                RocketSection(launch, vehicle){ rocket -> selectedRocketID=rocket.rocketID }
+                    vehicle = launch.rocketID?.let { scheduleDao.getRocketById(it) }
+                }
+                RocketSection(launch, vehicle) { rocket -> selectedRocketID = rocket.rocketID }
                 Spacer(Modifier.height(5.dp))
+            }
+            AgencyBox(launch.agencyID, launch.agencyName) { agencyID -> selectedAgencyID = agencyID }
+            Spacer(Modifier.height(10.dp))
 
-                AgencyBox(launch.agencyID,launch.agencyName) { agencyID ->selectedAgencyID = agencyID }
-                Spacer(Modifier.height(10.dp))
-
-                ReuseDetails(launch){ reuseID ->selectedReuseID = reuseID}}//TODO Reuse
-                Spacer(Modifier.height(10.dp))
-
+            ReuseDetails(launch) { reuseID -> selectedReuseID = reuseID }//TODO Reuse
+            Spacer(Modifier.height(10.dp))
+            Column(Modifier.fillMaxWidth().padding(10.dp)) {
                 PadLocation(launch.padCords)
                 Spacer(Modifier.height(10.dp))
-
-                //TODO Stats maybe cut
             }
+            //TODO Stats maybe cut
+
         }
+    }
 
 }
 
@@ -544,33 +547,31 @@ fun RocketInformationSection(vehicle:Rocket){
 fun AgencyBox(id:String?, name:String?, onClick: (String) -> Unit) {
 
     if (id != null && name != null) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .clip(RoundedCornerShape(percent = 50)) // pill shape
-                .background(MaterialTheme.colorScheme.secondary)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clickable { onClick(id) },
-            contentAlignment = Alignment.Center
+        Surface(
+            onClick = { onClick(id) },
+            modifier = Modifier.fillMaxWidth().padding(10.dp,3.dp),
+            shape = CircleShape, //Pill Shape
+            color = MaterialTheme.colorScheme.tertiaryContainer,
+            tonalElevation = 2.dp
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                    .fillMaxWidth()
             ) {
-
-                    Text(
-                        text = name,
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        style = MaterialTheme.typography.labelLarge
-                    )
-
+                Text(
+                    text = name,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge
+                )
 
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowRight,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = "Agency Link",
-                    tint = MaterialTheme.colorScheme.secondaryContainer,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -579,7 +580,7 @@ fun AgencyBox(id:String?, name:String?, onClick: (String) -> Unit) {
 
 @Composable
 fun ReuseDetails(launch:Launch,onClick: (String) -> Unit){
-        Box(modifier = Modifier
+        Box(modifier = Modifier.padding(5.dp,0.dp)
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(horizontal = 5.dp, vertical = 1.dp)){

@@ -1,5 +1,6 @@
 package com.niaw.launchnea.ui.UiElements
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,11 +14,13 @@ import androidx.compose.material.icons.filled.NoDrinks
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
@@ -34,35 +37,38 @@ interface ListBoxItem {
 
 val cardShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 0.dp, topEnd = 0.dp, bottomEnd = 20.dp
 )
-val boxModifier = Modifier.fillMaxWidth()
-                    .height(140.dp)
-                    .border(width = 1.dp, color = Color(0xB3787878),
-                  shape = cardShape)
-                    .clip(cardShape)
-                    .background(Color(0xFFFFFFFF))
 
 
 @Composable
 fun <T : ListBoxItem> ListBox(item: T, onClick: (T) -> Unit) {
 
-        Box(//TODO add colour for success
-            modifier = boxModifier.clickable { onClick(item) }
-        ) {
-                //Content
-              Row(
+    Surface(
+        onClick = { onClick(item) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 4.dp,
+        tonalElevation = 2.dp,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            //Content
+            Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                  val displayItems = item.listBoxText()
+                val displayItems = item.listBoxText()
 
-                  BoxLeftImage(displayItems)
-                  Box(Modifier.weight(1f).padding(16.dp)) {
-                      BoxDetailsDisplay(displayItems)
-                  }
+                BoxLeftImage(displayItems)
+                Box(Modifier.weight(1f).padding(16.dp)) {
+                    BoxDetailsDisplay(displayItems)
+                }
 
             }
         }
-
+    }
 }
 
 
@@ -199,9 +205,9 @@ fun BoxChip(chip: Chip ) {
             .background(Color(0xFFD0D0D0))
             .padding(horizontal = 5.dp, vertical = 1.dp)
     ) {
-        //TODO add row with image and colour for success
+        //TODO add row with Icon and colour for success
         Text(
-            text = chip.abbrev ?: "Unknown",
+            text = chip.text ?: "Unknown",
             style = MaterialTheme.typography.labelMedium
         )
     }

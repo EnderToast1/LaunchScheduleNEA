@@ -3,6 +3,10 @@ package com.niaw.launchnea.database.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.niaw.launchnea.ui.UiElements.Chip
+import com.niaw.launchnea.ui.UiElements.DisplayItems
+import com.niaw.launchnea.ui.UiElements.ImageGroup
+import com.niaw.launchnea.ui.UiElements.ListBoxItem
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -46,4 +50,16 @@ data class RocketVersion(
     var licenseType: String? = null,
     var lastUpdated: LocalDateTime?=null,
 
+    ): ListBoxItem {
+    override fun listBoxText() = DisplayItems(
+        title =this.name,
+        imageGroup = ImageGroup(this.imageThumbURL, imageCredit,licenseType,true),
+
+        secondRow = "$activeSince",
+        thirdRow = "20",
+        chips = getChips(),
     )
+
+    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired"))
+}
+

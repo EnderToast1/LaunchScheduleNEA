@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.LaunchReuseCrossRef
@@ -55,7 +56,25 @@ interface ScheduleDao {
     @Query("SELECT l.* FROM launch l INNER JOIN starred_launches s ON l.launchID = s.launchID")
     fun getStarredLaunches(): Flow<List<Launch>>
 
+    @Transaction
+    @Query("""
+        SELECT * FROM Launch 
+        INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
+        WHERE LaunchReuseCrossRef.reuseID = :reuseID 
+        AND Launch.launchTimeUTC >= CURRENT_TIMESTAMP
+        ORDER BY Launch.launchTimeUTC ASC
+    """)
+    fun getUpcomingLaunchesByReuseId(reuseID: String): Flow<List<Launch>>
 
+    @Transaction
+    @Query("""
+        SELECT * FROM Launch 
+        INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
+        WHERE LaunchReuseCrossRef.reuseID = :reuseID 
+        AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+        ORDER BY Launch.launchTimeUTC ASC
+    """)
+   fun getPreviousLaunchesByReuseId(reuseID: String): Flow<List<Launch>>
     //Get singular item
     @Query("SELECT * FROM Launch WHERE launchID = :id")
     suspend fun getLaunchById(id: String): Launch?
@@ -65,6 +84,9 @@ interface ScheduleDao {
 
     @Query("SELECT * FROM Rocket WHERE rocketID = :id")
     suspend fun getRocketById(id: String): Rocket?
+
+    @Query("SELECT * FROM RocketVersion WHERE rocketVersionID = :id")
+    suspend fun getRocketVersionById(id: String): RocketVersion?
 
     @Query("SELECT * FROM Reuse WHERE reuseID = :id")
     suspend fun getReuseById(id: String): Reuse?

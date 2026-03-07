@@ -54,7 +54,7 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
 
             } else if (selectedReuse != null) {
                 println("Clicked on ${selectedReuse!!.name}\n $selectedReuse")
-                IndividualReuseScreen(selectedReuse!!) {
+                IndividualReuseScreen(scheduleDao,selectedReuse!!) {
                     println("Backed out of ${selectedReuse!!.name}")
                     selectedReuse = null
                 }

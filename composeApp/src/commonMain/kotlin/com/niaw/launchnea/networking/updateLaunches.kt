@@ -12,6 +12,7 @@ import com.niaw.launchnea.utils.TimelineEvent
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.LaunchReuseCrossRef
 import com.niaw.launchnea.database.entities.MetaData
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
@@ -84,7 +85,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     var upcomingUpdated=true
     //Update upcoming launches
     var upcomingCallResponse=APIFetchRequest(upcomingCallApiUrl) //passes the url as a string into the API and also gives it the lastUpdated string filter
-    if (pastCallResponse.errorType!=null) {upcomingUpdated=false}
+    if (upcomingCallResponse.errorType!=null) {upcomingUpdated=false}
     responseToDatabase(scheduleDao,upcomingCallResponse)   //parses the response and adds each launch to the database (inside the function it checks for other tables that need adding to)
     i=0
     while ((upcomingCallResponse.count>=100) and (upcomingCallResponse.next!=null)) {
@@ -367,6 +368,12 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
                 if (!scheduleDao.doesReuseExist(reusablePart.reuseID!!)|| scheduleDao.doesReuseNeedUpdating(reusablePart.reuseID!!, lastUpdated)) {
                     println("Reusable: ${reusablePart.reuseName} does NOT exist or needs updating")
                     scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))   //TODO place in a try loop and catch and print the error
+
+                val crossRef = LaunchReuseCrossRef(
+                    launchID = launch.launchID,
+                    reuseID = reusablePart.reuseID!!
+                )
+                scheduleDao.upsertLaunchReuseCrossRef(crossRef)
                 }else{
                     println("Reusable:${reusablePart.reuseName} ALREADY exists and is updated")
                 }

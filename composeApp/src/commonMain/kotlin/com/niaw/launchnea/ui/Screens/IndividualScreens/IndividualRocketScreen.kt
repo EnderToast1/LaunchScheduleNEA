@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import com.niaw.launchnea.database.ScheduleDao
@@ -54,6 +55,7 @@ import com.niaw.launchnea.database.entities.RocketVersion
 import com.niaw.launchnea.navigation.setBackHandler
 import com.niaw.launchnea.ui.UiElements.IconTextRow
 import com.niaw.launchnea.ui.UiElements.ImagePlaceholder
+import com.niaw.launchnea.ui.UiElements.ListBox
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -82,7 +84,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBack: () 
     }
     else if (selectedReuse != null) {
         println("Clicked on ${selectedReuse!!.name}\n $selectedReuse")
-        IndividualReuseScreen(selectedReuse!!) {
+        IndividualReuseScreen(scheduleDao,selectedReuse!!) {
             println("Backed out of ${selectedReuse!!.name}")
             selectedReuse = null
         }
@@ -99,9 +101,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBack: () 
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
         ) {
-            TopImage(rocket)
-           // Spacer(Modifier.height(5.dp))
-            MainRocketBox(rocket)
+            TopImage(rocket.imageURL!!,rocket.name!!, agencyName)
             Column(Modifier.fillMaxWidth()) {
                 RocketStats(rocket)
                 Spacer(Modifier.height(10.dp))
@@ -116,66 +116,6 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBack: () 
     }
 }
 
-@Composable
-fun TopImage(rocket: Rocket) {
-    val url =rocket.imageURL
-
-    Box(Modifier.fillMaxWidth().background(Color.LightGray)) {
-    Box(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        SubcomposeAsyncImage(
-            model = url,
-            contentDescription = "Rocket Image",
-            modifier = Modifier
-                .height(200.dp)
-                .wrapContentWidth()
-                .clip(RoundedCornerShape(20.dp)),
-            contentScale = ContentScale.FillHeight,
-            loading = {
-                Box(
-                    modifier = Modifier
-                        .height(200.dp)
-                        .fillMaxWidth()
-                        .background(Color.DarkGray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        strokeCap = StrokeCap.Round
-                    )
-                }
-            },
-            error = {
-                Box(
-                    modifier = Modifier
-                        .padding(30.dp,0.dp)
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color.DarkGray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ImageNotSupported,
-                        contentDescription = "Image not found",
-                        tint = Color.LightGray,
-                        modifier = Modifier.size(60.dp)
-                    )
-                }
-            }
-        )
-    }}
-}
-
-@Composable
-fun MainRocketBox(rocket: Rocket) {
-    Column(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(0.dp,0.dp,10.dp,10.dp)).background(MaterialTheme.colorScheme.primaryContainer).padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-       rocket.name?.let { Text(it, style = MaterialTheme.typography.displayMedium) }
-    }
-}
 
 @Composable
 fun RocketStats(rocket: Rocket) {
@@ -189,7 +129,7 @@ fun RocketStats(rocket: Rocket) {
 
     val successStreak = 3
 
-    Column(modifier = Modifier.clip(RoundedCornerShape(12.dp)).fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier = Modifier.clip(RoundedCornerShape(0.dp,0.dp,15.dp,15.dp)).fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Row 1
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("Missions:\n $missions", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
@@ -212,9 +152,8 @@ fun RocketStats(rocket: Rocket) {
 
 @Composable
 fun ConfigHeading() {
-    Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primaryContainer).padding(15.dp,5.dp)) {
-        IconTextRow("Configuration","Cog Wheel",MaterialTheme.typography.headlineMedium,rememberVectorPainter(Icons.Filled.Settings), Modifier,MaterialTheme.colorScheme.onPrimaryContainer)
-    }
+    IconTextRow("Configuration","Cog Wheel",MaterialTheme.typography.headlineMedium,rememberVectorPainter(Icons.Filled.Settings),Modifier.padding(bottom = 8.dp),MaterialTheme.colorScheme.onBackground)
+
 }
 
 @Composable
@@ -236,8 +175,6 @@ fun VersionsList(rocket: Rocket) {
 
 @Composable
 fun VersionBox(rocketVersion: RocketVersion) {
-    Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primaryContainer).padding(10.dp), contentAlignment = Alignment.Center) {
-        rocketVersion.name?.let { Text(it, style = MaterialTheme.typography.bodyMedium,color = MaterialTheme.colorScheme.onPrimaryContainer) }
-    }
+    ListBox(rocketVersion){}
 }
 
