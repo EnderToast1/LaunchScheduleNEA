@@ -9,9 +9,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.niaw.launchnea.database.ScheduleDao
 
 @Composable
-fun <T : ListBoxItem> ListOfBoxes(listOfItem: List<T>, listState: LazyListState, onItemClick: (T) -> Unit) {
+fun <T : ListBoxItem> ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<T>, listState: LazyListState, onItemClick: (T) -> Unit) {
 
     //TODO if List empty display no items
     LazyColumn(
@@ -24,7 +25,7 @@ fun <T : ListBoxItem> ListOfBoxes(listOfItem: List<T>, listState: LazyListState,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(listOfItem) { item ->
-            ListBox(item = item, onClick =onItemClick )
+            ListBox(scheduleDao = scheduleDao,item = item, onClick =onItemClick )
         }
     }
 }

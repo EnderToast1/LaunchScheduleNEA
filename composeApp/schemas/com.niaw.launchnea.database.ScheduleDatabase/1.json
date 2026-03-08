@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "86a9f150240c4afa98c10a34d55233c4",
+    "identityHash": "10fccbb4517703e10500732b114de2b3",
     "entities": [
       {
         "tableName": "Agency",
@@ -383,7 +383,7 @@
       },
       {
         "tableName": "Reuse",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT, `activeSince` TEXT, `versionID` TEXT NOT NULL, `rocketID` TEXT, `agencyID` TEXT, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, `lastUpdated` TEXT, `imageURL` TEXT, `imageThumbURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, PRIMARY KEY(`reuseID`), FOREIGN KEY(`versionID`) REFERENCES `RocketVersion`(`rocketVersionID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`reuseID` TEXT NOT NULL, `name` TEXT, `activeSince` TEXT, `versionID` TEXT NOT NULL, `rocketID` TEXT, `agencyID` TEXT, `rocketName` TEXT, `agencyName` TEXT, `reuseType` TEXT NOT NULL, `status` TEXT NOT NULL, `lastUpdated` TEXT, `imageURL` TEXT, `imageThumbURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, PRIMARY KEY(`reuseID`), FOREIGN KEY(`versionID`) REFERENCES `RocketVersion`(`rocketVersionID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "reuseID",
@@ -415,6 +415,16 @@
           {
             "fieldPath": "agencyID",
             "columnName": "agencyID",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rocketName",
+            "columnName": "rocketName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "agencyName",
+            "columnName": "agencyName",
             "affinity": "TEXT"
           },
           {
@@ -499,7 +509,7 @@
       },
       {
         "tableName": "Rocket",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketID` TEXT NOT NULL, `name` TEXT, `agencyID` TEXT, `imageURL` TEXT, `imageThumbURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `desc` TEXT, `lastUpdated` TEXT, PRIMARY KEY(`rocketID`), FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketID` TEXT NOT NULL, `name` TEXT, `agencyID` TEXT, `agencyName` TEXT, `imageURL` TEXT, `imageThumbURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `desc` TEXT, `lastUpdated` TEXT, PRIMARY KEY(`rocketID`), FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "rocketID",
@@ -515,6 +525,11 @@
           {
             "fieldPath": "agencyID",
             "columnName": "agencyID",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "agencyName",
+            "columnName": "agencyName",
             "affinity": "TEXT"
           },
           {
@@ -769,7 +784,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '86a9f150240c4afa98c10a34d55233c4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '10fccbb4517703e10500732b114de2b3')"
     ]
   }
 }

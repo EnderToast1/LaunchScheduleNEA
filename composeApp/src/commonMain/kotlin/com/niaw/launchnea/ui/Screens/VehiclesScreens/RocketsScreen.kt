@@ -32,7 +32,7 @@ fun RocketsScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (Rocket)
     Box(modifier = Modifier.fillMaxSize()) {
 
         // Show list of launches
-        ListOfBoxes(rockets, listState,onClick)
+        ListOfBoxes(null,rockets, listState,onClick)
         SliderPlatform(rockets, listState)
     }
 

@@ -3,6 +3,7 @@ package com.niaw.launchnea.database.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.ui.UiElements.Chip
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
@@ -51,7 +52,7 @@ data class RocketVersion(
     var lastUpdated: LocalDateTime?=null,
 
     ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(
+    override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
         title =this.name,
         imageGroup = ImageGroup(this.imageThumbURL, imageCredit,licenseType,true),
 

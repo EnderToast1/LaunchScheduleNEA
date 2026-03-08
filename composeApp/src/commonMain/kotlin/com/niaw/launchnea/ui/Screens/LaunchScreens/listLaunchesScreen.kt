@@ -28,7 +28,7 @@ fun ListLaunchesScreen(viewModel: LaunchesViewModel, searchText: String,onClick:
     Box(modifier = Modifier.fillMaxSize()) {
 
             // Show list of launches
-            ListOfBoxes(launches, listState,onClick)
+            ListOfBoxes(null,launches, listState,onClick)
             SliderPlatform(launches, listState)
         }
 

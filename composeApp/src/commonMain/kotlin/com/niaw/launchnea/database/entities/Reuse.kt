@@ -8,11 +8,20 @@ import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Rocket
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.niaw.launchnea.database.ScheduleDao
+import com.niaw.launchnea.navigation.ViewModels.ReuseBoxInfo
+import com.niaw.launchnea.navigation.ViewModels.ReuseViewModel
+import com.niaw.launchnea.ui.UiElements.Chip
 import com.niaw.launchnea.utils.ReuseType
 import com.niaw.launchnea.utils.StatusReuse
 import com.niaw.launchnea.ui.UiElements.DisplayIcon
@@ -50,6 +59,8 @@ data class Reuse(
     var versionID:String,
     var rocketID:String? = null,
     var agencyID:String? = null,
+    var rocketName:String? = null,
+    var agencyName:String? = null,
     var reuseType: ReuseType = ReuseType.UNKNOWN,
     var status: StatusReuse = StatusReuse.UNKNOWN,
     var lastUpdated: LocalDateTime?=null,
@@ -59,17 +70,24 @@ data class Reuse(
     var licenseType: String? = null,
   ): ListBoxItem {
 
-    //TODO add RocketImage in ImageGroup and change show to true
-    override fun listBoxText() = DisplayItems(
-        title = name,
-        imageGroup = ImageGroup(imageThumbURL,imageCredit,licenseType,show = false),
-        secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Timer),
-        secondRow = activeSince.toString(),
-        thirdRowIcon = statusReuseIcon(),
-        thirdRow = status.toString(),
-        fourthRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
-        fourthRow = rocketID
-    )
+    override fun listBoxText(scheduleDao: ScheduleDao?): DisplayItems {
+        if (scheduleDao != null) {
+            val viewModel= ReuseBoxInfo(scheduleDao,this.reuseID)
+
+
+            return DisplayItems(
+                title = name,
+                imageGroup = ImageGroup(imageThumbURL, imageCredit, licenseType, show = true),
+                secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Rocket),
+                secondRow = "$rocketName|$agencyName",
+                thirdRowIcon = statusReuseIcon(),
+                thirdRow = status.toString(),
+                fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
+                fourthRow = "scheduleDao?.getLastFlightByReuseId(reuseID)",
+                chips = listOf(Chip(reuseID))
+            )
+        }
+    return DisplayItems()}
 
     fun statusReuseIcon(): DisplayIcon.Vector {//TODO need Editing
         return when (this.status) {

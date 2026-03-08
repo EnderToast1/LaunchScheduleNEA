@@ -2,36 +2,35 @@ package com.niaw.launchnea.ui.UiElements
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.ImageNotSupported
-import androidx.compose.material.icons.filled.NoDrinks
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
+import com.niaw.launchnea.database.ScheduleDao
 import org.jetbrains.compose.resources.painterResource
 
 
 interface ListBoxItem {
-    fun listBoxText(): DisplayItems
+    fun listBoxText(scheduleDao: ScheduleDao?): DisplayItems
 }
 
 
@@ -40,14 +39,18 @@ val cardShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 0.dp, topEnd 
 
 
 @Composable
-fun <T : ListBoxItem> ListBox(item: T, onClick: (T) -> Unit) {
+fun <T : ListBoxItem> ListBox(scheduleDao: ScheduleDao?,item: T, onClick: (T) -> Unit) {
+    val boxContent=item.listBoxText(scheduleDao)
+
+
+
 
     Surface(
         onClick = { onClick(item) },
         modifier = Modifier
             .fillMaxWidth()
             .height(140.dp),
-        shape = RoundedCornerShape(24.dp),
+        shape = cardShape,
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp,
         tonalElevation = 2.dp,
@@ -59,11 +62,10 @@ fun <T : ListBoxItem> ListBox(item: T, onClick: (T) -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val displayItems = item.listBoxText()
 
-                BoxLeftImage(displayItems)
+                BoxLeftImage(boxContent)
                 Box(Modifier.weight(1f).padding(16.dp)) {
-                    BoxDetailsDisplay(displayItems)
+                    BoxDetailsDisplay(boxContent)
                 }
 
             }

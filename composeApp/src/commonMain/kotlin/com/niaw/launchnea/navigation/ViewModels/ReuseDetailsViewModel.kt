@@ -17,7 +17,7 @@ class ReuseLaunchesViewModel(
 
 
     val upcomingLaunches: StateFlow<List<Launch>> = scheduleDao
-        .getPreviousLaunchesByReuseId(reuseID)
+        .getUpcomingLaunchesByReuseId(reuseID)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -30,5 +30,26 @@ class ReuseLaunchesViewModel(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
+        )
+
+    val reuses: StateFlow<Int> = scheduleDao.getReuseCountById(reuseID)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 0
+        )
+
+    val averageReuseTime = scheduleDao.getAverageReuseTime(reuseID)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
+
+    val fastestReuseTime = scheduleDao.getFastestReuseTime(reuseID)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
         )
 }

@@ -1,5 +1,11 @@
 package com.niaw.launchnea.ui.Screens.IndividualScreens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,12 +16,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ImageNotSupported
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -28,7 +37,6 @@ import com.niaw.launchnea.database.entities.*
 import com.niaw.launchnea.navigation.ViewModels.ReuseLaunchesViewModel
 import com.niaw.launchnea.navigation.setBackHandler
 import com.niaw.launchnea.ui.UiElements.ListBox
-import com.niaw.launchnea.utils.StatusReuse
 
 @Composable
 fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: () -> Unit) {
@@ -37,7 +45,9 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
     }
     val nextLaunches by viewModel.upcomingLaunches.collectAsState()
     val pastLaunches by viewModel.pastLaunches.collectAsState()
-
+    val reuses by viewModel.reuses.collectAsState()
+    val averageReuseTime by viewModel.averageReuseTime.collectAsState()
+    val fastestReuseTime by viewModel.fastestReuseTime.collectAsState()
 
     val scrollState = rememberScrollState()
 
@@ -124,8 +134,8 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
         Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(scrollState)) {
 
             //Image and Stats
-            TopImage(reuse.imageURL!!,reuse.name!!, agencyName)
-            ReuseStatsBox(reuse)
+            TopImage(reuse.imageURL,reuse.name!!, agencyName)
+            ReuseStatsBox(reuse, reuses, averageReuseTime, fastestReuseTime)
 
             //Configuration Section
             Column(
@@ -136,6 +146,8 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
                 ConfigHeading()//Heading with icon text
                 rocketVersion?.let {VersionBox(it)}// The actual config Version box
             }
+
+
             Spacer(modifier = Modifier.size(10.dp))
             AgencyBox(reuse.agencyID,agencyName) { agencyID ->selectedAgencyID=agencyID}
             Spacer(modifier = Modifier.size(10.dp))
@@ -149,23 +161,29 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
 
 
 @Composable
-fun ReuseStatsBox(reuse: Reuse){
-    val status=StatusReuse.ACTIVE//TODO get real data
-    val flights=2
-    val averageReuseTime="30 days"
-    val fastestReuseTime="20 days"
+fun ReuseStatsBox(reuse: Reuse,reuses:Int,averageReuseTime:Long?,fastestReuseTime:Long?){
+    println("Time $averageReuseTime")
+    val status=reuse.status
+    val avgDays = remember(averageReuseTime) {
+        averageReuseTime?.let { millis ->
+            millis / (1000 * 60 * 60 * 24)
+        } ?: 1
+    }
+    val fastestDays = remember(fastestReuseTime) {
+        fastestReuseTime?.let { it / (1000 * 60 * 60 * 24) } ?: 1
+    }
 
 
     Column(modifier = Modifier.clip(RoundedCornerShape(0.dp,0.dp,20.dp,20.dp)).fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(20.dp,7.5.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Row 1
         DataRow(
             leftLabel = "Status", leftValue = status.toString(),
-            rightLabel = "Flights", rightValue = "$flights"
+            rightLabel = "Flights", rightValue = "$reuses"
         )
         // Row 2
         DataRow(
-            leftLabel = "Average reuse time", leftValue = averageReuseTime,
-            rightLabel = "Fastest reuse time", rightValue = fastestReuseTime
+            leftLabel = "Average reuse time", leftValue = if (avgDays > 0) "$avgDays days" else "N/A",
+            rightLabel = "Fastest reuse time", rightValue = if (fastestDays > 0) "$fastestDays days" else "N/A",
         )
 
 
@@ -218,7 +236,7 @@ fun DataRow(leftLabel: String, leftValue: String, rightLabel: String, rightValue
     }
 }
 @Composable
-fun TopImage(url: String, titleText: String, secondText:String?) {
+fun TopImage(url: String?, titleText: String, secondText:String?) {
 
     Box(
         modifier = Modifier
@@ -306,16 +324,35 @@ fun LaunchesSection(nextLaunches: List<Launch>, pastLaunches: List<Launch>, onCl
     println(pastLaunches.size)
     var showNext by remember { mutableIntStateOf(1) }
     var showPast by remember { mutableIntStateOf(3) }
-    //Next
-    LaunchHeading("Next Launch",isExpanded = showNext == 0){showNext = if (showNext == 0) 1 else 0}
-    LaunchDisplay(showNext,nextLaunches, onClickList = onClick)
 
+    // Next Launches
+    LaunchHeading("Next Launch", isExpanded = showNext == 0) {
+        showNext = if (showNext == 0) 1 else 0
+    }
+
+    // This animates the container height and content appearance
+    AnimatedContent(
+        targetState = showNext,
+        transitionSpec = {fadeIn(animationSpec = tween(500)) togetherWith fadeOut(animationSpec = tween(500))}
+    ) { targetShowNext ->
+        LaunchDisplay(targetShowNext, nextLaunches, onClickList = onClick)
+    }
 
     Spacer(Modifier.height(7.5.dp))
-    //Past
-    LaunchHeading("Past Launch",isExpanded = showPast == 0){showPast = if (showPast == 0) 3 else 0}
-    LaunchDisplay(showPast,pastLaunches, onClickList = onClick)
+
+    // Past Launches
+    LaunchHeading("Past Launch", isExpanded = showPast == 0) {
+        showPast = if (showPast == 0) 3 else 0
+    }
+
+    AnimatedContent(
+        targetState = showPast,
+        transitionSpec = {fadeIn(animationSpec = tween(500)) togetherWith fadeOut(animationSpec = tween(500))}
+    ) { targetShowPast ->
+        LaunchDisplay(targetShowPast, pastLaunches, onClickList = onClick)
+    }
 }
+
 
 @Composable
 fun LaunchHeading(title: String,isExpanded: Boolean, onClick: () -> Unit) {
@@ -362,6 +399,7 @@ fun LaunchHeading(title: String,isExpanded: Boolean, onClick: () -> Unit) {
                     )
                 }
 
+                val rotation by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f)
                 // Right side: "See More" link
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -370,9 +408,9 @@ fun LaunchHeading(title: String,isExpanded: Boolean, onClick: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                     )
                     Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Arrow",
+                        modifier = Modifier.size(20.dp).rotate(rotation),
                         tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                     )
                 }
@@ -387,7 +425,7 @@ fun LaunchDisplay(defaultNumberOfLaunch: Int = 0,launches: List<Launch>, onClick
 
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp,0.dp),  verticalArrangement = Arrangement.spacedBy(5.dp)) {
         launches.take(takeCount).forEach { launch ->
-            ListBox(launch, onClick = onClickList)
+            ListBox(null,launch, onClick = onClickList)
         }
     }
 }

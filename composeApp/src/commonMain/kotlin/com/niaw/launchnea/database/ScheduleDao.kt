@@ -53,9 +53,18 @@ interface ScheduleDao {
     fun getRockets(): Flow<List<Rocket>>
     @Query("SELECT * FROM Reuse")
     fun getReuse(): Flow<List<Reuse>>
+
+    @Query("""
+    SELECT Reuse.* FROM Reuse
+    LEFT JOIN LaunchReuseCrossRef ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
+    WHERE Reuse.name NOT LIKE 'Unknown%' 
+    GROUP BY Reuse.reuseID
+    ORDER BY COUNT(LaunchReuseCrossRef.launchID) DESC
+""")
+    fun getReuseOrdered(): Flow<List<Reuse>>//The NOT 106 is to stop the Unknown booster showing up
+
     @Query("SELECT l.* FROM launch l INNER JOIN starred_launches s ON l.launchID = s.launchID")
     fun getStarredLaunches(): Flow<List<Launch>>
-
     @Transaction
     @Query("""
         SELECT * FROM Launch 
@@ -65,16 +74,76 @@ interface ScheduleDao {
         ORDER BY Launch.launchTimeUTC ASC
     """)
     fun getUpcomingLaunchesByReuseId(reuseID: String): Flow<List<Launch>>
-
     @Transaction
     @Query("""
         SELECT * FROM Launch 
         INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
         WHERE LaunchReuseCrossRef.reuseID = :reuseID 
         AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
-        ORDER BY Launch.launchTimeUTC ASC
+        ORDER BY Launch.launchTimeUTC DESC
     """)
    fun getPreviousLaunchesByReuseId(reuseID: String): Flow<List<Launch>>
+
+
+
+   //Get values for UI
+   @Query("""
+        SELECT COUNT(Launch.launchID) 
+        FROM Launch
+        INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
+        WHERE LaunchReuseCrossRef.reuseID = :reuseID 
+        AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+""")
+    fun getReuseCountById(reuseID: String): Flow<Int>
+
+
+    @Query("""
+    WITH PastIntervals AS (
+        SELECT 
+            -- Convert String date to a Unix Timestamp (seconds)
+            CAST(strftime('%s', launchTimeUTC) AS INTEGER) as startTime,
+            LEAD(CAST(strftime('%s', launchTimeUTC) AS INTEGER)) OVER (ORDER BY launchTimeUTC ASC) as nextTime
+        FROM Launch
+        INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
+        WHERE LaunchReuseCrossRef.reuseID = :reuseID 
+        -- Use CURRENT_TIMESTAMP to get Now
+        AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+    )
+    -- The result is in seconds, so multiply by 1000 to return Milliseconds 
+    SELECT AVG(nextTime - startTime) * 1000
+    FROM PastIntervals 
+    WHERE nextTime IS NOT NULL
+""")
+    fun getAverageReuseTime(reuseID: String): Flow<Long?>
+
+    @Query("""
+    WITH PastIntervals AS (
+        SELECT 
+            CAST(strftime('%s', launchTimeUTC) AS INTEGER) as startTime,
+            LEAD(CAST(strftime('%s', launchTimeUTC) AS INTEGER)) OVER (ORDER BY launchTimeUTC ASC) as nextTime
+        FROM Launch
+        INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
+        WHERE LaunchReuseCrossRef.reuseID = :reuseID 
+        AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+    )
+    SELECT MIN(nextTime - startTime) * 1000
+    FROM PastIntervals 
+    WHERE nextTime IS NOT NULL
+""")
+    fun getFastestReuseTime(reuseID: String): Flow<Long?>
+
+    @Transaction
+    @Query("""
+    SELECT Launch.* FROM Launch
+    INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
+    WHERE LaunchReuseCrossRef.reuseID = :reuseID 
+    AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+    ORDER BY Launch.launchTimeUTC DESC
+    LIMIT 1
+""")
+    fun getLastFlightByReuseId(reuseID: String): Flow<Launch?>
+
+
     //Get singular item
     @Query("SELECT * FROM Launch WHERE launchID = :id")
     suspend fun getLaunchById(id: String): Launch?
@@ -140,8 +209,14 @@ interface ScheduleDao {
     @Query("SELECT * FROM rocket WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE")
     fun getRocketLikeName(givenName: String): Flow<List<Rocket>>
 
-    @Query("SELECT * FROM reuse WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE")
+    @Query("""SELECT Reuse.* FROM reuse
+            LEFT JOIN LaunchReuseCrossRef ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
+            WHERE Reuse.name NOT LIKE 'Unknown%' 
+               AND name LIKE '%' || :givenName || '%' COLLATE NOCASE 
+            GROUP BY Reuse.reuseID
+            ORDER BY COUNT(LaunchReuseCrossRef.launchID) DESC""")
     fun getReuseLikeName(givenName: String): Flow<List<Reuse>>
 
 
 }
+

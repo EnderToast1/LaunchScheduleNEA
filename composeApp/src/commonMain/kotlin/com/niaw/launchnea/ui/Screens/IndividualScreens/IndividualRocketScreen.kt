@@ -175,6 +175,6 @@ fun VersionsList(rocket: Rocket) {
 
 @Composable
 fun VersionBox(rocketVersion: RocketVersion) {
-    ListBox(rocketVersion){}
+    ListBox(null,rocketVersion){}
 }
 

@@ -27,7 +27,7 @@ class ReuseViewModel(
             searchQuery
                 .flatMapLatest { query ->
                     if (query.isBlank()) {
-                        dao.getReuse()
+                        dao.getReuseOrdered()
                     } else {
                         dao.getReuseLikeName(query)
                     }
@@ -37,4 +37,6 @@ class ReuseViewModel(
                     started = SharingStarted.WhileSubscribed(5_000),
                     initialValue = emptyList()
                 )
+
+
     }

@@ -8,6 +8,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.utils.Location
 import com.niaw.launchnea.utils.ProgramType
 import com.niaw.launchnea.utils.Status
@@ -84,7 +85,7 @@ data class Launch(
     var precisionAbbrev: String? = null,
     val programType: ProgramType?= ProgramType.UNKNOWN
     ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(
+    override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
             title = missionName,
             imageGroup = ImageGroup(imageUrl, imageCredit, licenseType,true),
             secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),

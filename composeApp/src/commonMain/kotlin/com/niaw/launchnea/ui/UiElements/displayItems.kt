@@ -11,8 +11,8 @@ data class DisplayItems(
     val thirdRowIcon: DisplayIcon? = null,
     val thirdRow : String?=null,
     val fourthRowIcon: DisplayIcon? = null,
-    val fourthRow : String?=null,
-    val chips : List<Chip> = emptyList()
+    var fourthRow : String?=null,
+    var chips : List<Chip> = emptyList()
 
 )
 sealed class DisplayIcon {

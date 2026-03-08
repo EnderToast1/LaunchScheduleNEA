@@ -121,6 +121,7 @@ suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseD
             if (launch != null) {
                 checkForOtherEntities(launchJson,launch, scheduleDao)
                 scheduleDao.upsertLaunch(launch) //adds to database if not null
+                checkForReuse(launchJson,launch, scheduleDao)
 
 
 
@@ -330,7 +331,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
 
 }
 
-//check if agency,Rocket,version or reuse need a record added to and if they are new adds them to the db
+//check if agency,Rocket,version need a record added to and if they are new adds them to the db
 suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,scheduleDao: ScheduleDao){
 
     var lastUpdated=scheduleDao.getMetaData("lastUpdated")
@@ -362,6 +363,13 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
             println("Version: ${launch.rocketVariantName} ALREADY exists and is updated")
         }
     }
+
+
+}
+suspend fun checkForReuse(launchJsonEle: JsonElement,launch: Launch,scheduleDao: ScheduleDao){
+    var lastUpdated=scheduleDao.getMetaData("lastUpdated")
+    if (lastUpdated == null) {lastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString() } //some one-time variable will only be used when Database is reset in TESTing
+
     if (!launch.reusableParts.isEmpty()) {
         for (reusablePart in launch.reusableParts) {
             if (reusablePart.reuseID != null) {
@@ -369,11 +377,11 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
                     println("Reusable: ${reusablePart.reuseName} does NOT exist or needs updating")
                     scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))   //TODO place in a try loop and catch and print the error
 
-                val crossRef = LaunchReuseCrossRef(
-                    launchID = launch.launchID,
-                    reuseID = reusablePart.reuseID!!
-                )
-                scheduleDao.upsertLaunchReuseCrossRef(crossRef)
+                    val crossRef = LaunchReuseCrossRef(
+                        launchID = launch.launchID,
+                        reuseID = reusablePart.reuseID!!
+                    )
+                    scheduleDao.upsertLaunchReuseCrossRef(crossRef)
                 }else{
                     println("Reusable:${reusablePart.reuseName} ALREADY exists and is updated")
                 }
@@ -382,7 +390,6 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     }
 
 }
-
 suspend fun parseAgency(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Agency {
     val agencyJsonObj=launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject  //turns the element into an object
     val countries= agencyJsonObj?.get("country")?.jsonArray
@@ -427,6 +434,7 @@ suspend fun parseRocket(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ro
         rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
         name = rocketJsonObj?.get("configuration")?.jsonObject?.get("name")?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        agencyName = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("name")?.jsonPrimitive?.content,
         imageURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("image_url")?.jsonPrimitive?.content,
         imageThumbURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("thumbnail_url")?.jsonPrimitive?.content,
         imageCredit =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
@@ -525,10 +533,10 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
         )?.jsonObject?.get("first_launch_date")?.jsonPrimitive?.content?.takeIf { it != "null" }
             ?.let { Instant.parse(it).atZone(ZoneOffset.UTC).toLocalDate() },
         versionID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
-        rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get(
-            "id"
-        )?.jsonPrimitive?.content,
+        rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        rocketName = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("name")?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        agencyName = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("name")?.jsonPrimitive?.content,
 
         reuseType = reusablePart.reuseType,
         status = status,

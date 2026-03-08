@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.Timer
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
@@ -31,6 +32,8 @@ data class Rocket(
     var name: String?= null,
     var agencyID: String? = null,
 
+
+    var agencyName: String? = null,
     var imageURL: String? = null,
     var imageThumbURL: String? = null,
     var imageCredit: String? = null,
@@ -38,11 +41,11 @@ data class Rocket(
     var desc: String? =null, //long
     var lastUpdated: LocalDateTime?=null,
   ): ListBoxItem {
-    override fun listBoxText() = DisplayItems(
+    override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
             title = this.name,
             imageGroup = ImageGroup(imageThumbURL, imageCredit, licenseType,true),
             secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Business),
-            secondRow = this.agencyID,
+            secondRow = this.agencyName,
             thirdRowIcon = DisplayIcon.Vector(Icons.Outlined.Numbers),
             thirdRow = "Flights",
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
