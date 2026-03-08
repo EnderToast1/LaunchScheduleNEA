@@ -20,7 +20,7 @@ import com.niaw.launchnea.ui.Screens.IndividualScreens.IndividualLaunchScreen
 import kotlinx.coroutines.launch
 
 
-//TODO DOES NOT LASS ROTATIONS
+
 @Composable
 fun LaunchesScreen(scheduleDao: ScheduleDao) {
     println("Click on Launches bottom navigation.")
