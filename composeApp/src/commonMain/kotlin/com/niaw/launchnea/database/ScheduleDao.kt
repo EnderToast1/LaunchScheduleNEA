@@ -200,19 +200,48 @@ interface ScheduleDao {
     @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE")
     fun getLaunchLikeName(givenName: String): Flow<List<Launch>>//TODO split into past and upcoming
 
-    @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE AND launchTimeUTC < CURRENT_TIMESTAMP")
+    @Query("""SELECT * FROM launch
+           WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR rocketName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR agencyName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR rocketVersionName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR LaunchTimeUTC LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR padName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR orbit LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR padCountry LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR programType LIKE '%' ||: givenName || '%' COLLATE NOCASE          
+           AND launchTimeUTC < CURRENT_TIMESTAMP""")
     fun getPreviousLaunchesLikeName(givenName : String): Flow<List<Launch>>
 
-    @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE AND launchTimeUTC > CURRENT_TIMESTAMP")
+    @Query("""SELECT * FROM launch 
+           WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE 
+           OR rocketName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR agencyName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR rocketVersionName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR LaunchTimeUTC LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR padName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR orbit LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR padCountry LIKE '%' ||: givenName || '%' COLLATE NOCASE
+           OR programType LIKE '%' ||: givenName || '%' COLLATE NOCASE           
+           AND launchTimeUTC > CURRENT_TIMESTAMP
+           """)
     fun getUpcomingLaunchesLikeName(givenName : String): Flow<List<Launch>>
 
-    @Query("SELECT * FROM rocket WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE")
+    @Query("""SELECT * FROM rocket 
+           WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE          
+           OR agencyName LIKE '%' ||: givenName || '%' COLLATE NOCASE          
+           """)
     fun getRocketLikeName(givenName: String): Flow<List<Rocket>>
 
     @Query("""SELECT Reuse.* FROM reuse
             LEFT JOIN LaunchReuseCrossRef ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
             WHERE Reuse.name NOT LIKE 'Unknown%' 
                AND name LIKE '%' || :givenName || '%' COLLATE NOCASE 
+               OR agencyName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+               OR rocketName LIKE '%' ||: givenName || '%' COLLATE NOCASE
+               OR reuseType LIKE '%' ||: givenName || '%' COLLATE NOCASE
+               OR status  LIKE '%' ||: givenName || '%' COLLATE NOCASE
+               activeSince  LIKE '%' ||: givenName || '%' COLLATE NOCASE
             GROUP BY Reuse.reuseID
             ORDER BY COUNT(LaunchReuseCrossRef.launchID) DESC""")
     fun getReuseLikeName(givenName: String): Flow<List<Reuse>>
