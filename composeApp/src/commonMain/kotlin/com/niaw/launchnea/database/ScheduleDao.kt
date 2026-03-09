@@ -55,11 +55,20 @@ interface ScheduleDao {
     fun getReuse(): Flow<List<Reuse>>
 
     @Query("""
-    SELECT Reuse.* FROM Reuse
-    LEFT JOIN LaunchReuseCrossRef ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
-    WHERE Reuse.name NOT LIKE 'Unknown%' 
-    GROUP BY Reuse.reuseID
-    ORDER BY COUNT(LaunchReuseCrossRef.launchID) DESC
+        SELECT Reuse.*
+        FROM Reuse
+        LEFT JOIN LaunchReuseCrossRef 
+            ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
+        LEFT JOIN Launch
+            ON Launch.launchID = LaunchReuseCrossRef.launchID
+        WHERE Reuse.name NOT LIKE 'Unknown%' 
+        GROUP BY Reuse.reuseID
+        ORDER BY COUNT(
+            CASE 
+                WHEN Launch.launchTimeUTC < CURRENT_TIMESTAMP 
+                THEN 1 
+            END
+        ) DESC
 """)
     fun getReuseOrdered(): Flow<List<Reuse>>//The NOT 106 is to stop the Unknown booster showing up
 
@@ -85,6 +94,21 @@ interface ScheduleDao {
    fun getPreviousLaunchesByReuseId(reuseID: String): Flow<List<Launch>>
 
 
+    @Query("""
+    SELECT * FROM Launch 
+    WHERE rocketID = :rocketID 
+    AND launchTimeUTC >= CURRENT_TIMESTAMP 
+    ORDER BY launchTimeUTC ASC
+""")
+    fun getUpcomingLaunchesByRocketId(rocketID: String): Flow<List<Launch>>
+
+    @Query("""
+    SELECT * FROM Launch 
+    WHERE rocketID = :rocketID 
+    AND launchTimeUTC < CURRENT_TIMESTAMP 
+    ORDER BY launchTimeUTC ASC
+""")
+    fun getPreviousLaunchesByRocketId(rocketID: String): Flow<List<Launch>>
 
    //Get values for UI
    @Query("""
@@ -96,6 +120,15 @@ interface ScheduleDao {
 """)
     fun getReuseCountById(reuseID: String): Flow<Int>
 
+    @Query("""
+    SELECT launchTimeUTC FROM Launch 
+    INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
+    WHERE LaunchReuseCrossRef.reuseID = :reuseID 
+    AND Launch.launchTimeUTC < :launchTime
+    ORDER BY Launch.launchTimeUTC DESC 
+    LIMIT 1
+""")
+    suspend fun getTimeSinceLastFlight(reuseID: String, launchTime: Long = System.currentTimeMillis()): Long?
 
     @Query("""
     WITH PastIntervals AS (
@@ -197,39 +230,36 @@ interface ScheduleDao {
     @Query("SELECT * FROM launch WHERE strftime('%m-%d', launchTimeUTC) = strftime('%m-%d', 'now')")
     fun getOnThisDayLaunches(): Flow<List<Launch>>
 
-    @Query("SELECT * FROM launch WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE")
-    fun getLaunchLikeName(givenName: String): Flow<List<Launch>>//TODO split into past and upcoming
-
     @Query("""SELECT * FROM launch
            WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE
-           OR rocketName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR agencyName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR rocketVersionName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR LaunchTimeUTC LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR padName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR orbit LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR padCountry LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR programType LIKE '%' ||: givenName || '%' COLLATE NOCASE          
+           OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR rocketVariantName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR LaunchTimeUTC LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR padName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR orbit LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR padCountry LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR programType LIKE '%' || :givenName || '%' COLLATE NOCASE          
            AND launchTimeUTC < CURRENT_TIMESTAMP""")
     fun getPreviousLaunchesLikeName(givenName : String): Flow<List<Launch>>
 
     @Query("""SELECT * FROM launch 
            WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE 
-           OR rocketName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR agencyName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR rocketVersionName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR LaunchTimeUTC LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR padName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR orbit LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR padCountry LIKE '%' ||: givenName || '%' COLLATE NOCASE
-           OR programType LIKE '%' ||: givenName || '%' COLLATE NOCASE           
+           OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR rocketVariantName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR LaunchTimeUTC LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR padName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR orbit LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR padCountry LIKE '%' || :givenName || '%' COLLATE NOCASE
+           OR programType LIKE '%' || :givenName || '%' COLLATE NOCASE           
            AND launchTimeUTC > CURRENT_TIMESTAMP
            """)
     fun getUpcomingLaunchesLikeName(givenName : String): Flow<List<Launch>>
 
     @Query("""SELECT * FROM rocket 
            WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE          
-           OR agencyName LIKE '%' ||: givenName || '%' COLLATE NOCASE          
+           OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE          
            """)
     fun getRocketLikeName(givenName: String): Flow<List<Rocket>>
 
@@ -237,11 +267,11 @@ interface ScheduleDao {
             LEFT JOIN LaunchReuseCrossRef ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
             WHERE Reuse.name NOT LIKE 'Unknown%' 
                AND name LIKE '%' || :givenName || '%' COLLATE NOCASE 
-               OR agencyName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-               OR rocketName LIKE '%' ||: givenName || '%' COLLATE NOCASE
-               OR reuseType LIKE '%' ||: givenName || '%' COLLATE NOCASE
-               OR status  LIKE '%' ||: givenName || '%' COLLATE NOCASE
-               activeSince  LIKE '%' ||: givenName || '%' COLLATE NOCASE
+               OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
+               OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
+               OR reuseType LIKE '%' || :givenName || '%' COLLATE NOCASE
+               OR status  LIKE '%' || :givenName || '%' COLLATE NOCASE
+               OR activeSince  LIKE '%' || :givenName || '%' COLLATE NOCASE
             GROUP BY Reuse.reuseID
             ORDER BY COUNT(LaunchReuseCrossRef.launchID) DESC""")
     fun getReuseLikeName(givenName: String): Flow<List<Reuse>>

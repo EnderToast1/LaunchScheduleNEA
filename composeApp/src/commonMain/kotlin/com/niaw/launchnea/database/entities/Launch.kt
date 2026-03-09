@@ -19,6 +19,7 @@ import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
+import com.niaw.launchnea.utils.abbreviate
 import java.time.ZonedDateTime
 
 @Entity(
@@ -85,7 +86,7 @@ data class Launch(
     var precisionAbbrev: String? = null,
     val programType: ProgramType?= ProgramType.UNKNOWN
     ): ListBoxItem {
-    override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
+    override fun listBoxText() = DisplayItems(
             id=launchID,
             title = missionName,
             imageGroup = ImageGroup(imageUrl, imageCredit, licenseType,true),
@@ -99,5 +100,5 @@ data class Launch(
             success=success
     )
 
-    fun getChips():List<Chip>  = reusableParts.map { Chip(abbreviate(it.landingLocationName),4) }
+    fun getChips():List<Chip>  = reusableParts.map { Chip(it.landingLocationName?.let { name -> abbreviate(name) },) }
 }

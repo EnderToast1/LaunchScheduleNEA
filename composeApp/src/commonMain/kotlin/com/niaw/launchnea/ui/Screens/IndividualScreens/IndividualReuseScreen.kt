@@ -149,9 +149,9 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
 
 
             Spacer(modifier = Modifier.size(10.dp))
-            AgencyBox(reuse.agencyID,agencyName) { agencyID ->selectedAgencyID=agencyID}
+            AgencyBox(reuse.agencyID,agencyName,agencyLogo) { agencyID ->selectedAgencyID=agencyID}
             Spacer(modifier = Modifier.size(10.dp))
-            LaunchesSection(nextLaunches,pastLaunches){onClick-> selectedLaunchID = onClick.launchID}
+            LaunchesSection(nextLaunches,pastLaunches){onClick-> selectedLaunchID = onClick}
 
 
         }
@@ -319,7 +319,7 @@ fun TopImage(url: String?, titleText: String, secondText:String?) {
 }
 
 @Composable
-fun LaunchesSection(nextLaunches: List<Launch>, pastLaunches: List<Launch>, onClick: (Launch) -> Unit) {
+fun LaunchesSection(nextLaunches: List<Launch>, pastLaunches: List<Launch>, onClick: (String) -> Unit) {
     println(nextLaunches.size)
     println(pastLaunches.size)
     var showNext by remember { mutableIntStateOf(1) }
@@ -419,13 +419,13 @@ fun LaunchHeading(title: String,isExpanded: Boolean, onClick: () -> Unit) {
     }
 
 @Composable
-fun LaunchDisplay(defaultNumberOfLaunch: Int = 0,launches: List<Launch>, onClickList: (Launch) -> Unit) {
+fun LaunchDisplay(defaultNumberOfLaunch: Int = 0,launches: List<Launch>, onClickList: (String) -> Unit) {
     var takeCount =defaultNumberOfLaunch
     if (defaultNumberOfLaunch == 0) { takeCount=launches.size }
 
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp,0.dp),  verticalArrangement = Arrangement.spacedBy(5.dp)) {
         launches.take(takeCount).forEach { launch ->
-            ListBox(null,launch, onClick = onClickList)
+            ListBox(launch.listBoxText(), onClick = onClickList)
         }
     }
 }

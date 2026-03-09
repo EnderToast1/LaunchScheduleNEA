@@ -15,10 +15,10 @@ import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.navigation.ViewModels.LaunchesViewModel
 import com.niaw.launchnea.navigation.ViewModels.RocketViewModel
 import com.niaw.launchnea.ui.SliderPlatform
-import com.niaw.launchnea.ui.UiElements.ListOfBoxes
+import com.niaw.launchnea.ui.UiElements.ListOfBoxesRocket
 
 @Composable
-fun RocketsScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (Rocket) -> Unit) {
+fun RocketsScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (String) -> Unit) {
     val viewModel= remember{ RocketViewModel(scheduleDao)}
     val rockets by viewModel.rocket.collectAsState()
     val listState = rememberLazyListState()
@@ -32,7 +32,7 @@ fun RocketsScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (Rocket)
     Box(modifier = Modifier.fillMaxSize()) {
 
         // Show list of launches
-        ListOfBoxes(null,rockets, listState,onClick)
+        ListOfBoxesRocket(null,rockets, listState,onClick)
         SliderPlatform(rockets, listState)
     }
 

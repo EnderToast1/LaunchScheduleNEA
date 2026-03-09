@@ -111,11 +111,11 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
 
                         when (page) {
                             0 -> {
-                                ListLaunchesScreen(remember { UpcomingLaunchViewModel(scheduleDao) }, searchText) { launch ->selectedLaunchID = launch.launchID }
+                                ListLaunchesScreen(remember { UpcomingLaunchViewModel(scheduleDao) }, searchText) { launchId ->selectedLaunchID = launchId }
                             }
 
                             1 -> {
-                                ListLaunchesScreen(remember { PreviousLaunchViewModel(scheduleDao) },searchText) { launch -> selectedLaunchID = launch.launchID }
+                                ListLaunchesScreen(remember { PreviousLaunchViewModel(scheduleDao) },searchText) { launchId -> selectedLaunchID = launchId }
                             }
 
                         }

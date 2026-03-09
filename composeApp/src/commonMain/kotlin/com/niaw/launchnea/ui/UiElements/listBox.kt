@@ -30,7 +30,7 @@ import org.jetbrains.compose.resources.painterResource
 
 
 interface ListBoxItem {
-    fun listBoxText(scheduleDao: ScheduleDao?): DisplayItems
+    fun listBoxText(): DisplayItems
 }
 
 
@@ -39,7 +39,7 @@ val cardShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 0.dp, topEnd 
 
 //TODO need to make it so it only takes a listboxitem which will contain a id to use on click, when replace the listBox to individual functions which deal with the dao data (reuse and rockets) so launchs can use a modified listbox also the listboxitem needs a success and chip success and optional icon info to display also implement the acronymizer for landing locations 
 @Composable
-fun ListBox(boxContent: DisplayItem, onClick: (String) -> Unit) {
+fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
     
     Surface(
         onClick = { onClick(boxContent.id) },
@@ -59,7 +59,7 @@ fun ListBox(boxContent: DisplayItem, onClick: (String) -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                BoxLeftImage(boxContent)
+                BoxLeftImage(boxContent.imageGroup)
                 Box(Modifier.weight(1f).padding(16.dp)) {
                     BoxDetailsDisplay(boxContent)
                 }
@@ -71,9 +71,9 @@ fun ListBox(boxContent: DisplayItem, onClick: (String) -> Unit) {
 
 
 @Composable
-fun BoxLeftImage( item: DisplayItems) {
-    val url = item.imageGroup?.imageUrl
-    val shouldShow = url != null && item.imageGroup.show
+fun BoxLeftImage( item: ImageGroup?) {
+    val url = item?.imageUrl
+    val shouldShow = url != null && item.show
 
     if (shouldShow) {
         SubcomposeAsyncImage(

@@ -10,12 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.database.ScheduleDao
+import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.Reuse
+import com.niaw.launchnea.database.entities.Rocket
 
 @Composable
-fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Launches>, listState: LazyListState, onItemClick: (String) -> Unit) {
-
-    //TODO if List empty display no items
-    LazyColumn(
+fun ListOfBoxesLaunches(scheduleDao: ScheduleDao?, listOfItem: List<Launch>, listState: LazyListState, onItemClick: (String) -> Unit) {
+        LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
@@ -24,14 +25,14 @@ fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Launches>, listState
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        listOfItem(Launches) { item ->
-            ListBox(scheduleDao = scheduleDao,item = item.listBoxText, onClick =onItemClick )
+            items(listOfItem){ item ->
+            ListBox(item.listBoxText(),onItemClick )
         }
     }
 }
 
 @Composable
-fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Rocket>, listState: LazyListState, onItemClick: (String) -> Unit) {
+fun ListOfBoxesRocket(scheduleDao: ScheduleDao?, listOfItem: List<Rocket>, listState: LazyListState, onItemClick: (String) -> Unit) {
 
     //TODO if List empty display no items
     LazyColumn(
@@ -43,14 +44,14 @@ fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Rocket>, listState: 
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        listOfItem(Rocket) { item ->
-            ListBox(scheduleDao = scheduleDao,item = item.listBoxText, onClick =onItemClick )
+        items(listOfItem){ item ->
+            ListBox(item.listBoxText(),onItemClick )
         }
     }
 }
 
 @Composable
-fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Reuse>, listState: LazyListState, onItemClick: (String) -> Unit) {
+fun ListOfBoxesReuse(scheduleDao: ScheduleDao?, listOfItem: List<Reuse>, listState: LazyListState, onItemClick: (String) -> Unit) {
 
     //TODO if List empty display no items
     LazyColumn(
@@ -62,8 +63,8 @@ fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Reuse>, listState: L
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        listOfItem(Reuse) { item ->
-            ListBox(scheduleDao = scheduleDao,item = item.listBoxText, onClick =onItemClick )
+        items(listOfItem){ item ->
+            ListBox(item.listBoxText(),onItemClick )
         }
     }
 }

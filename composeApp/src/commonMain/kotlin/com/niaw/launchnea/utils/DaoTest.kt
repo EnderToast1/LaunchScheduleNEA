@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.first
         println("Last Updated: $lastupdated")
         val searchKey="CREW"
         println("\n\nSearch: $searchKey:")
-        val launchesLIKE= scheduleDao.getLaunchLikeName(searchKey).first()
+        val launchesLIKE= scheduleDao.getPreviousLaunchesLikeName(searchKey).first()
         launchesLIKE.forEach { launch ->
             println(launch.missionName)
         }

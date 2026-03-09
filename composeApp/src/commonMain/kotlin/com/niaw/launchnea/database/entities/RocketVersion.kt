@@ -43,6 +43,7 @@ data class RocketVersion(
     var leoCapacity: Double? = null,
     var gtoCapacity: Double? = null,
     var liftoffThrust: Double? = null,
+    var stages: Int? = null,
 
 
     var imageURL: String? =null,
@@ -52,11 +53,12 @@ data class RocketVersion(
     var lastUpdated: LocalDateTime?=null,
 
     ): ListBoxItem {
-    override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
-        id=rocketVersionID
+
+
+    override fun listBoxText() = DisplayItems(
+        id=rocketVersionID,
         title =this.name,
         imageGroup = ImageGroup(this.imageThumbURL, imageCredit,licenseType,true),
-
         secondRow = "$activeSince",
         thirdRow = "20",
         chips = getChips(),

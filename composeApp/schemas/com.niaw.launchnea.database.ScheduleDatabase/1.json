@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "10fccbb4517703e10500732b114de2b3",
+    "identityHash": "ff970cc9f4ac11ac8e009e028cd6740b",
     "entities": [
       {
         "tableName": "Agency",
@@ -585,7 +585,7 @@
       },
       {
         "tableName": "RocketVersion",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT, `active` INTEGER, `launches` INTEGER, `activeSince` TEXT, `rocketID` TEXT, `agencyID` TEXT, `diameterMe` REAL, `lengthMe` REAL, `launchCost` INTEGER, `launchMass` REAL, `leoCapacity` REAL, `gtoCapacity` REAL, `liftoffThrust` REAL, `imageURL` TEXT, `imageThumbURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `lastUpdated` TEXT, PRIMARY KEY(`rocketVersionID`), FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rocketVersionID` TEXT NOT NULL, `name` TEXT, `active` INTEGER, `launches` INTEGER, `activeSince` TEXT, `rocketID` TEXT, `agencyID` TEXT, `diameterMe` REAL, `lengthMe` REAL, `launchCost` INTEGER, `launchMass` REAL, `leoCapacity` REAL, `gtoCapacity` REAL, `liftoffThrust` REAL, `stages` INTEGER, `imageURL` TEXT, `imageThumbURL` TEXT, `imageCredit` TEXT, `licenseType` TEXT, `lastUpdated` TEXT, PRIMARY KEY(`rocketVersionID`), FOREIGN KEY(`rocketID`) REFERENCES `Rocket`(`rocketID`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`agencyID`) REFERENCES `Agency`(`agencyID`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "rocketVersionID",
@@ -657,6 +657,11 @@
             "fieldPath": "liftoffThrust",
             "columnName": "liftoffThrust",
             "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stages",
+            "columnName": "stages",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "imageURL",
@@ -784,7 +789,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '10fccbb4517703e10500732b114de2b3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ff970cc9f4ac11ac8e009e028cd6740b')"
     ]
   }
 }

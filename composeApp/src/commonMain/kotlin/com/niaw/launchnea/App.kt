@@ -57,7 +57,7 @@ fun App(scheduleDao: ScheduleDao,themeSettings: ThemeSettings) {
 
 
         LaunchedEffect(Unit) {
-            //updateLaunchData(scheduleDao)
+            updateLaunchData(scheduleDao)
             //daoTest(scheduleDao)
         }
 

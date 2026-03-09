@@ -1,6 +1,7 @@
 package com.niaw.launchnea.ui.UiElements
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.niaw.launchnea.utils.Status
 import org.jetbrains.compose.resources.DrawableResource
 
 data class DisplayItems(

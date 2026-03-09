@@ -1,4 +1,4 @@
-seepackage com.niaw.launchnea.database.entities
+package com.niaw.launchnea.database.entities
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
@@ -28,6 +28,7 @@ import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
+import com.niaw.launchnea.utils.Status
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -70,7 +71,7 @@ data class Reuse(
     var licenseType: String? = null,
   ): ListBoxItem {
 
-    override fun listBoxText(scheduleDao: ScheduleDao?): 
+    override fun listBoxText(): DisplayItems {
 
             return DisplayItems(
                 id=reuseID,
@@ -81,12 +82,11 @@ data class Reuse(
                 thirdRowIcon = statusReuseIcon(),
                 thirdRow = status.toString(),
                 fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
-                fourthRow ="Test"  "scheduleDao?.getLastFlightByReuseId(reuseID)",
+                fourthRow ="Test",
                 chips = listOf(Chip(reuseID)),
-                success=Status.UNKOWN
+                success= Status.UNKNOWN
             )
-        }
-    return DisplayItems()}
+    }
 
     fun statusReuseIcon(): DisplayIcon.Vector {//TODO need Editing
         return when (this.status) {

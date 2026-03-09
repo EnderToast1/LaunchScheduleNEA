@@ -9,10 +9,10 @@ import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.navigation.ViewModels.ReuseViewModel
 import com.niaw.launchnea.ui.SliderPlatform
-import com.niaw.launchnea.ui.UiElements.ListOfBoxes
+import com.niaw.launchnea.ui.UiElements.ListOfBoxesReuse
 
 @Composable
-fun ReusesScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (Reuse) -> Unit) {
+fun ReusesScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (String) -> Unit) {
     val viewModel= remember{ ReuseViewModel(scheduleDao) }
     val reuse by viewModel.reuse.collectAsState()
     val listState = rememberLazyListState()
@@ -26,7 +26,7 @@ fun ReusesScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (Reuse) -
     Box(modifier = Modifier.fillMaxSize()) {
 
         // Show list of launches
-        ListOfBoxes(scheduleDao, reuse, listState,onClick)
+        ListOfBoxesReuse(scheduleDao,reuse, listState,onClick)
         SliderPlatform(reuse, listState)
     }
 

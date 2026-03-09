@@ -11,10 +11,10 @@ import androidx.compose.ui.Modifier
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.navigation.ViewModels.LaunchesViewModel
 import com.niaw.launchnea.ui.SliderPlatform
-import com.niaw.launchnea.ui.UiElements.ListOfBoxes
+import com.niaw.launchnea.ui.UiElements.ListOfBoxesLaunches
 
 @Composable
-fun ListLaunchesScreen(viewModel: LaunchesViewModel, searchText: String,onClick: (Launch) -> Unit) {
+fun ListLaunchesScreen(viewModel: LaunchesViewModel, searchText: String,onClick: (String) -> Unit) {
 
     val launches by viewModel.launches.collectAsState()
     val listState = rememberLazyListState()
@@ -28,8 +28,8 @@ fun ListLaunchesScreen(viewModel: LaunchesViewModel, searchText: String,onClick:
     Box(modifier = Modifier.fillMaxSize()) {
 
             // Show list of launches
-            ListOfBoxes(null,launches, listState,onClick)
-            SliderPlatform(launches, listState)
-        }
+        ListOfBoxesLaunches(null,launches, listState,onClick)
+        SliderPlatform(launches, listState)
+    }
 
 }

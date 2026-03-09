@@ -24,18 +24,21 @@ import kotlinx.coroutines.launch
 fun VehiclesScreen(scheduleDao: ScheduleDao) {
     println("Click on Vehicles bottom navigation.")
     var searchText by rememberSaveable { mutableStateOf("") }
-    var selectedRocket by remember { mutableStateOf<Rocket?>(null) } // track selected Rocket
-    var selectedReuse by remember { mutableStateOf<Reuse?>(null) } // track selected Reuse
-
+    var selectedRocketID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Rocket
+    var selectedReuseID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Reuse
+    var selectedReuse by remember { mutableStateOf<Reuse?>(null) }
+    var selectedRocket by remember { mutableStateOf<Rocket?>(null) }
 
     val tabItems = listOf(
         TabItem("Rockets"),
         TabItem("Reusable Vehicles"),
     )
+
     val pagerState = rememberPagerState(
         initialPage = 0,
         pageCount={tabItems.size}
     )
+
     val scope = rememberCoroutineScope()
 
 
@@ -45,21 +48,33 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
     ){
 
         Box(modifier = Modifier.fillMaxSize()) {
-            if (selectedRocket != null) {
-                println("Clicked on ${selectedRocket!!.name}\n $selectedRocket")
-                IndividualRocketScreen(scheduleDao,selectedRocket!!) {
-                    println("Backed out of ${selectedRocket!!.name}")
-                    selectedRocket = null
+            if (selectedRocketID != null) {
+                LaunchedEffect(selectedRocketID){
+                    selectedRocket = scheduleDao.getRocketById(id = selectedRocketID!!)
                 }
-
-            } else if (selectedReuse != null) {
-                println("Clicked on ${selectedReuse!!.name}\n $selectedReuse")
-                IndividualReuseScreen(scheduleDao,selectedReuse!!) {
-                    println("Backed out of ${selectedReuse!!.name}")
-                    selectedReuse = null
+                selectedRocket?.let { rocket ->
+                    println("Clicked on ${rocket.name},  \n$rocket")
+                    IndividualRocketScreen(scheduleDao,rocket) {
+                        println("Backed out of ${rocket.name}")
+                        selectedRocket = null
+                        selectedRocketID = null
+                    }
                 }
-
-        }else {
+            }
+            else if (selectedReuseID != null) {
+                LaunchedEffect(selectedReuseID){
+                    selectedReuse = scheduleDao.getReuseById(id = selectedReuseID!!)
+                }
+                selectedReuse?.let { reuse ->
+                    println("Clicked on ${reuse.name},  \n$reuse")
+                    IndividualReuseScreen(scheduleDao,reuse) {
+                        println("Backed out of ${reuse.name}")
+                        selectedReuse = null
+                        selectedReuseID = null
+                    }
+                }
+            }
+            else {
                 // Show the tab row, search, and list only when no Rocket/Reuse is selected
                 Column(modifier = Modifier.fillMaxSize()) {
                     SecondaryTabRow(selectedTabIndex = pagerState.currentPage) {
@@ -114,11 +129,11 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
                         when (page) {
 
                             0 -> {
-                                RocketsScreen(searchText,scheduleDao){ rocket ->selectedRocket = rocket}
+                                RocketsScreen(searchText,scheduleDao){ rocketId ->selectedRocketID = rocketId}
                             }
 
                             1 -> {
-                                ReusesScreen(searchText,scheduleDao){ reuse ->selectedReuse = reuse}
+                                ReusesScreen(searchText,scheduleDao){ reuseId ->selectedReuseID = reuseId}
                             }
 
                         }

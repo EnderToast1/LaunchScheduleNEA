@@ -14,6 +14,7 @@ import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
+import com.niaw.launchnea.utils.Status
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
@@ -41,7 +42,7 @@ data class Rocket(
     var desc: String? =null, //long
     var lastUpdated: LocalDateTime?=null,
   ): ListBoxItem {
-    override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
+    override fun listBoxText() = DisplayItems(
             id=rocketID,
             title = this.name,
             imageGroup = ImageGroup(imageThumbURL, imageCredit, licenseType,true),
@@ -51,6 +52,6 @@ data class Rocket(
             thirdRow = "Flights",
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
             fourthRow = "Time since last flight",
-            success=Status.UNKNOWN
+            success= Status.UNKNOWN
     )
 }

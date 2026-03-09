@@ -377,14 +377,15 @@ suspend fun checkForReuse(launchJsonEle: JsonElement,launch: Launch,scheduleDao:
                     println("Reusable: ${reusablePart.reuseName} does NOT exist or needs updating")
                     scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))   //TODO place in a try loop and catch and print the error
 
-                    val crossRef = LaunchReuseCrossRef(
-                        launchID = launch.launchID,
-                        reuseID = reusablePart.reuseID!!
-                    )
-                    scheduleDao.upsertLaunchReuseCrossRef(crossRef)
+
                 }else{
                     println("Reusable:${reusablePart.reuseName} ALREADY exists and is updated")
                 }
+                val crossRef = LaunchReuseCrossRef(
+                    launchID = launch.launchID,
+                    reuseID = reusablePart.reuseID!!
+                )
+                scheduleDao.upsertLaunchReuseCrossRef(crossRef)
             }
         }
     }
@@ -461,6 +462,7 @@ suspend fun parseRocketVersion(launchJsonEle: JsonElement,scheduleDao: ScheduleD
         lengthMe = rocketVersionJsonObj["length"]?.jsonPrimitive?.doubleOrNull,
         launchCost = rocketVersionJsonObj["launch_cost"]?.jsonPrimitive?.intOrNull,
         launchMass = rocketVersionJsonObj["launch_mass"]?.jsonPrimitive?.doubleOrNull,
+        stages = rocketVersionJsonObj["max_stage"]?.jsonPrimitive?.intOrNull,
         leoCapacity = rocketVersionJsonObj["leo_capacity"]?.jsonPrimitive?.doubleOrNull,
         gtoCapacity = rocketVersionJsonObj["gto_capacity"]?.jsonPrimitive?.doubleOrNull,
         liftoffThrust = rocketVersionJsonObj["to_thrust"]?.jsonPrimitive?.doubleOrNull,
