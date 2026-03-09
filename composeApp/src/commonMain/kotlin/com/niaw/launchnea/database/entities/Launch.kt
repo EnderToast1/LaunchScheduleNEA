@@ -99,5 +99,5 @@ data class Launch(
             success=success
     )
 
-    fun getChips():List<Chip>  = reusableParts.map { Chip(it.landingLocationAbbr) }//TODO add change to landing Name if abbr not part of select list of "known" locations
+    fun getChips():List<Chip>  = reusableParts.map { Chip(abbreviate(it.landingLocationName),4) }
 }
