@@ -73,6 +73,7 @@ data class Reuse(
     override fun listBoxText(scheduleDao: ScheduleDao?): 
 
             return DisplayItems(
+                id=reuseID,
                 title = name,
                 imageGroup = ImageGroup(imageThumbURL, imageCredit, licenseType, show = true),
                 secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Rocket),
@@ -81,7 +82,8 @@ data class Reuse(
                 thirdRow = status.toString(),
                 fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
                 fourthRow ="Test"  "scheduleDao?.getLastFlightByReuseId(reuseID)",
-                chips = listOf(Chip(reuseID))
+                chips = listOf(Chip(reuseID)),
+                success=Status.UNKOWN
             )
         }
     return DisplayItems()}
