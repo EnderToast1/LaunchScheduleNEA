@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.database.ScheduleDao
 
 @Composable
-fun <T : ListBoxItem> ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<T>, listState: LazyListState, onItemClick: (T) -> Unit) {
+fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Launches>, listState: LazyListState, onItemClick: (String) -> Unit) {
 
     //TODO if List empty display no items
     LazyColumn(
@@ -24,8 +24,46 @@ fun <T : ListBoxItem> ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<T>
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        items(listOfItem) { item ->
-            ListBox(scheduleDao = scheduleDao,item = item, onClick =onItemClick )
+        listOfItem(Launches) { item ->
+            ListBox(scheduleDao = scheduleDao,item = item.listBoxText, onClick =onItemClick )
+        }
+    }
+}
+
+@Composable
+fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Rocket>, listState: LazyListState, onItemClick: (String) -> Unit) {
+
+    //TODO if List empty display no items
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            horizontal = 10.dp,
+            vertical = 10.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        listOfItem(Rocket) { item ->
+            ListBox(scheduleDao = scheduleDao,item = item.listBoxText, onClick =onItemClick )
+        }
+    }
+}
+
+@Composable
+fun ListOfBoxes(scheduleDao: ScheduleDao?, listOfItem: List<Reuse>, listState: LazyListState, onItemClick: (String) -> Unit) {
+
+    //TODO if List empty display no items
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            horizontal = 10.dp,
+            vertical = 10.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        listOfItem(Reuse) { item ->
+            ListBox(scheduleDao = scheduleDao,item = item.listBoxText, onClick =onItemClick )
         }
     }
 }
