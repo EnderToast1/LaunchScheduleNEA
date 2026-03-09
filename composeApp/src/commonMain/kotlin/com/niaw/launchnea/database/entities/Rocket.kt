@@ -42,6 +42,7 @@ data class Rocket(
     var lastUpdated: LocalDateTime?=null,
   ): ListBoxItem {
     override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
+            id=rocketID,
             title = this.name,
             imageGroup = ImageGroup(imageThumbURL, imageCredit, licenseType,true),
             secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Business),
@@ -49,6 +50,7 @@ data class Rocket(
             thirdRowIcon = DisplayIcon.Vector(Icons.Outlined.Numbers),
             thirdRow = "Flights",
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
-            fourthRow = "Time since last flight"
+            fourthRow = "Time since last flight",
+            success=Status.UNKNOWN
     )
 }
