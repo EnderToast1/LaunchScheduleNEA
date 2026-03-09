@@ -53,6 +53,7 @@ data class RocketVersion(
 
     ): ListBoxItem {
     override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
+        id=rocketVersionID
         title =this.name,
         imageGroup = ImageGroup(this.imageThumbURL, imageCredit,licenseType,true),
 
