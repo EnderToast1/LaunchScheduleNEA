@@ -1,4 +1,4 @@
-package com.niaw.launchnea.database.entities
+seepackage com.niaw.launchnea.database.entities
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
@@ -70,10 +70,7 @@ data class Reuse(
     var licenseType: String? = null,
   ): ListBoxItem {
 
-    override fun listBoxText(scheduleDao: ScheduleDao?): DisplayItems {
-        if (scheduleDao != null) {
-            val viewModel= ReuseBoxInfo(scheduleDao,this.reuseID)
-
+    override fun listBoxText(scheduleDao: ScheduleDao?): 
 
             return DisplayItems(
                 title = name,
@@ -83,7 +80,7 @@ data class Reuse(
                 thirdRowIcon = statusReuseIcon(),
                 thirdRow = status.toString(),
                 fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
-                fourthRow = "scheduleDao?.getLastFlightByReuseId(reuseID)",
+                fourthRow ="Test"  "scheduleDao?.getLastFlightByReuseId(reuseID)",
                 chips = listOf(Chip(reuseID))
             )
         }
