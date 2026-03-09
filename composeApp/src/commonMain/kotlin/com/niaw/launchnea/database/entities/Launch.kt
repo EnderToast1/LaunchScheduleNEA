@@ -86,6 +86,7 @@ data class Launch(
     val programType: ProgramType?= ProgramType.UNKNOWN
     ): ListBoxItem {
     override fun listBoxText(scheduleDao: ScheduleDao?) = DisplayItems(
+            id=launchID,
             title = missionName,
             imageGroup = ImageGroup(imageUrl, imageCredit, licenseType,true),
             secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
@@ -94,7 +95,8 @@ data class Launch(
             thirdRow = padName,
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),
             fourthRow = launchTimeUTC.toString(),
-            chips = getChips()
+            chips = getChips(),
+            success=success
     )
 
     fun getChips():List<Chip>  = reusableParts.map { Chip(it.landingLocationAbbr) }//TODO add change to landing Name if abbr not part of select list of "known" locations
