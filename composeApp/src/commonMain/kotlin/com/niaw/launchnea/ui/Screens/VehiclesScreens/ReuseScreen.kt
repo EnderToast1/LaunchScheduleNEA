@@ -26,7 +26,7 @@ fun ReusesScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (Reuse) -
     Box(modifier = Modifier.fillMaxSize()) {
 
         // Show list of launches
-        ListOfBoxes(reuse, listState,onClick)
+        ListOfBoxes(scheduleDao, reuse, listState,onClick)
         SliderPlatform(reuse, listState)
     }
 
