@@ -128,7 +128,7 @@ interface ScheduleDao {
     ORDER BY Launch.launchTimeUTC DESC 
     LIMIT 1
 """)
-    suspend fun getTimeSinceLastFlight(reuseID: String, launchTime: Long = System.currentTimeMillis()): Long?
+    suspend fun getTimeSinceLastFlight(reuseID: String, launchTime: ZonedDateTime): ZonedDateTime?
 
     @Query("""
     WITH PastIntervals AS (
