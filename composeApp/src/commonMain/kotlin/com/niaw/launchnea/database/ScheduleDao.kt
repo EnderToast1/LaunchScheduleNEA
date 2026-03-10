@@ -45,9 +45,9 @@ interface ScheduleDao {
     //Get Flow Lists
     @Query("SELECT * FROM Launch")
     fun getLaunches(): Flow<List<Launch>>
-    @Query("SELECT * FROM Launch WHERE launchTimeUTC < CURRENT_TIMESTAMP")
+    @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) < datetime('now')")
     fun getPreviousLaunches(): Flow<List<Launch>>
-    @Query("SELECT * FROM Launch WHERE launchTimeUTC >= CURRENT_TIMESTAMP")
+    @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) >= datetime('now')")
     fun getUpcomingLaunches(): Flow<List<Launch>>
     @Query("SELECT * FROM Rocket")
     fun getRockets(): Flow<List<Rocket>>
