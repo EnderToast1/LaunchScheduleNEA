@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.niaw.launchnea.database.ScheduleDao
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.ZonedDateTime
 
 class ReusableViewModel(
@@ -14,7 +17,6 @@ class ReusableViewModel(
     private val reuseID: String,
     private val launchTime: ZonedDateTime
 ) : ViewModel() {
-    val long: Long= ZonedDateTime.now().getLong()
     val reuses: StateFlow<Int> = scheduleDao.getReuseCountById(reuseID)
         .stateIn(
             scope = viewModelScope,

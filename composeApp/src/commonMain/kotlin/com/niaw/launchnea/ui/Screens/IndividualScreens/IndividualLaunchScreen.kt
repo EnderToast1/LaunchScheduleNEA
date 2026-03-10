@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.SubcomposeAsyncImage
 import com.niaw.launchnea.Platform
+import com.niaw.launchnea.database.Converters
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.Reuse
@@ -77,10 +78,17 @@ import org.maplibre.compose.layers.SymbolLayer
 import org.maplibre.compose.sources.GeoJsonData
 import org.maplibre.compose.sources.rememberGeoJsonSource
 import org.maplibre.spatialk.geojson.Position
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
+import kotlin.io.println
 
 
 @Composable
 fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunch: () -> Unit) {
+    val zonedFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
+    println(launch.launchTimeUTC?.let { "Is in past: ${((ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES)).format(zonedFormatter) > (it).format(zonedFormatter))}" })
+    println((launch.launchTimeUTC)!!.format(zonedFormatter))
+    println(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES).format(zonedFormatter))
     val scrollState = rememberScrollState()
     var selectedRocketID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Rocket
     var selectedReuseID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Reuse
@@ -546,7 +554,6 @@ fun RocketSection(launch:Launch, vehicle: RocketVersion?, onClick: (Launch) -> U
 
 @Composable
 fun RocketInformationSection(vehicle: RocketVersion){
-    println(vehicle)
         //TODO get data
     val pricePerLaunch=vehicle.launchCost
     val liftoffThrust=vehicle.liftoffThrust
@@ -683,33 +690,49 @@ fun LogoPlaceholder() {
 
 @Composable
 fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Unit){
-        Box(modifier = Modifier.padding(5.dp,0.dp)
-            .clip(RoundedCornerShape(50))
+        Column(modifier = Modifier.padding(5.dp,0.dp)
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
-            .padding(horizontal = 5.dp, vertical = 1.dp)){
-        IconTextRow("Vehicle Reuse", "Reusable Parts", MaterialTheme.typography.headlineMedium,rememberVectorPainter(Icons.Filled.Recycling),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.primary)
-        }
-        launch.reusableParts.forEach{reusable ->
+            .padding(horizontal = 5.dp, vertical = 1.dp)) {
+            IconTextRow(
+                "Vehicle Reuse",
+                "Reusable Parts",
+                MaterialTheme.typography.headlineLarge,
+                rememberVectorPainter(Icons.Filled.Recycling),
+                Modifier.fillMaxWidth(),
+                MaterialTheme.colorScheme.primary
+            )
+
+            launch.reusableParts.forEach { reusable ->
                 ReusableBox(scheduleDao, launch, reusable)
 
+            }
         }
 }
 
 @Composable
-fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable){
+fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable) {
     val viewModel = remember(reusable.reuseID) {
-        reusable.reuseID?.let { ReusableViewModel(scheduleDao, it, launch.launchTimeUTC) }
+        reusable.reuseID?.let {
+            launch.launchTimeUTC?.let { launchTime ->
+                ReusableViewModel(
+                    scheduleDao,
+                    it,
+                    launchTime
+                )
+            }
+        }
     }
-    val reuses by viewModel.reuses.collectAsState()
-    val DayTurnAround by viewModel.DayTurnAround.collectAsState()
+    if (viewModel != null) {
+        val reuses by viewModel.reuses.collectAsState()
+        val dayTurnAround by viewModel.dayTurnAround.collectAsState()
 
-
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        BoxChip(Chip(reusable.landingLocationName))
-        Text(reusable.reuseName)
-        Text("Flights #$reuses")
-        Text("$DayTurnAround day turnaround")
+        Column(modifier = Modifier.fillMaxWidth().padding(15.dp)) {
+            BoxChip(Chip(reusable.landingLocationName))
+            reusable.reuseName?.let { Text(it,style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+            Text("Flights #$reuses",style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            Text("$dayTurnAround day turnaround",style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+        }
     }
 }
 

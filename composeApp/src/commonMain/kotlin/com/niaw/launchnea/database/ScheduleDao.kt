@@ -15,6 +15,7 @@ import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.database.entities.RocketVersion
 import com.niaw.launchnea.database.entities.StarredLaunch
 import kotlinx.coroutines.flow.Flow
+import java.time.ZonedDateTime
 
 @Dao
 interface ScheduleDao {
@@ -45,9 +46,10 @@ interface ScheduleDao {
     //Get Flow Lists
     @Query("SELECT * FROM Launch")
     fun getLaunches(): Flow<List<Launch>>
-    @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) < datetime('now')")
+    @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)")
     fun getPreviousLaunches(): Flow<List<Launch>>
-    @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) >= datetime('now')")
+
+    @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP)")
     fun getUpcomingLaunches(): Flow<List<Launch>>
     @Query("SELECT * FROM Rocket")
     fun getRockets(): Flow<List<Rocket>>
@@ -65,7 +67,7 @@ interface ScheduleDao {
         GROUP BY Reuse.reuseID
         ORDER BY COUNT(
             CASE 
-                WHEN Launch.launchTimeUTC < CURRENT_TIMESTAMP 
+                WHEN datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
                 THEN 1 
             END
         ) DESC
@@ -79,7 +81,7 @@ interface ScheduleDao {
         SELECT * FROM Launch 
         INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
         WHERE LaunchReuseCrossRef.reuseID = :reuseID 
-        AND Launch.launchTimeUTC >= CURRENT_TIMESTAMP
+        AND datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP)
         ORDER BY Launch.launchTimeUTC ASC
     """)
     fun getUpcomingLaunchesByReuseId(reuseID: String): Flow<List<Launch>>
@@ -88,7 +90,7 @@ interface ScheduleDao {
         SELECT * FROM Launch 
         INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
         WHERE LaunchReuseCrossRef.reuseID = :reuseID 
-        AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
         ORDER BY Launch.launchTimeUTC DESC
     """)
    fun getPreviousLaunchesByReuseId(reuseID: String): Flow<List<Launch>>
@@ -97,7 +99,7 @@ interface ScheduleDao {
     @Query("""
     SELECT * FROM Launch 
     WHERE rocketID = :rocketID 
-    AND launchTimeUTC >= CURRENT_TIMESTAMP 
+    AND datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP)
     ORDER BY launchTimeUTC ASC
 """)
     fun getUpcomingLaunchesByRocketId(rocketID: String): Flow<List<Launch>>
@@ -105,7 +107,7 @@ interface ScheduleDao {
     @Query("""
     SELECT * FROM Launch 
     WHERE rocketID = :rocketID 
-    AND launchTimeUTC < CURRENT_TIMESTAMP 
+    AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
     ORDER BY launchTimeUTC ASC
 """)
     fun getPreviousLaunchesByRocketId(rocketID: String): Flow<List<Launch>>
@@ -116,7 +118,7 @@ interface ScheduleDao {
         FROM Launch
         INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
         WHERE LaunchReuseCrossRef.reuseID = :reuseID 
-        AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
 """)
     fun getReuseCountById(reuseID: String): Flow<Int>
 
@@ -124,7 +126,7 @@ interface ScheduleDao {
     SELECT launchTimeUTC FROM Launch 
     INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
     WHERE LaunchReuseCrossRef.reuseID = :reuseID 
-    AND Launch.launchTimeUTC < :launchTime
+    AND datetime(launchTimeUTC) < datetime(:launchTime)
     ORDER BY Launch.launchTimeUTC DESC 
     LIMIT 1
 """)
@@ -140,7 +142,7 @@ interface ScheduleDao {
         INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
         WHERE LaunchReuseCrossRef.reuseID = :reuseID 
         -- Use CURRENT_TIMESTAMP to get Now
-        AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
     )
     -- The result is in seconds, so multiply by 1000 to return Milliseconds 
     SELECT AVG(nextTime - startTime) * 1000
@@ -157,7 +159,7 @@ interface ScheduleDao {
         FROM Launch
         INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
         WHERE LaunchReuseCrossRef.reuseID = :reuseID 
-        AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
     )
     SELECT MIN(nextTime - startTime) * 1000
     FROM PastIntervals 
@@ -170,7 +172,7 @@ interface ScheduleDao {
     SELECT Launch.* FROM Launch
     INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
     WHERE LaunchReuseCrossRef.reuseID = :reuseID 
-    AND Launch.launchTimeUTC < CURRENT_TIMESTAMP
+    AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
     ORDER BY Launch.launchTimeUTC DESC
     LIMIT 1
 """)
@@ -231,20 +233,22 @@ interface ScheduleDao {
     fun getOnThisDayLaunches(): Flow<List<Launch>>
 
     @Query("""SELECT * FROM launch
-           WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE
+           WHERE (missionName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR rocketVariantName LIKE '%' || :givenName || '%' COLLATE NOCASE
-           OR LaunchTimeUTC LIKE '%' || :givenName || '%' COLLATE NOCASE
+           
            OR padName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR orbit LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR padCountry LIKE '%' || :givenName || '%' COLLATE NOCASE
-           OR programType LIKE '%' || :givenName || '%' COLLATE NOCASE          
-           AND launchTimeUTC < CURRENT_TIMESTAMP""")
+           OR programType LIKE '%' || :givenName || '%' COLLATE NOCASE)         
+           AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
+           ORDER BY launchTimeUTC DESC
+           """)
     fun getPreviousLaunchesLikeName(givenName : String): Flow<List<Launch>>
 
     @Query("""SELECT * FROM launch 
-           WHERE missionName LIKE '%' || :givenName || '%' COLLATE NOCASE 
+           WHERE (missionName LIKE '%' || :givenName || '%' COLLATE NOCASE 
            OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR rocketVariantName LIKE '%' || :givenName || '%' COLLATE NOCASE
@@ -252,8 +256,9 @@ interface ScheduleDao {
            OR padName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR orbit LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR padCountry LIKE '%' || :givenName || '%' COLLATE NOCASE
-           OR programType LIKE '%' || :givenName || '%' COLLATE NOCASE           
-           AND launchTimeUTC > CURRENT_TIMESTAMP
+           OR programType LIKE '%' || :givenName || '%' COLLATE NOCASE)           
+           AND datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP)
+           ORDER BY launchTimeUTC ASC
            """)
     fun getUpcomingLaunchesLikeName(givenName : String): Flow<List<Launch>>
 
