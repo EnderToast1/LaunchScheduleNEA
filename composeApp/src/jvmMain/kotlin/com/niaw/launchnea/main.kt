@@ -18,7 +18,7 @@ fun main() {
 
         Window(
             onCloseRequest = ::exitApplication,
-            title = "Launch TimeTable",
+            title = "Horizon Spaceflight",
         ) {
             App(
                 scheduleDao = remember { dao },
