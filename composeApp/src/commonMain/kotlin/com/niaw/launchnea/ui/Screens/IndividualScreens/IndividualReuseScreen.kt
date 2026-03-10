@@ -166,11 +166,11 @@ fun ReuseStatsBox(reuse: Reuse,reuses:Int,averageReuseTime:Long?,fastestReuseTim
     val status=reuse.status
     val avgDays = remember(averageReuseTime) {
         averageReuseTime?.let { millis ->
-            millis / (1000 * 60 * 60 * 24)
-        } ?: 1
+            millis / (1000.0 * 60 * 60 * 24)
+        } ?: 1.0
     }
     val fastestDays = remember(fastestReuseTime) {
-        fastestReuseTime?.let { it / (1000 * 60 * 60 * 24) } ?: 1
+        fastestReuseTime?.let { it / (1000.0 * 60 * 60 * 24) } ?: 1.0
     }
 
 
