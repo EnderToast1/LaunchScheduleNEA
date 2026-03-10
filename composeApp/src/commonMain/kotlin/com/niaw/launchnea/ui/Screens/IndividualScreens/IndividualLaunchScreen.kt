@@ -690,15 +690,15 @@ fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Un
         IconTextRow("Vehicle Reuse", "Reusable Parts", MaterialTheme.typography.headlineMedium,rememberVectorPainter(Icons.Filled.Recycling),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.primary)
         }
         launch.reusableParts.forEach{reusable ->
-                ReusableBox(scheduleDao,reusable)
+                ReusableBox(scheduleDao, launch, reusable)
 
         }
 }
 
 @Composable
-fun ReusableBox(scheduleDao: ScheduleDao,reusable: Reusable){
+fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable){
     val viewModel = remember(reusable.reuseID) {
-        reusable.reuseID?.let { ReusableViewModel(scheduleDao, it) }
+        reusable.reuseID?.let { ReusableViewModel(scheduleDao, it, launch.launchTimeUTC) }
     }
     val reuses by viewModel.reuses.collectAsState()
     val DayTurnAround by viewModel.DayTurnAround.collectAsState()
