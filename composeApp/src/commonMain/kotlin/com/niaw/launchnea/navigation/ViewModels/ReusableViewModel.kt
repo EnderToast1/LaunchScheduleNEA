@@ -11,7 +11,8 @@ import java.time.ZonedDateTime
 
 class ReusableViewModel(
     private val scheduleDao: ScheduleDao,
-    private val reuseID: String
+    private val reuseID: String,
+    private val launchTime: ZonedDateTime
 ) : ViewModel() {
     val long: Long= ZonedDateTime.now().getLong()
     val reuses: StateFlow<Int> = scheduleDao.getReuseCountById(reuseID)
@@ -20,10 +21,15 @@ class ReusableViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = 0
         )
-    val DayTurnAround: StateFlow<Int> =  scheduleDao.getTimeSinceLastFlight(reuseID,)
-        .stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = 0
-        )
+   private val _dayTurnAround = MutableStateFlow<Duration?>(null)
+    val dayTurnAround: StateFlow<Duration?> = _dayTurnAround
+
+    init {
+        viewModelScope.launch {
+            val lastFlight = scheduleDao.getTimeSinceLastFlight(reuseID, launchTime)
+            if (lastFlight != null) {
+                _dayTurnAround.value = Duration.between(lastFlight, launchTime)
+            }
+        }
+    }
 }
