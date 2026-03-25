@@ -6,9 +6,8 @@ import com.niaw.launchnea.utils.LeaderType
 import java.time.LocalDateTime
 
 @Entity
-
 data class Agency(
-  //Database Variables
+  //Database Search Variables
     @PrimaryKey(autoGenerate = false)
     var agencyID: String,
     var name: String? = null,

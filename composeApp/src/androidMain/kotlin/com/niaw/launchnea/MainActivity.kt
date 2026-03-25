@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import com.niaw.launchnea.database.getScheduleDatabase
-import com.niaw.launchnea.utils.ThemeSettings
+import com.niaw.launchnea.utils.AppSettings
 import com.russhwolf.settings.SharedPreferencesSettings
 
 
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
 
         val sharedPrefs = getSharedPreferences("app_settings", MODE_PRIVATE)
         val settings = SharedPreferencesSettings(sharedPrefs)
-        val themeSettings = ThemeSettings(settings)
+        val themeSettings = AppSettings(settings)
 
 
         val dao = getScheduleDatabase(applicationContext).ScheduleDao()

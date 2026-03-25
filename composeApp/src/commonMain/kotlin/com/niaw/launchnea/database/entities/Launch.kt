@@ -19,8 +19,10 @@ import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
+import com.niaw.launchnea.utils.GlobalSettings.dateTimeFormat
 import com.niaw.launchnea.utils.abbreviate
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @Entity(
     foreignKeys = [
@@ -93,9 +95,9 @@ data class Launch(
             secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
             secondRow = "$rocketName | $agencyName",
             thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Place),
-            thirdRow = padName,
+            thirdRow = "$padName, $padLocation",
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),
-            fourthRow = launchTimeUTC.toString(),
+            fourthRow = launchTimeUTC?.format(DateTimeFormatter.ofPattern(dateTimeFormat)),
             chips = getChips(),
             success=success
     )

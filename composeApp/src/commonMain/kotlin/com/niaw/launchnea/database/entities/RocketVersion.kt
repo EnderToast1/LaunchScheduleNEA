@@ -44,8 +44,6 @@ data class RocketVersion(
     var gtoCapacity: Double? = null,
     var liftoffThrust: Double? = null,
     var stages: Int? = null,
-
-
     var imageURL: String? =null,
     var imageThumbURL: String? =null,
     var imageCredit: String? = null,

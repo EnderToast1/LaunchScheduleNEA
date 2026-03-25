@@ -32,6 +32,9 @@ class ReusableViewModel(
             if (lastFlight != null) {
                 _dayTurnAround.value = Duration.between(lastFlight, launchTime)
             }
+            else{
+                _dayTurnAround.value = Duration.ofDays(99999)
+            }
         }
     }
 }

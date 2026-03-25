@@ -25,13 +25,13 @@ import com.niaw.launchnea.database.entities.StarredLaunch
         StarredLaunch::class,
         MetaData::class
         ],
-    //gives a version number so if a update is needed it can tell and try migrate the db
+    //gives a version number so if an update is needed it can tell and try to migrate the db to the new format
     version = 1,
 )
 //tell the db where the type converters are
 @TypeConverters(Converters::class)
 abstract class ScheduleDatabase: RoomDatabase() {
-    //give the db it functions
+    //give the db it queries
     abstract fun ScheduleDao(): ScheduleDao
 
 }

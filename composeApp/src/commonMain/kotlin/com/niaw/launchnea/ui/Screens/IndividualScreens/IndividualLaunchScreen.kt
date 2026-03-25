@@ -69,6 +69,9 @@ import com.niaw.launchnea.ui.UiElements.BoxLeftImage
 import com.niaw.launchnea.ui.UiElements.Chip
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.cardShape
+import com.niaw.launchnea.utils.GlobalSettings.dateFormat
+import com.niaw.launchnea.utils.GlobalSettings.dateTimeFormat
+import com.niaw.launchnea.utils.GlobalSettings.timeFormat
 import com.niaw.launchnea.utils.Reusable
 import kotlinx.coroutines.launch
 import org.maplibre.compose.expressions.dsl.const
@@ -85,10 +88,6 @@ import kotlin.io.println
 
 @Composable
 fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunch: () -> Unit) {
-    val zonedFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
-    println(launch.launchTimeUTC?.let { "Is in past: ${((ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES)).format(zonedFormatter) > (it).format(zonedFormatter))}" })
-    println((launch.launchTimeUTC)!!.format(zonedFormatter))
-    println(ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES).format(zonedFormatter))
     val scrollState = rememberScrollState()
     var selectedRocketID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Rocket
     var selectedReuseID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Reuse
@@ -278,8 +277,8 @@ fun MissionMainBox(launch:Launch){
                         Spacer(Modifier.height(5.dp))
                         TimeDropDown(selected = selectedZone, onSelected = { selectedZone = it }, modifier = Modifier.fillMaxWidth())
 
-                        val dateFormatter = DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy")
-                        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+                        val dateFormatter = DateTimeFormatter.ofPattern(dateFormat)
+                        val timeFormatter = DateTimeFormatter.ofPattern(timeFormat)
                         val launchTimes=getLaunchTimesAsNeededFormat(launch, dateFormatter, timeFormatter)
 
                         Text(
@@ -436,7 +435,7 @@ fun LaunchWindowTimeline(launchTimes: LaunchTimesFormated) {
 
         val progress = (progressSeconds.toFloat() / totalWindowSeconds).coerceIn(0f, 1f)
 
-        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm") // only show time
+        val timeFormatter = DateTimeFormatter.ofPattern(timeFormat) // only show time
 
         Column {
                 BoxWithConstraints(
@@ -726,12 +725,25 @@ fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable) {
     if (viewModel != null) {
         val reuses by viewModel.reuses.collectAsState()
         val dayTurnAround by viewModel.dayTurnAround.collectAsState()
-
+        println(dayTurnAround)//TODO fix all ways null for some reason
         Column(modifier = Modifier.fillMaxWidth().padding(15.dp)) {
             BoxChip(Chip(reusable.landingLocationName))
             reusable.reuseName?.let { Text(it,style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
-            Text("Flights #$reuses",style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
-            Text("$dayTurnAround day turnaround",style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            reusable.reuseName?.contains("Unknown")?.let {
+                if (!(it)) {
+                    Text(
+                        "Flights #$reuses",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+
+                    Text(
+                        "${dayTurnAround?.toDays()} day turnaround",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
         }
     }
 }

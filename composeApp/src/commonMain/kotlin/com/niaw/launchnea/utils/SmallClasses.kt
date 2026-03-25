@@ -110,3 +110,43 @@ enum class ThemeMode {
     Dark,
     System
 }
+
+
+enum class TimeFormat {
+    HOUR12SeON,
+    HOUR24SeON,
+    HOUR12SeOFF,
+    HOUR24SeOFF
+}
+
+enum class DateFormat{
+    DayNMonthYear,
+    NMonthDayYear,
+    YearNMonthDay,
+    SWeekDayNMonthYear,
+    SWeekNMonthDayYear,
+    SWeekYearNMonthDay,
+    WeekDayNMonthYear,
+    WeekNMonthDayYear,
+    WeekYearNMonthDay,
+
+    DaySMonthYear,
+    SMonthDayYear,
+    YearSMonthDay,
+    SWeekDaySMonthYear,
+    SWeekSMonthDayYear,
+    SWeekYearSMonthDay,
+    WeekDaySMonthYear,
+    WeekSMonthDayYear,
+    WeekYearSMonthDay,
+
+    DayFMonthYear,
+    FMonthDayYear,
+    YearFMonthDay,
+    SWeekDayFMonthYear,
+    SWeekFMonthDayYear,
+    SWeekYearFMonthDay,
+    WeekDayFMonthYear,
+    WeekFMonthDayYear,
+    WeekYearFMonthDay,
+}

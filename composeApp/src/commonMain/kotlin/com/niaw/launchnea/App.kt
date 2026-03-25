@@ -33,8 +33,9 @@ import com.niaw.launchnea.ui.Screens.LaunchScreens.LaunchesScreen
 import com.niaw.launchnea.ui.Screens.SettingsScreen
 import com.niaw.launchnea.ui.Screens.VehiclesScreens.VehiclesScreen
 import com.niaw.launchnea.navigation.NavigationItem
+import com.niaw.launchnea.utils.AppSettings
 import com.niaw.launchnea.utils.AppTheme
-import com.niaw.launchnea.utils.ThemeSettings
+import com.niaw.launchnea.utils.GlobalSettings
 import kotlinx.coroutines.launch
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
@@ -45,9 +46,14 @@ import org.jetbrains.compose.resources.painterResource
 @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 
 @Composable
-fun App(scheduleDao: ScheduleDao,themeSettings: ThemeSettings) {
+fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
     var currentRoute by rememberSaveable  { mutableStateOf("home") }
-    var currentTheme by remember { mutableStateOf(themeSettings.getTheme()) }
+    var currentTheme by remember { mutableStateOf(appSettings.getTheme()) }
+    LaunchedEffect(Unit) {
+        GlobalSettings.setTimeFormat(appSettings.getTimeFormat())
+        GlobalSettings.setDateFormat(appSettings.getDateFormat())
+        GlobalSettings.setDateTimeFormat()
+    }
 
 
 
@@ -129,9 +135,9 @@ fun App(scheduleDao: ScheduleDao,themeSettings: ThemeSettings) {
                         "vehicles" -> VehiclesScreen(scheduleDao)
                         "settings" -> SettingsScreen(
                                 currentTheme = currentTheme,
+                                appSettings = appSettings,
                                 onThemeChanged = { newMode ->
                                     currentTheme = newMode         // Updates the UI state
-                                    themeSettings.saveTheme(newMode) // Persists to Disk
                             }
                         )
                     }

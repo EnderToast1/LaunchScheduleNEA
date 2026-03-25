@@ -60,7 +60,7 @@ fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
             ) {
 
                 BoxLeftImage(boxContent.imageGroup)
-                Box(Modifier.weight(1f).padding(16.dp)) {
+                Box(Modifier.weight(1f).padding(16.dp,10.dp)) {
                     BoxDetailsDisplay(boxContent)
                 }
 
@@ -200,13 +200,14 @@ fun BoxChip(chip: Chip ) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(Color(0xFFD0D0D0))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
             .padding(horizontal = 5.dp, vertical = 1.dp)
     ) {
         //TODO add row with Icon and colour for success
         Text(
             text = chip.text ?: "Unknown",
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
 }

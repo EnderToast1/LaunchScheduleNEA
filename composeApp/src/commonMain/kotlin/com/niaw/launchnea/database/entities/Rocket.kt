@@ -32,16 +32,15 @@ data class Rocket(
     var rocketID: String,
     var name: String?= null,
     var agencyID: String? = null,
-
-
     var agencyName: String? = null,
     var imageURL: String? = null,
     var imageThumbURL: String? = null,
     var imageCredit: String? = null,
     var licenseType: String? = null,
     var desc: String? =null, //long
-    var lastUpdated: LocalDateTime?=null,
-  ): ListBoxItem {
+    var lastUpdated: LocalDateTime?=null
+  )
+    : ListBoxItem {
     override fun listBoxText() = DisplayItems(
             id=rocketID,
             title = this.name,

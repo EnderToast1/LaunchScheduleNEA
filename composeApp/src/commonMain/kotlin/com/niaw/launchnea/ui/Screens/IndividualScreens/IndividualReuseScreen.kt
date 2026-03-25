@@ -37,6 +37,7 @@ import com.niaw.launchnea.database.entities.*
 import com.niaw.launchnea.navigation.ViewModels.ReuseLaunchesViewModel
 import com.niaw.launchnea.navigation.setBackHandler
 import com.niaw.launchnea.ui.UiElements.ListBox
+import kotlin.math.round
 
 @Composable
 fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: () -> Unit) {
@@ -165,12 +166,12 @@ fun ReuseStatsBox(reuse: Reuse,reuses:Int,averageReuseTime:Long?,fastestReuseTim
     println("Time $averageReuseTime")
     val status=reuse.status
     val avgDays = remember(averageReuseTime) {
-        averageReuseTime?.let { millis ->
+        round((averageReuseTime?.let { millis ->
             millis / (1000.0 * 60 * 60 * 24)
-        } ?: 1.0
+        } ?: 1.0)*100 )/100
     }
     val fastestDays = remember(fastestReuseTime) {
-        fastestReuseTime?.let { it / (1000.0 * 60 * 60 * 24) } ?: 1.0
+        round((fastestReuseTime?.let { it / (1000.0 * 60 * 60 * 24) } ?: 1.0)*100)/100
     }
 
 
