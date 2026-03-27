@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -49,6 +50,7 @@ import org.jetbrains.compose.resources.painterResource
 fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
     var currentRoute by rememberSaveable  { mutableStateOf("home") }
     var currentTheme by remember { mutableStateOf(appSettings.getTheme()) }
+    var currentColourTheme by remember { mutableStateOf(appSettings.getColourTheme()) }
     LaunchedEffect(Unit) {
         GlobalSettings.setTimeFormat(appSettings.getTimeFormat())
         GlobalSettings.setDateFormat(appSettings.getDateFormat())
@@ -57,7 +59,7 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
 
 
 
-    AppTheme(selectedMode = currentTheme) {
+    AppTheme(selectedMode = currentTheme, seedColourType =currentColourTheme ) {
 
 
 

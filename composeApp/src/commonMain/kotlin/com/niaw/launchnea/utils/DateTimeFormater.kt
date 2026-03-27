@@ -74,26 +74,26 @@ fun String.toDateFormat(): DateFormat = when (this) {
     "EEEE yyyy/MM/dd" -> DateFormat.WeekYearNMonthDay
 
     // Short month name
-    "dd MMM yyyy"     -> DateFormat.DaySMonthYear
-    "MMM dd yyyy"     -> DateFormat.SMonthDayYear
-    "yyyy MMM dd"     -> DateFormat.YearSMonthDay
-    "E dd MMM yyyy"   -> DateFormat.SWeekDaySMonthYear
-    "E MMM dd yyyy"   -> DateFormat.SWeekSMonthDayYear
-    "E yyyy MMM dd"   -> DateFormat.SWeekYearSMonthDay
-    "EEEE dd MMM yyyy"-> DateFormat.WeekDaySMonthYear
-    "EEEE MMM dd yyyy"-> DateFormat.WeekSMonthDayYear
-    "EEEE yyyy MMM dd"-> DateFormat.WeekYearSMonthDay
+    "dd/MMM/yyyy"     -> DateFormat.DaySMonthYear
+    "MMM/dd/yyyy"     -> DateFormat.SMonthDayYear
+    "yyyy/MMM/dd"     -> DateFormat.YearSMonthDay
+    "E dd/MMM/yyyy"   -> DateFormat.SWeekDaySMonthYear
+    "E MMM/dd/yyyy"   -> DateFormat.SWeekSMonthDayYear
+    "E yyyy/MMM/dd"   -> DateFormat.SWeekYearSMonthDay
+    "EEEE dd/MMM/yyyy"-> DateFormat.WeekDaySMonthYear
+    "EEEE MMM/dd/yyyy"-> DateFormat.WeekSMonthDayYear
+    "EEEE yyyy/MMM/dd"-> DateFormat.WeekYearSMonthDay
 
     // Full month name
-    "dd MMMM yyyy"     -> DateFormat.DayFMonthYear
-    "MMMM dd yyyy"     -> DateFormat.FMonthDayYear
-    "yyyy MMMM dd"     -> DateFormat.YearFMonthDay
-    "E dd MMMM yyyy"   -> DateFormat.SWeekDayFMonthYear
-    "E MMMM dd yyyy"   -> DateFormat.SWeekFMonthDayYear
-    "E yyyy MMMM dd"   -> DateFormat.SWeekYearFMonthDay
-    "EEEE dd MMMM yyyy"-> DateFormat.WeekDayFMonthYear
-    "EEEE MMMM dd yyyy"-> DateFormat.WeekFMonthDayYear
-    "EEEE yyyy MMMM dd"-> DateFormat.WeekYearFMonthDay
+    "dd/MMMM/yyyy"     -> DateFormat.DayFMonthYear
+    "MMMM/dd/yyyy"     -> DateFormat.FMonthDayYear
+    "yyyy/MMMM/dd"     -> DateFormat.YearFMonthDay
+    "E dd/MMMM/yyyy"   -> DateFormat.SWeekDayFMonthYear
+    "E MMMM/dd/yyyy"   -> DateFormat.SWeekFMonthDayYear
+    "E yyyy/MMMM/dd"   -> DateFormat.SWeekYearFMonthDay
+    "EEEE dd/MMMM/yyyy"-> DateFormat.WeekDayFMonthYear
+    "EEEE MMMM/dd/yyyy"-> DateFormat.WeekFMonthDayYear
+    "EEEE yyyy/MMMM/dd"-> DateFormat.WeekYearFMonthDay
     else         -> DateFormat.DayNMonthYear // fallback default
 }
 
@@ -142,7 +142,8 @@ object GlobalSettings {
         private set
     var dateFormat by mutableStateOf(DateFormat.DayNMonthYear.toPattern())
         private set
-    var dateTimeFormat by mutableStateOf("")
+    var dateTimeFormat by mutableStateOf("${DateFormat.DayNMonthYear.toPattern()} ${TimeFormat.HOUR24SeOFF.toPattern()}")
+        private set
 
     fun setDateTimeFormat() {
         dateTimeFormat = "$dateFormat $timeFormat"

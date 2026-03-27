@@ -111,6 +111,16 @@ enum class ThemeMode {
     System
 }
 
+enum class ColourTheme {
+    RED,
+    GREEN,
+    BLUE,
+    YELLOW,
+    CYAN,
+    MAGENTA,  //DEFAULT     #0xFF6750A4
+    MONOCHROME,
+}
+
 
 enum class TimeFormat {
     HOUR12SeON,

@@ -30,6 +30,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,57 +59,27 @@ fun SettingsScreen(currentTheme: ThemeMode, appSettings: AppSettings,
     println("Click on Settings bottom navigation.")
 
     Column(modifier = Modifier.fillMaxSize().padding(5.dp)) {
-        Text("Theme", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
 
+
+        Text("Theme", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
         ThemePickerBox(
             currentMode = currentTheme,
             onModeSelected = { newMode ->
                 onThemeChanged(newMode)
                 appSettings.saveTheme(newMode) // Persists to Disk
-            }
-        )
+            })
+
         Spacer(Modifier.height(16.dp))
-        Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.secondaryContainer)) {
-            Box(Modifier.fillMaxWidth().padding(10.dp, 5.dp)) {
-                TimeFormatPickerBox(
-                    currentFormat = timeFormat.toTimeFormat(),
-                    onTimeFormatSelected = { newFormat ->
-                        GlobalSettings.setTimeFormat(newFormat)
-                        GlobalSettings.setDateTimeFormat()
-                        appSettings.saveTimeFormat(newFormat)
-                    }
-                )
-            }
+        TimeDateBox(appSettings)
 
+        
 
-            Box(Modifier.fillMaxWidth().padding(10.dp, 5.dp)) {
-                DateFormatPickerBox(
-                    currentFormat = dateFormat.toDateFormat(),
-                    onTimeFormatSelected = { newFormat ->
-                        GlobalSettings.setDateFormat(newFormat)
-                        GlobalSettings.setDateTimeFormat()
-                        appSettings.saveDateFormat(newFormat)
-                    }
-                )
-            }
-
-            Spacer(Modifier.height(10.dp))
-            Box(
-                modifier = Modifier.fillMaxWidth()
-                    .border(width = 3.dp,color = MaterialTheme.colorScheme.outline,shape = RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.secondaryContainer).padding(10.dp, 5.dp)
-            ) {
-                Text(
-                    text = "Preview ${LocalDateTime.now().format(DateTimeFormatter.ofPattern(dateTimeFormat))}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-            }
-        }
 
     }
-    //TODO make Screen
+
 }
+
+
 
 @Composable
 fun ThemePickerBox(
@@ -149,6 +120,47 @@ fun ThemePickerBox(
     }
 }
 
+@Composable
+fun TimeDateBox(
+    appSettings: AppSettings
+){
+    Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.secondaryContainer)) {
+        Box(Modifier.fillMaxWidth().padding(10.dp, 5.dp)) {
+            TimeFormatPickerBox(
+                currentFormat = timeFormat.toTimeFormat(),
+                onTimeFormatSelected = { newFormat ->
+                    GlobalSettings.setTimeFormat(newFormat)
+                    GlobalSettings.setDateTimeFormat()
+                    appSettings.saveTimeFormat(newFormat)
+                }
+            )
+        }
+
+        Box(Modifier.fillMaxWidth().padding(10.dp, 5.dp)) {
+            DateFormatPickerBox(
+                currentFormat = dateFormat.toDateFormat(),
+                onDateFormatSelected = { newFormat ->
+                    GlobalSettings.setDateFormat(newFormat)
+                    GlobalSettings.setDateTimeFormat()
+                    appSettings.saveDateFormat(newFormat)
+                }
+            )
+        }
+
+        Spacer(Modifier.height(10.dp))
+        Box(
+            modifier = Modifier.fillMaxWidth()
+                .border(width = 3.dp,color = MaterialTheme.colorScheme.outline,shape = RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer).padding(10.dp, 5.dp)
+        ) {
+            Text(
+                text = "Preview ${LocalDateTime.now().format(DateTimeFormatter.ofPattern(dateTimeFormat))}",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -191,20 +203,18 @@ fun TimeFormatPickerBox(
     }
 }
 
-
-
 @Composable
 fun DateFormatPickerBox(
     currentFormat: DateFormat,
-    onTimeFormatSelected: (DateFormat) -> Unit
+    onDateFormatSelected: (DateFormat) -> Unit
 ) {
     val weekdayOptions = listOf("None", "Short", "Full")
     val orderOptions = listOf("Day-Month-Year", "Month-Day-Year", "Year-Month-Day")
     val monthOptions = listOf("Numeric", "Short", "Full")
 
-    var selectedWeekday by remember { mutableStateOf(weekdayOptions[0]) }
-    var selectedOrder by remember { mutableStateOf(orderOptions[0]) }
-    var selectedMonth by remember { mutableStateOf(monthOptions[0]) }
+    var selectedWeekday by rememberSaveable { mutableStateOf(weekdayOptions[0]) }
+    var selectedOrder by rememberSaveable { mutableStateOf(orderOptions[0]) }
+    var selectedMonth by rememberSaveable { mutableStateOf(monthOptions[0]) }
 
     // Build pattern dynamically
     val pattern = remember(selectedWeekday, selectedOrder, selectedMonth) {
@@ -237,7 +247,7 @@ fun DateFormatPickerBox(
 
     // Notify parent
     LaunchedEffect(pattern) {
-        onTimeFormatSelected(pattern.toDateFormat())
+        onDateFormatSelected(pattern.toDateFormat())
     }
 
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -246,7 +256,6 @@ fun DateFormatPickerBox(
         DropdownMenuBox("Month Type", monthOptions, selectedMonth) { selectedMonth = it }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
