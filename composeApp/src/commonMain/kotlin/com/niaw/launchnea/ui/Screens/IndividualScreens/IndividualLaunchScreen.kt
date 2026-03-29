@@ -230,9 +230,9 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit,onClick: (String) -> Unit){
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint =MaterialTheme.colorScheme.onPrimaryContainer)
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Back", style = MaterialTheme.typography.bodyMedium)
+                Text("Back", style = MaterialTheme.typography.bodyMedium, color =MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
 
@@ -252,9 +252,9 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit,onClick: (String) -> Unit){
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                Icon(Icons.Filled.Business, contentDescription = "Agency")
+                Icon(Icons.Filled.Business, contentDescription = "Agency", tint = MaterialTheme.colorScheme.onPrimaryContainer )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(agencyName, style = MaterialTheme.typography.bodyMedium)
+                Text(agencyName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
     }
@@ -271,7 +271,7 @@ fun MissionMainBox(launch:Launch){
                             Text(
                                 it,
                                 style = MaterialTheme.typography.displaySmall,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         Spacer(Modifier.height(5.dp))
@@ -284,12 +284,12 @@ fun MissionMainBox(launch:Launch){
                         Text(
                                 text=launchTimes.liftoffTime,
                                 style = MaterialTheme.typography.displayMedium,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(Modifier.height(4.dp))
-                        IconTextRow(launchTimes.liftoffDate,"Launch Date",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.CalendarMonth),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onSecondaryContainer)
+                        IconTextRow(launchTimes.liftoffDate,"Launch Date",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.CalendarMonth),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
                         Spacer(Modifier.height(4.dp))
-                    launch.padName?.let { IconTextRow(it,"pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onSecondaryContainer) }
+                    launch.padName?.let { IconTextRow(it,"pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer) }
 
                         Spacer(Modifier.height(15.dp))
                         LaunchWindowTimeline(launchTimes)
@@ -312,14 +312,15 @@ fun TimeDropDown(selected: LiftoffTimeZone, onSelected: (LiftoffTimeZone) -> Uni
                         Text(
                                 text = "Lift-off Time (${selected.label})",
                                 style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
 
                         Spacer(Modifier.width(0.dp))
 
                         Icon(
                                 imageVector = Icons.Filled.ArrowDropDown,
-                                contentDescription = "Select time zone"
+                                contentDescription = "Select time zone",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                 }
 

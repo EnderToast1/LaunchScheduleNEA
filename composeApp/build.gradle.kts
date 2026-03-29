@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.maplibre.maps)
             implementation(libs.geojson)
             implementation(libs.maplibre.m3)
+            implementation(libs.paletteon.core)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.multiplatform.settings)

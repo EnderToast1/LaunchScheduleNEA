@@ -36,6 +36,7 @@ import com.niaw.launchnea.ui.Screens.VehiclesScreens.VehiclesScreen
 import com.niaw.launchnea.navigation.NavigationItem
 import com.niaw.launchnea.utils.AppSettings
 import com.niaw.launchnea.utils.AppTheme
+import com.niaw.launchnea.utils.ColourTheme
 import com.niaw.launchnea.utils.GlobalSettings
 import kotlinx.coroutines.launch
 import launchnea.composeapp.generated.resources.Res
@@ -59,7 +60,7 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
 
 
 
-    AppTheme(selectedMode = currentTheme, seedColourType =currentColourTheme ) {
+    AppTheme(selectedMode = currentTheme, seedColourType = currentColourTheme ) {
 
 
 
@@ -137,10 +138,10 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
                         "vehicles" -> VehiclesScreen(scheduleDao)
                         "settings" -> SettingsScreen(
                                 currentTheme = currentTheme,
+                                currentColourTheme = currentColourTheme,
                                 appSettings = appSettings,
-                                onThemeChanged = { newMode ->
-                                    currentTheme = newMode         // Updates the UI state
-                            }
+                                onThemeChanged = { newMode ->currentTheme = newMode},
+                                onColourThemeChanged={newColourTheme ->currentColourTheme = newColourTheme}
                         )
                     }
                 }
