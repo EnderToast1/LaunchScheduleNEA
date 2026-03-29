@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import com.niaw.launchnea.database.ScheduleDao
+import com.niaw.launchnea.utils.Status
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -40,7 +41,19 @@ val cardShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 0.dp, topEnd 
 //TODO need to make it so it only takes a listboxitem which will contain a id to use on click, when replace the listBox to individual functions which deal with the dao data (reuse and rockets) so launchs can use a modified listbox also the listboxitem needs a success and chip success and optional icon info to display also implement the acronymizer for landing locations 
 @Composable
 fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
-    
+    val launchBorder = when (boxContent.success) {
+        Status.UNKNOWN, Status.TBC, Status.TBD, Status.GO_FOR_LAUNCH, Status.STATUS_MISSING -> BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+        else -> BorderStroke(
+            width = 3.dp,
+            color = Color.Red,
+
+        )
+    }
+
+
     Surface(
         onClick = { onClick(boxContent.id) },
         modifier = Modifier
@@ -50,7 +63,7 @@ fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp,
         tonalElevation = 2.dp,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        border = launchBorder
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             //Content

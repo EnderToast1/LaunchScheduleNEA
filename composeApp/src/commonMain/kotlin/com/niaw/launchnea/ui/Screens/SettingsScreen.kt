@@ -20,9 +20,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,6 +35,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -72,9 +76,9 @@ fun SettingsScreen(currentTheme: ThemeMode, currentColourTheme: ColourTheme, app
                    onThemeChanged: (ThemeMode) -> Unit, //callback
                    onColourThemeChanged: (ColourTheme) -> Unit //callback
 ) {
+    val scrollState = rememberScrollState()
     println("Click on Settings bottom navigation.")
-
-    Column(modifier = Modifier.fillMaxSize().padding(5.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(scrollState).padding(5.dp)) {
 
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.primaryContainer).padding(5.dp)) {
             Text("Choose Theme", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.padding(15.dp,5.dp))
@@ -93,7 +97,8 @@ fun SettingsScreen(currentTheme: ThemeMode, currentColourTheme: ColourTheme, app
         }
         Spacer(Modifier.height(10.dp))
         TimeDateBox(appSettings)
-
+        Spacer(Modifier.height(10.dp))
+        SuccessStatusBox(appSettings)
         
 
 
@@ -148,7 +153,7 @@ fun ColourThemePickerBox(
 ){
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Text(
-            text = "Choose Theme Color",
+            text = "Choose Theme Colour",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier.padding(bottom = 10.dp)
@@ -214,10 +219,6 @@ fun ColorSeedOrb(
         }
     }
 }
-
-
-
-
 
 @Composable
 fun TimeDateBox(
@@ -404,3 +405,97 @@ fun DropdownMenuBox(
             }
         }
     }
+
+
+@Composable
+fun SuccessStatusBox(appSettings: AppSettings) {
+    Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.secondaryContainer).padding(16.dp)) {
+        Text("Choose Colour for Success Type ", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)//TODO add Colo(u)r Localisations
+
+        var ScurrentColour by remember { mutableStateOf(Color.Green) }
+        SuccessColourPickerBox("Success",Color.Green,ScurrentColour){ newColour ->
+            ScurrentColour=newColour
+        }
+        var PFcurrentColour by remember { mutableStateOf(Color.Yellow) }
+        SuccessColourPickerBox("Partial Failure",Color.Yellow,PFcurrentColour){ newColour ->
+            PFcurrentColour=newColour
+        }
+        var FcurrentColour by remember { mutableStateOf(Color.Red) }
+        SuccessColourPickerBox("Failure",Color.Red,FcurrentColour){ newColour ->
+            FcurrentColour=newColour
+        }
+        var IPcurrentColour by remember { mutableStateOf(Color.Blue) }
+        SuccessColourPickerBox("Success",Color.Blue,IPcurrentColour){ newColour ->
+            IPcurrentColour=newColour
+        }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SuccessColourPickerBox(
+    title: String,
+    defaultColour: Color,
+    currentColour: Color,
+    onColourSelected: (Color) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    // Determine the text to show in the field
+    val selectedLabel = if (currentColour == defaultColour) "Default" else "More"
+
+    Column(modifier = Modifier.fillMaxWidth().padding(5.dp)) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedTextField(
+                value = selectedLabel,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(title,style=MaterialTheme.typography.labelLarge) }, // Title acts as the field label
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = currentColour,
+                    unfocusedBorderColor = currentColour.copy(alpha = 0.7f)
+                ),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                // Option 1: Default
+                DropdownMenuItem(
+                    text = { Text("Default") },
+                    leadingIcon = {
+                        Box(Modifier.size(18.dp).clip(CircleShape).background(defaultColour))
+                    },
+                    onClick = {
+                        onColourSelected(defaultColour)
+                        expanded = false
+                    }
+                )
+
+                // Option 2: More
+                DropdownMenuItem(
+                    text = { Text("More") },
+                    leadingIcon = {
+                        Box(Modifier.size(18.dp).clip(CircleShape).background(Color.Magenta))
+                    },
+                    onClick = {
+                        onColourSelected(Color.Magenta)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
