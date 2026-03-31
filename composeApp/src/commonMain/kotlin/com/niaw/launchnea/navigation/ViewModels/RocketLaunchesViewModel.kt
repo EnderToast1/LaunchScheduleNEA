@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.RocketVersion
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -28,5 +29,13 @@ class RocketLaunchesViewModel (
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
+        )
+
+    val versions: StateFlow<List<RocketVersion>> = scheduleDao
+        .getRocketVersionsByRocketId(rocketID)
+        .stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
         )
 }

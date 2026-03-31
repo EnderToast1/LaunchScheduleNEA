@@ -1,8 +1,7 @@
-package com.niaw.launchnea.utils
+package com.niaw.launchnea.Settings
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import com.niaw.launchnea.utils.DateFormat
+import com.niaw.launchnea.utils.TimeFormat
 
 fun TimeFormat.toPattern(): String = when (this) {
     TimeFormat.HOUR12SeON  -> "hh:mm:ss a"
@@ -130,30 +129,4 @@ fun DateFormat.toLabel(): String = when(this) {
     DateFormat.WeekDayFMonthYear      -> "Eg Friday 01 January 2026"
     DateFormat.WeekFMonthDayYear      -> "Eg Friday January 01 2026"
     DateFormat.WeekYearFMonthDay      -> "Eg Friday 2026 January 01"
-}
-
-
-//val fullFormat = "$dateFormat $timeFormat"
-
-
-
-object GlobalSettings {
-    var timeFormat by mutableStateOf(TimeFormat.HOUR24SeOFF.toPattern())
-        private set
-    var dateFormat by mutableStateOf(DateFormat.DayNMonthYear.toPattern())
-        private set
-    var dateTimeFormat by mutableStateOf("${DateFormat.DayNMonthYear.toPattern()} ${TimeFormat.HOUR24SeOFF.toPattern()}")
-        private set
-
-    fun setDateTimeFormat() {
-        dateTimeFormat = "$dateFormat $timeFormat"
-    }
-
-    fun setTimeFormat(givenTimeFormat: TimeFormat) {
-        timeFormat = givenTimeFormat.toPattern()
-    }
-
-    fun setDateFormat(givenDateFormat: DateFormat) {
-        dateFormat = givenDateFormat.toPattern()
-    }
 }

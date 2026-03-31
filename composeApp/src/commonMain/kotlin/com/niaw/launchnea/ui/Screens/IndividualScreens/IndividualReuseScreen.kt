@@ -142,8 +142,9 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    //.padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
+                Spacer(modifier = Modifier.size(10.dp))
                 ConfigHeading()//Heading with icon text
                 rocketVersion?.let {VersionBox(it)}// The actual config Version box
             }
@@ -163,7 +164,7 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
 
 @Composable
 fun ReuseStatsBox(reuse: Reuse,reuses:Int,averageReuseTime:Long?,fastestReuseTime:Long?){
-    println("Time $averageReuseTime")
+
     val status=reuse.status
     val avgDays = remember(averageReuseTime) {
         round((averageReuseTime?.let { millis ->
@@ -321,8 +322,6 @@ fun TopImage(url: String?, titleText: String, secondText:String?) {
 
 @Composable
 fun LaunchesSection(nextLaunches: List<Launch>, pastLaunches: List<Launch>, onClick: (String) -> Unit) {
-    println(nextLaunches.size)
-    println(pastLaunches.size)
     var showNext by remember { mutableIntStateOf(1) }
     var showPast by remember { mutableIntStateOf(3) }
 
@@ -360,8 +359,7 @@ fun LaunchHeading(title: String,isExpanded: Boolean, onClick: () -> Unit) {
         Surface(
             onClick = onClick,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .fillMaxWidth(),
             // Rounded at top, Flat at bottom
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
             color = MaterialTheme.colorScheme.secondaryContainer, // The lavender/purple color
@@ -424,7 +422,7 @@ fun LaunchDisplay(defaultNumberOfLaunch: Int = 0,launches: List<Launch>, onClick
     var takeCount =defaultNumberOfLaunch
     if (defaultNumberOfLaunch == 0) { takeCount=launches.size }
 
-    Column(modifier = Modifier.fillMaxWidth().padding(16.dp,0.dp),  verticalArrangement = Arrangement.spacedBy(5.dp)) {
+    Column(modifier = Modifier.fillMaxWidth()/*.padding(16.dp,0.dp)*/,  verticalArrangement = Arrangement.spacedBy(5.dp)) {
         launches.take(takeCount).forEach { launch ->
             ListBox(launch.listBoxText(), onClick = onClickList)
         }

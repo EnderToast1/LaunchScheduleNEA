@@ -4,11 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.tooling.preview.Preview
 import com.niaw.launchnea.database.getScheduleDatabase
-import com.niaw.launchnea.utils.AppSettings
+import com.niaw.launchnea.Settings.AppSettings
 import com.russhwolf.settings.SharedPreferencesSettings
 
 

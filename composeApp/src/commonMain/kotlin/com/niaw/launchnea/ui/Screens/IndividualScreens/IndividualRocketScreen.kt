@@ -70,11 +70,8 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
         RocketLaunchesViewModel(scheduleDao, rocket.rocketID)
     }
 
-
-
     val nextLaunches by viewModel.upcomingLaunches.collectAsState()
     val pastLaunches by viewModel.pastLaunches.collectAsState()
-
 
     var selectedReuseID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Rocket
     var selectedLaunchID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Launch
@@ -166,7 +163,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
                 Spacer(Modifier.height(10.dp))
                 ConfigHeading()
                 Spacer(Modifier.height(5.dp))
-                VersionsList(rocket)
+                VersionsList(rocket,scheduleDao)
             }
                 Spacer(Modifier.height(10.dp))
                 LaunchesSection(nextLaunches,pastLaunches){onClick-> selectedLaunchID = onClick}
@@ -217,10 +214,12 @@ fun ConfigHeading() {
 }
 
 @Composable
-fun VersionsList(rocket: Rocket) {
-    val rocketVersions: MutableList<RocketVersion> =mutableListOf()//TODO get list
-    rocketVersions.add(RocketVersion("A12","TEST 1"))
-    rocketVersions.add(RocketVersion("A13","TEST 2"))
+fun VersionsList(rocket: Rocket,scheduleDao:ScheduleDao) {
+    val viewModel = remember(rocket.rocketID) {
+        RocketLaunchesViewModel(scheduleDao, rocket.rocketID)
+    }
+
+    val rocketVersions by viewModel.versions.collectAsState()
 
     Column(
         modifier = Modifier

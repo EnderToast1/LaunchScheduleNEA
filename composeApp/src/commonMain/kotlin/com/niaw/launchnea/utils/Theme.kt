@@ -1,11 +1,9 @@
 package com.niaw.launchnea.utils
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
+import com.niaw.launchnea.Settings.getSeedColour
 import dev.teogor.paletteon.PaletteStyle
 import dev.teogor.paletteon.PaletteonTheme
 

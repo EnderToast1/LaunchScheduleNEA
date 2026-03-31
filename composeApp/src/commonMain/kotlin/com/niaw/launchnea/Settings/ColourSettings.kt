@@ -1,7 +1,7 @@
-package com.niaw.launchnea.utils
+package com.niaw.launchnea.Settings
 
 import androidx.compose.ui.graphics.Color
-
+import com.niaw.launchnea.utils.ColourTheme
 
 
 fun ColourTheme.getSeedColour(): Color {

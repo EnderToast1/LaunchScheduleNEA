@@ -18,11 +18,13 @@ junit = "4.13.2"
 kotlin = "2.3.10"
 kotlinx-coroutines = "1.10.2"
 kotlinxSerializationJson = "1.10.0"
+
 material3 = "1.9.3"
 multiplatformSettings = "1.3.0"
 navigationCompose = "2.9.7"
 paletteonCore = "1.0.0-alpha02"
 roomRuntime = "2.8.4"
+
 sqliteBundled = "2.6.2"
 room = "2.8.4"
 ksp = "2.0.20-1.0.25"
@@ -77,6 +79,7 @@ datastore = { module = "androidx.datastore:datastore", version.ref = "datastore"
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 paletteon-core = { module = "dev.teogor.paletteon:paletteon-core", version.ref = "paletteonCore" }
+
 
 
 

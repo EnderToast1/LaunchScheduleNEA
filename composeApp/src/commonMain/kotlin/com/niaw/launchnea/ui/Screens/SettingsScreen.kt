@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -18,16 +17,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -36,12 +31,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,20 +46,24 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
-import com.niaw.launchnea.utils.AppSettings
+import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.utils.ColourTheme
 import com.niaw.launchnea.utils.DateFormat
-import com.niaw.launchnea.utils.GlobalSettings
-import com.niaw.launchnea.utils.GlobalSettings.dateFormat
-import com.niaw.launchnea.utils.GlobalSettings.dateTimeFormat
-import com.niaw.launchnea.utils.GlobalSettings.timeFormat
+import com.niaw.launchnea.Settings.GlobalSettings
+import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
+import com.niaw.launchnea.Settings.GlobalSettings.dateTimeFormat
+import com.niaw.launchnea.Settings.GlobalSettings.failureColour
+import com.niaw.launchnea.Settings.GlobalSettings.holdColour
+import com.niaw.launchnea.Settings.GlobalSettings.inFlightColour
+import com.niaw.launchnea.Settings.GlobalSettings.partialFailureColour
+import com.niaw.launchnea.Settings.GlobalSettings.successColour
+import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
 import com.niaw.launchnea.utils.ThemeMode
 import com.niaw.launchnea.utils.TimeFormat
-import com.niaw.launchnea.utils.getSeedColour
-import com.niaw.launchnea.utils.toDateFormat
-import com.niaw.launchnea.utils.toLabel
-import com.niaw.launchnea.utils.toTimeFormat
-import java.time.LocalDate
+import com.niaw.launchnea.Settings.getSeedColour
+import com.niaw.launchnea.Settings.toDateFormat
+import com.niaw.launchnea.Settings.toLabel
+import com.niaw.launchnea.Settings.toTimeFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -99,7 +95,6 @@ fun SettingsScreen(currentTheme: ThemeMode, currentColourTheme: ColourTheme, app
         TimeDateBox(appSettings)
         Spacer(Modifier.height(10.dp))
         SuccessStatusBox(appSettings)
-        
 
 
     }
@@ -412,21 +407,29 @@ fun SuccessStatusBox(appSettings: AppSettings) {
     Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.secondaryContainer).padding(16.dp)) {
         Text("Choose Colour for Success Type ", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)//TODO add Colo(u)r Localisations
 
-        var ScurrentColour by remember { mutableStateOf(Color.Green) }
-        SuccessColourPickerBox("Success",Color.Green,ScurrentColour){ newColour ->
-            ScurrentColour=newColour
+
+        SuccessTypeColourPickerBox("Success",Color.Green,successColour){ newColour ->
+            successColour =(newColour)
+            appSettings.saveColourSuccess(newColour)
         }
-        var PFcurrentColour by remember { mutableStateOf(Color.Yellow) }
-        SuccessColourPickerBox("Partial Failure",Color.Yellow,PFcurrentColour){ newColour ->
-            PFcurrentColour=newColour
+
+        SuccessTypeColourPickerBox("Partial Failure",Color.Yellow,partialFailureColour){ newColour ->
+            partialFailureColour=newColour
+            appSettings.saveColourPartialFailure(newColour)
         }
-        var FcurrentColour by remember { mutableStateOf(Color.Red) }
-        SuccessColourPickerBox("Failure",Color.Red,FcurrentColour){ newColour ->
-            FcurrentColour=newColour
+
+        SuccessTypeColourPickerBox("Failure",Color.Red,failureColour){ newColour ->
+            failureColour=newColour
+            appSettings.saveColourFailure(newColour)
         }
-        var IPcurrentColour by remember { mutableStateOf(Color.Blue) }
-        SuccessColourPickerBox("Success",Color.Blue,IPcurrentColour){ newColour ->
-            IPcurrentColour=newColour
+
+        SuccessTypeColourPickerBox("In Flight",Color.Blue,inFlightColour){ newColour ->
+            inFlightColour=newColour
+            appSettings.saveColourInFlight(newColour)
+        }
+        SuccessTypeColourPickerBox("Hold",Color(0xFFFF6600),holdColour){ newColour ->
+            holdColour=newColour
+            appSettings.saveColourHold(newColour)
         }
     }
 
@@ -434,7 +437,7 @@ fun SuccessStatusBox(appSettings: AppSettings) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SuccessColourPickerBox(
+fun SuccessTypeColourPickerBox(
     title: String,
     defaultColour: Color,
     currentColour: Color,

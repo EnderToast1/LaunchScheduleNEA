@@ -43,6 +43,8 @@ kotlin {
             implementation(libs.maplibre.maps)
             implementation(libs.geojson)
             implementation(libs.maplibre.m3)
+
+            implementation("org.slf4j:slf4j-simple:2.0.13")
             implementation(libs.paletteon.core)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)

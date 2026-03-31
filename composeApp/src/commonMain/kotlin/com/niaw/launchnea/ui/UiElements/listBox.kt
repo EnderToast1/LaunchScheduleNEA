@@ -12,11 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,7 +20,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
-import com.niaw.launchnea.database.ScheduleDao
+import com.niaw.launchnea.Settings.GlobalSettings.failureColour
+import com.niaw.launchnea.Settings.GlobalSettings.holdColour
+import com.niaw.launchnea.Settings.GlobalSettings.inFlightColour
+import com.niaw.launchnea.Settings.GlobalSettings.partialFailureColour
+import com.niaw.launchnea.Settings.GlobalSettings.successColour
 import com.niaw.launchnea.utils.Status
 import org.jetbrains.compose.resources.painterResource
 
@@ -42,14 +41,31 @@ val cardShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 0.dp, topEnd 
 @Composable
 fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
     val launchBorder = when (boxContent.success) {
-        Status.UNKNOWN, Status.TBC, Status.TBD, Status.GO_FOR_LAUNCH, Status.STATUS_MISSING -> BorderStroke(
+        Status.UNKNOWN,
+        Status.TBC,
+        Status.TBD,
+        Status.GO_FOR_LAUNCH,
+        Status.STATUS_MISSING -> BorderStroke(
             width = 1.dp,
             color = MaterialTheme.colorScheme.outlineVariant
         )
+
         else -> BorderStroke(
             width = 3.dp,
-            color = Color.Red,
+            color = when (boxContent.success) {
+                Status.SUCCESS,
+                Status.PAYLOAD_DEPLOYED -> successColour
 
+                Status.FAILURE -> failureColour
+
+                Status.PARTIAL_SUCCESS -> partialFailureColour
+
+                Status.ON_HOLD -> holdColour
+
+                Status.IN_FLIGHT -> inFlightColour
+
+                else -> MaterialTheme.colorScheme.outline // fallback
+            }
         )
     }
 

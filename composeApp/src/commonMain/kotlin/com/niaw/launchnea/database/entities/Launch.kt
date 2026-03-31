@@ -8,7 +8,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.utils.Location
 import com.niaw.launchnea.utils.ProgramType
 import com.niaw.launchnea.utils.Status
@@ -19,7 +18,7 @@ import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
-import com.niaw.launchnea.utils.GlobalSettings.dateTimeFormat
+import com.niaw.launchnea.Settings.GlobalSettings.dateTimeFormat
 import com.niaw.launchnea.utils.abbreviate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -93,7 +92,7 @@ data class Launch(
             title = missionName,
             imageGroup = ImageGroup(imageUrl, imageCredit, licenseType,true),
             secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
-            secondRow = "$rocketName | $agencyName",
+            secondRow = "$rocketName  |  $agencyName",
             thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Place),
             thirdRow = "$padName, $padLocation",
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),

@@ -1,7 +1,5 @@
 package com.niaw.launchnea
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,8 +9,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -23,22 +19,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
 import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.networking.updateLaunchData
 import com.niaw.launchnea.ui.Screens.HomeScreens.HomeScreen
 import com.niaw.launchnea.ui.Screens.LaunchScreens.LaunchesScreen
 import com.niaw.launchnea.ui.Screens.SettingsScreen
 import com.niaw.launchnea.ui.Screens.VehiclesScreens.VehiclesScreen
 import com.niaw.launchnea.navigation.NavigationItem
-import com.niaw.launchnea.utils.AppSettings
+import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.utils.AppTheme
-import com.niaw.launchnea.utils.ColourTheme
-import com.niaw.launchnea.utils.GlobalSettings
-import kotlinx.coroutines.launch
+import com.niaw.launchnea.Settings.GlobalSettings
+import com.niaw.launchnea.networking.updateLaunchData
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
 import launchnea.composeapp.generated.resources.filledrocketh
@@ -56,6 +46,11 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
         GlobalSettings.setTimeFormat(appSettings.getTimeFormat())
         GlobalSettings.setDateFormat(appSettings.getDateFormat())
         GlobalSettings.setDateTimeFormat()
+        GlobalSettings.successColour=(appSettings.getColourSuccess())
+        GlobalSettings.partialFailureColour=(appSettings.getColourPartialFailure())
+        GlobalSettings.failureColour=(appSettings.getColourFailure())
+        GlobalSettings.inFlightColour=(appSettings.getColourInFlight())
+        GlobalSettings.holdColour=(appSettings.getColourHold())
     }
 
 

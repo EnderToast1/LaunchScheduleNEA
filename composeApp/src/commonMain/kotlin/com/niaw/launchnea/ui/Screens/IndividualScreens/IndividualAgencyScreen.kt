@@ -28,7 +28,8 @@ fun IndividualAgencyScreen(agency: Agency,  onBack: () -> Unit) {
         Button(onClick = onBack, modifier = Modifier.padding(8.dp)) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
-        agency.name?.let { Text(it) }
+
+        agency.name?.let { TopImage(agency.logoURL,it, null) }
     }
 
 }

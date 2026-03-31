@@ -52,7 +52,7 @@ interface ScheduleDao {
     @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP) ORDER BY datetime(launchTimeUTC) ASC")
     fun getUpcomingLaunches(): Flow<List<Launch>>
 
-    @Query("SELECT * FROM Rocket")
+    @Query("SELECT * FROM Rocket ORDER BY name ASC")
     fun getRockets(): Flow<List<Rocket>>
     @Query("SELECT * FROM Reuse")
     fun getReuse(): Flow<List<Reuse>>
@@ -109,9 +109,16 @@ interface ScheduleDao {
     SELECT * FROM Launch 
     WHERE rocketID = :rocketID 
     AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
-    ORDER BY launchTimeUTC ASC
+    ORDER BY launchTimeUTC DESC
 """)
     fun getPreviousLaunchesByRocketId(rocketID: String): Flow<List<Launch>>
+
+    @Query("""
+        SELECT * FROM RocketVersion
+        WHERE rocketID = :rocketID
+        ORDER BY activeSince ASC
+    """)
+    fun getRocketVersionsByRocketId(rocketID: String): Flow<List<RocketVersion>>
 
    //Get values for UI
    @Query("""
@@ -122,6 +129,15 @@ interface ScheduleDao {
         AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
 """)
     fun getReuseCountById(reuseID: String): Flow<Int>
+
+    @Query("""
+        SELECT COUNT(Launch.launchID)
+        FROM Launch
+        WHERE rocketID= :rocketID
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
+    """)
+    fun getRocketCountById(rocketID: String): Flow<Int>
+
 
     @Query("""
     SELECT launchTimeUTC FROM Launch 
@@ -176,9 +192,18 @@ interface ScheduleDao {
     AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
     ORDER BY Launch.launchTimeUTC DESC
     LIMIT 1
-""")
+    """)
     fun getLastFlightByReuseId(reuseID: String): Flow<Launch?>
 
+    @Transaction
+    @Query("""
+        SELECT Launch.* FROM Launch
+        WHERE Launch.rocketID = :rocketID
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
+        ORDER BY Launch.launchTimeUTC DESC
+        LIMIT 1
+    """)
+    fun getLastFlightByRocketId(rocketID: String): Flow<Launch?>
 
     //Get singular item
     @Query("SELECT * FROM Launch WHERE launchID = :id")
@@ -265,21 +290,25 @@ interface ScheduleDao {
 
     @Query("""SELECT * FROM rocket 
            WHERE name LIKE '%' || :givenName || '%' COLLATE NOCASE          
-           OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE          
+           OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE    
+           ORDER BY name DESC 
            """)
     fun getRocketLikeName(givenName: String): Flow<List<Rocket>>
 
     @Query("""SELECT Reuse.* FROM reuse
             LEFT JOIN LaunchReuseCrossRef ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
-            WHERE Reuse.name NOT LIKE 'Unknown%' 
-               AND name LIKE '%' || :givenName || '%' COLLATE NOCASE 
+            WHERE LOWER(Reuse.name) NOT LIKE 'unknown%'
+               AND (
+                name LIKE '%' || :givenName || '%' COLLATE NOCASE 
                OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
                OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
                OR reuseType LIKE '%' || :givenName || '%' COLLATE NOCASE
                OR status  LIKE '%' || :givenName || '%' COLLATE NOCASE
                OR activeSince  LIKE '%' || :givenName || '%' COLLATE NOCASE
+              )
             GROUP BY Reuse.reuseID
-            ORDER BY COUNT(LaunchReuseCrossRef.launchID) DESC""")
+            ORDER BY COUNT(LaunchReuseCrossRef.launchID) ASC
+            """)
     fun getReuseLikeName(givenName: String): Flow<List<Reuse>>
 
 

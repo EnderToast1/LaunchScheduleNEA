@@ -1,21 +1,27 @@
 package com.niaw.launchnea.utils
 
 fun abbreviate(name: String, maxWords: Int = 4): String {
-    if (name=="China Aerospace Science and Technology Corporation") {//special case as They do not abbreviate normally
+    if (name == "China Aerospace Science and Technology Corporation") {
         return "CASC"
     }
 
-    val bracketContent = Regex("""\((.*?)\)|\[(.*?)]""").find(name)//Checks if there is any () or []
-        ?.groups?.get(1)?.value  // group 1 is the content inside ()
-        ?: Regex("""\((.*?)\)|\[(.*?)]""").find(name)?.groups?.get(2)?.value // group 2 is inside []
+    val bracketContent = Regex("""\((.*?)\)|\[(.*?)]""").find(name)
+        ?.groups?.get(1)?.value
+        ?: Regex("""\((.*?)\)|\[(.*?)]""").find(name)?.groups?.get(2)?.value
 
     if (!bracketContent.isNullOrBlank()) {
         return bracketContent
     }
 
-    val words = name.trim().split("\\s+".toRegex())
+    val stopWords = setOf(
+        "and", "or", "of", "the", "for", "in", "on", "at", "to", "a", "an"
+    )
+
+    val words = name.trim()
+        .split("\\s+".toRegex())
+        .filter { it.lowercase() !in stopWords }
+
     return if (words.size >= maxWords) {
-        // Take first letter of each word, join uppercase
         words.joinToString("") { it.firstOrNull()?.uppercaseChar().toString() }
     } else {
         name
