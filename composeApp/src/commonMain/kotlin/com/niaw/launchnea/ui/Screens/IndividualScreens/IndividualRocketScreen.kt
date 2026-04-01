@@ -155,7 +155,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
         ) {
-            TopImage(rocket.imageURL!!,rocket.name!!, agencyName)
+            rocket.name?.let { TopImage(rocket.imageURL,it, agencyName) }
             Column(Modifier.fillMaxWidth()) {
                 RocketStats(rocket)
                 Spacer(Modifier.height(10.dp))

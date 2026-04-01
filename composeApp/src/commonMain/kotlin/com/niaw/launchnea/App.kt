@@ -28,6 +28,7 @@ import com.niaw.launchnea.navigation.NavigationItem
 import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.utils.AppTheme
 import com.niaw.launchnea.Settings.GlobalSettings
+import com.niaw.launchnea.networking.requestNumber
 import com.niaw.launchnea.networking.updateLaunchData
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
@@ -61,7 +62,8 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
 
 
         LaunchedEffect(Unit) {
-            //updateLaunchData(scheduleDao)
+            updateLaunchData(scheduleDao)
+            //requestNumber()
             //daoTest(scheduleDao)
         }
 

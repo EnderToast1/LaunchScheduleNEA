@@ -47,7 +47,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
     //finds the last time the database updated and then updates it so it set to now()
     var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")//Gets lastUpdates time
-    println("Last Updated: $databaseLastUpdated")//LOG    //TODO remove 1-3mins from databaseLastUpdated
+    println("Last Updated: $databaseLastUpdated")//LOG    //TODO remove 2mins from databaseLastUpdated
 
 
     //Only for if DB is reset
@@ -57,19 +57,23 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     }
 
     //TODO TEMP DEV
-    val TEMPdatabaseLastUpdated= LocalDateTime.of(2026,1,1,0,0)
-    TEMPdatabaseLastUpdated.minusDays(1).toString()
+    databaseLastUpdated= LocalDateTime.of(2026,1,1,0,0).minusMinutes(2).toString()
+
+
 
     //TODO change lldev to ll only for production not dev
-    val callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&last_updated__gte=$TEMPdatabaseLastUpdated"
-
+    var callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&last_updated__gte=$databaseLastUpdated"
+    callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?limit=100&offset=2500&ordering=-last_updated"
 
     //Updates previous launches
     println("\n\nCalled $callApiUrl")
     var dbUpdated=true
     var callResponse=APIFetchRequest(callApiUrl) //passes the url as a string with the last updated dateTime as part of it in the API filter system
     println("NEXT RESPONSE: 1")
-    if (callResponse.errorType!=null) {dbUpdated=false}
+    if (callResponse.errorType!=null) {
+        dbUpdated=false
+        requestNumber()
+    }
     responseToDatabase(scheduleDao,callResponse)        //parses the response and adds each launch to the database (inside the function it checks for other tables that need adding to)
     var i=0
     while ((callResponse.count>=100) and (callResponse.next!=null)) {
@@ -77,7 +81,10 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
         println("NEXT RESPONSE: ${i+1}")
         callResponse=APIFetchRequest(callResponse.next)
         callResponse.count-=(i*100)
-        if (callResponse.errorType!=null) {dbUpdated=false}
+        if (callResponse.errorType!=null) {
+            dbUpdated=false
+            requestNumber()
+        }
         responseToDatabase(scheduleDao,callResponse)
     }
 
@@ -238,12 +245,12 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     val rocketName = launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("name")?.jsonPrimitive?.content
     val rocketVariantName = launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("full_name")?.jsonPrimitive?.content
     val description = (launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("description")?.jsonPrimitive?.content
-    val orbit = (launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("orbit")?.jsonObject?.get("name")?.jsonPrimitive?.content
+    val orbit = ((launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("orbit") as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val padLat= (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("latitude")?.jsonPrimitive?.double
     val padLong= (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("longitude")?.jsonPrimitive?.double
     val padCords = Location(padLat,padLong)
-    val padLocation = (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("location")?.jsonObject?.get("name")?.jsonPrimitive?.content
-    val padCountry = (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("country")?.jsonObject?.get("name")?.jsonPrimitive?.content
+    val padLocation = ((launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("location") as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
+    val padCountry = ((launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("country") as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val netPrecision = (launchJsonObj["net_precision"] as? JsonObject)?.jsonObject ?.get("description")?.jsonPrimitive?.content
     val precisionAbbrev = (launchJsonObj["net_precision"] as? JsonObject)?.jsonObject?.get("abbrev")?.jsonPrimitive?.content
     val weatherConcerns= launchJsonObj["weather_concerns"]?.jsonPrimitive?.content
