@@ -5,21 +5,27 @@ fun abbreviate(name: String, maxWords: Int = 4): String {
         return "CASC"
     }
 
-    val bracketContent = Regex("""\((.*?)\)|\[(.*?)]""").find(name)
-        ?.groups?.get(1)?.value
-        ?: Regex("""\((.*?)\)|\[(.*?)]""").find(name)?.groups?.get(2)?.value
+    // Regex pattern explanation:
+    // \((.*?)\)   → matches (anything) and captures the "anything" in group 1
+    // |           → OR
+    // \[(.*?)]    → matches [anything] and captures the "anything" in group 2
+    val regex = Regex("""\((.*?)\) | \[(.*?)]""")
+
+    val bracketContent = regex.find(name)?.let { match ->
+        match.groups[1]?.value ?: match.groups[2]?.value          //Find any value in brackets
+    }
 
     if (!bracketContent.isNullOrBlank()) {
         return bracketContent
     }
 
-    val stopWords = setOf(
+    val ignoredWords = setOf(
         "and", "or", "of", "the", "for", "in", "on", "at", "to", "a", "an"
     )
 
     val words = name.trim()
         .split("\\s+".toRegex())
-        .filter { it.lowercase() !in stopWords }
+        .filter { it.lowercase() !in ignoredWords }
 
     return if (words.size >= maxWords) {
         words.joinToString("") { it.firstOrNull()?.uppercaseChar().toString() }

@@ -63,7 +63,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
     //TODO change lldev to ll only for production not dev
     var callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&last_updated__gte=$databaseLastUpdated"
-    callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?limit=100&offset=2500&ordering=-last_updated"
+    callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&offset=800&ordering=-last_updated"
 
     //Updates previous launches
     println("\n\nCalled $callApiUrl")
@@ -89,12 +89,11 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     }
 
     if (dbUpdated){
-        scheduleDao.upsertMetadata(MetaData("lastUpdated",LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() ))  //updates LastUpdated to now
+        scheduleDao.upsertMetadata(MetaData("lastUpdated",LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() ))  //updates LastUpdated to now TODO take UTC time
         println("LastUpdated Updated to ${scheduleDao.getMetaData("lastUpdated")}")
     }
     println("\nDone updateLaunchData")
 }
-
 
 //parses the response and adds each launch to the database (also calls for a function to check for other tables that need adding to)
 suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseData) {
@@ -326,12 +325,12 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
 
     var lastUpdated=scheduleDao.getMetaData("lastUpdated")
     println("In Comparison to $lastUpdated")
-    if (lastUpdated == null) {lastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString() } //some one-time variable will only be used when Database is reset in TESTing
+    if (lastUpdated == null) {lastUpdated=(LocalDateTime.of(2025,12,23,0,0)).toString() } //A Set date for if the Db is reset
 
     if (launch.agencyID!=null ) {
         if (!scheduleDao.doesAgencyExist(launch.agencyID) || scheduleDao.doesAgencyNeedUpdating(launch.agencyID, lastUpdated)) {
             println("Agency: ${launch.agencyName} does NOT exist or needs updating ")
-            scheduleDao.upsertAgency(parseAgency(launchJsonEle,scheduleDao))   //TODO place in a try loop and catch and print the error
+            scheduleDao.upsertAgency(parseAgency(launchJsonEle,scheduleDao))
 
         } else {
             println("Agency: ${launch.agencyName} ALREADY exists and is updated")
@@ -340,7 +339,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     if (launch.rocketID!=null){
         if (!scheduleDao.doesRocketExist(launch.rocketID)|| scheduleDao.doesRocketNeedUpdating(launch.rocketID, lastUpdated)) {
             println("Rocket: ${launch.rocketName} does NOT exist or needs updating")
-            scheduleDao.upsertRocket(parseRocket(launchJsonEle,scheduleDao))      //TODO place in a try loop and catch and print the error
+            scheduleDao.upsertRocket(parseRocket(launchJsonEle,scheduleDao))
         }else{
             println("Rocket: ${launch.rocketName} ALREADY exists and is updated")
         }
@@ -348,7 +347,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
     if (launch.rocketVersionID!=null){
         if (!scheduleDao.doesRocketVersionExist(launch.rocketVersionID)|| scheduleDao.doesRocketVersionNeedUpdating(launch.rocketVersionID, lastUpdated)) {
             println("Version: ${launch.rocketVariantName} does NOT exist or needs updating")
-            scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle,scheduleDao))    //TODO place in a try loop and catch and print the error
+            scheduleDao.upsertRocketVersion(parseRocketVersion(launchJsonEle,scheduleDao))
         }else{
             println("Version: ${launch.rocketVariantName} ALREADY exists and is updated")
         }
@@ -366,7 +365,7 @@ suspend fun checkForReuse(launchJsonEle: JsonElement,launch: Launch,scheduleDao:
             if (reusablePart.reuseID != null) {
                 if (!scheduleDao.doesReuseExist(reusablePart.reuseID!!)|| scheduleDao.doesReuseNeedUpdating(reusablePart.reuseID!!, lastUpdated)) {
                     println("Reusable: ${reusablePart.reuseName} does NOT exist or needs updating")
-                    scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))   //TODO place in a try loop and catch and print the error
+                    scheduleDao.upsertReuse(parseReuse(launchJsonEle, reusablePart,scheduleDao))
 
 
                 }else{
@@ -400,7 +399,7 @@ suspend fun parseAgency(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ag
     }
     val leaderName= administratorPair?.substringAfter(":")
 
-    val toReturn = Agency(
+    val toReturn = Agency(//Gets all parts for the Object from the JSON
         agencyID = agencyJsonObj?.get("id")?.jsonPrimitive?.content!!,
         name =   agencyJsonObj["name"]?.jsonPrimitive?.content,
         launchNumber = agencyJsonObj["total_launch_count"]?.jsonPrimitive?.intOrNull ?: 0,
@@ -412,8 +411,6 @@ suspend fun parseAgency(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ag
         logoURL = (agencyJsonObj["logo"] as? JsonObject)?.get("thumbnail_url")?.let { it as? JsonPrimitive }?.contentOrNull,
         websiteURL = agencyJsonObj["info_url"]?.jsonPrimitive?.content,
         wikiURL =  agencyJsonObj["wiki_url"]?.jsonPrimitive?.content,
-        socialsURL =null ,   //TODO seems to be broken
-        youtubeURL =null,    //TODO seems to be broken
         lastUpdated= scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
     )
     println("      $toReturn")//LOG
@@ -423,7 +420,7 @@ suspend fun parseAgency(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ag
 suspend fun parseRocket(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Rocket {
     val rocketJsonObj=launchJsonEle.jsonObject["rocket"]?.jsonObject  //turns the element into an object
 
-    val toReturn = Rocket(
+    val toReturn = Rocket(//Gets all parts for the Object from the JSON
         rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
         name = rocketJsonObj?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("name")?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
@@ -442,7 +439,7 @@ suspend fun parseRocket(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ro
 suspend fun parseRocketVersion(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): RocketVersion {
     val rocketVersionJsonObj=launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject  //turns the element into an object
 
-    val toReturn =RocketVersion(
+    val toReturn =RocketVersion(//Gets all parts for the Object from the JSON
         rocketVersionID = rocketVersionJsonObj?.get("id")?.jsonPrimitive?.content!!,
         name = rocketVersionJsonObj["full_name"]?.jsonPrimitive?.content,
         active = rocketVersionJsonObj["active"]?.jsonPrimitive?.boolean,
@@ -475,8 +472,9 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
     var imageCredit:String?=null
     var imageLicence:String?=null
 
-    when (reusablePart.reuseType) {
-        ReuseType.BOOSTER -> {val statusID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("status")?.jsonObject?.get("id")?.jsonPrimitive?.content
+    when (reusablePart.reuseType) {//parses the json to get the data from the launches or the spacecraft depending on the reuse type
+        ReuseType.BOOSTER -> {val statusID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("status")
+                                ?.jsonObject?.get("id")?.jsonPrimitive?.content
             status = when (statusID) {
                 "1" -> StatusReuse.RETIRED
                 "2" -> StatusReuse.EXPENDED
@@ -494,7 +492,8 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
              imageCredit = image?.get("credit")?.jsonPrimitive?.content
              imageLicence = image?.get("license")?.jsonObject?.get("name")?.jsonPrimitive?.content
         }
-        ReuseType.SHIP_CAPSULE -> {val statusID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("spacecraft")?.jsonObject?.get("status")?.jsonObject?.get("id")?.jsonPrimitive?.content
+        ReuseType.SHIP_CAPSULE -> {val statusID =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("spacecraft")?.jsonObject?.get("status")
+                                    ?.jsonObject?.get("id")?.jsonPrimitive?.content
             status = when (statusID) {
                 "1" -> StatusReuse.ACTIVE
                 "2" -> StatusReuse.RETIRED
@@ -519,7 +518,7 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
     }
 
 
-    val toReturn=Reuse(
+    val toReturn=Reuse(//Gets all parts for the Object from the JSON
         reuseID = reusablePart.reuseID!!,
         name = reusablePart.reuseName,
         activeSince = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("launcher_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get(
@@ -544,3 +543,5 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
     println("      $toReturn")//LOG
     return toReturn
 }
+
+

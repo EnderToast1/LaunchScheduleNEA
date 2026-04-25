@@ -30,6 +30,8 @@ import com.niaw.launchnea.utils.AppTheme
 import com.niaw.launchnea.Settings.GlobalSettings
 import com.niaw.launchnea.networking.requestNumber
 import com.niaw.launchnea.networking.updateLaunchData
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.count
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
 import launchnea.composeapp.generated.resources.filledrocketh

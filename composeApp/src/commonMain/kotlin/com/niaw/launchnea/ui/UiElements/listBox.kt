@@ -230,7 +230,7 @@ fun BoxChip(chip: Chip ) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.secondaryContainer)
-            .padding(horizontal = 5.dp, vertical = 1.dp)
+            .padding(horizontal = 5.dp, vertical = 3.dp)
     ) {
         //TODO add row with Icon and colour for success
         Text(

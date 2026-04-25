@@ -676,7 +676,7 @@ fun LogoPlaceholder() {
 fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Unit){
         Column(modifier = Modifier.padding(5.dp,0.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(horizontal = 5.dp, vertical = 1.dp)) {
             IconTextRow(
                 "Vehicle Reuse",
@@ -689,6 +689,7 @@ fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Un
 
             launch.reusableParts.forEach { reusable ->
                 ReusableBox(scheduleDao, launch, reusable)
+                Spacer(modifier = Modifier.height(5.dp))
 
             }
         }
@@ -711,7 +712,7 @@ fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable) {
         val reuses by viewModel.reuses.collectAsState()
         val dayTurnAround by viewModel.dayTurnAround.collectAsState()
         println(dayTurnAround)//TODO fix all ways null for some reason
-        Column(modifier = Modifier.fillMaxWidth().padding(15.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().border(width = 3.dp,MaterialTheme.colorScheme.outline,RoundedCornerShape(20.dp)).padding(15.dp,5.dp)) {
             BoxChip(Chip(reusable.landingLocationName))
             reusable.reuseName?.let { Text(it,style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
             reusable.reuseName?.contains("Unknown")?.let {
