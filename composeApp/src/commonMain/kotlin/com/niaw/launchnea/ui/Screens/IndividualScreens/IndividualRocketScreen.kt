@@ -177,14 +177,14 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
 @Composable
 fun RocketStats(rocket: Rocket) {
 
-    val success = 5//TODO get real data
-    val failure = 3
-    val partialFailures = 2
+    val success = 1//TODO get real data
+    val failure = 0
+    val partialFailures = 0
 
     val missions=success+failure+partialFailures
     val successRate=((success+0.5*(partialFailures))/missions)*100  //TODO maybe change to just success not 0.5 of partials
 
-    val successStreak = 3
+    val successStreak = 1
 
     Column(modifier = Modifier.clip(RoundedCornerShape(0.dp,0.dp,15.dp,15.dp)).fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Row 1

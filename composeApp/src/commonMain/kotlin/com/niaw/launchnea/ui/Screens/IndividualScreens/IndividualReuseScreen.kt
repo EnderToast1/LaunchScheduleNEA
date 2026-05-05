@@ -362,7 +362,7 @@ fun LaunchHeading(title: String,isExpanded: Boolean, onClick: () -> Unit) {
                 .fillMaxWidth(),
             // Rounded at top, Flat at bottom
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer, // The lavender/purple color
+            color = MaterialTheme.colorScheme.secondaryContainer,
             tonalElevation = 2.dp // Adds subtle M3 depth
         ) {
             Row(

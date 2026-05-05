@@ -28,6 +28,7 @@ import com.niaw.launchnea.navigation.NavigationItem
 import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.utils.AppTheme
 import com.niaw.launchnea.Settings.GlobalSettings
+import com.niaw.launchnea.database.entities.StarredLaunch
 import com.niaw.launchnea.networking.requestNumber
 import com.niaw.launchnea.networking.updateLaunchData
 import kotlinx.coroutines.flow.collect
@@ -65,8 +66,8 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
 
         LaunchedEffect(Unit) {
             updateLaunchData(scheduleDao)
-            //requestNumber()
-            //daoTest(scheduleDao)
+            scheduleDao.starLaunch(StarredLaunch("dd82ccd7-9ab2-410a-ac41-306218015c05"))
+            scheduleDao.starLaunch(StarredLaunch("05530ccb-7184-41e7-b2e5-c090b61e0e3a"))
         }
 
         val items = listOf<NavigationItem>(
@@ -132,7 +133,7 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
             ) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                     when (currentRoute) {
-                        "home"     -> HomeScreen()
+                        "home"     -> HomeScreen(scheduleDao)
                         "launches" -> LaunchesScreen(scheduleDao)
                         "vehicles" -> VehiclesScreen(scheduleDao)
                         "settings" -> SettingsScreen(

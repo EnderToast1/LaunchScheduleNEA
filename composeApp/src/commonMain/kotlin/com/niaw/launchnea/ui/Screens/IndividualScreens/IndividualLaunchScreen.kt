@@ -14,6 +14,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material.icons.sharp.Star
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
@@ -251,6 +254,7 @@ fun MissionMainBox(launch:Launch){
 
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer).fillMaxWidth().padding(10.dp)) {
                 Column(Modifier.fillMaxWidth()) {
+                    Row(Modifier.fillMaxWidth(),Arrangement.SpaceBetween) {
                         launch.missionName?.let {
                             Text(
                                 it,
@@ -258,6 +262,8 @@ fun MissionMainBox(launch:Launch){
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
+                        Icon(Icons.Filled.StarOutline, contentDescription = "Star", tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                    }
                         Spacer(Modifier.height(5.dp))
                         TimeDropDown(selected = selectedZone, onSelected = { selectedZone = it }, modifier = Modifier.fillMaxWidth())
 

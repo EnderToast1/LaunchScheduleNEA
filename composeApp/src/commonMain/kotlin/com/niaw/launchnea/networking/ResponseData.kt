@@ -6,5 +6,5 @@ data class ResponseData(
     val data: JsonArray?=null,
     val errorType: NetworkError?= null,
     var count: Int=0,
-    val next: String?=null
+    var next: String?=null
 )

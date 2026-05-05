@@ -228,6 +228,26 @@ interface ScheduleDao {
     suspend fun unstarLaunch(id: String)
     @Query("SELECT EXISTS(SELECT 1 FROM starred_launches WHERE launchId = :id)")
     suspend fun isStarred(id: String): Boolean
+    @Query("""
+    SELECT Launch.*
+    FROM Launch
+    INNER JOIN starred_launches 
+    ON Launch.launchID = starred_launches.launchID
+    WHERE datetime(Launch.launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
+    ORDER BY datetime(Launch.launchTimeUTC) DESC
+""")
+    fun getStarredPreviousLaunches(): Flow<List<Launch>>
+
+    @Query("""
+    SELECT Launch.*
+    FROM Launch
+    INNER JOIN starred_launches 
+    ON Launch.launchID = starred_launches.launchID
+    WHERE datetime(Launch.launchTimeUTC) >= datetime(CURRENT_TIMESTAMP)
+    ORDER BY datetime(Launch.launchTimeUTC) DESC
+""")
+    fun getStarredUpcomingLaunches(): Flow<List<Launch>>
+
 
 
     //Does Exist By ID

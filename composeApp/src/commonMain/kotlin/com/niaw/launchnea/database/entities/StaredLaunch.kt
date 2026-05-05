@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
             entity = Launch::class,
             parentColumns = ["launchID"],
             childColumns = ["launchID"],
-            onDelete = ForeignKey.NO_ACTION  //TODO Check if what i want so that the launch is not deleted
+            onDelete = ForeignKey.NO_ACTION
         )
     ],
     indices = [Index("launchID")]

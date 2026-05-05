@@ -63,13 +63,14 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
     //TODO change lldev to ll only for production not dev
     var callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&last_updated__gte=$databaseLastUpdated"
-    callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&offset=800&ordering=-last_updated"
+    callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&ordering=-last_updated"
 
     //Updates previous launches
     println("\n\nCalled $callApiUrl")
     var dbUpdated=true
     var callResponse=APIFetchRequest(callApiUrl) //passes the url as a string with the last updated dateTime as part of it in the API filter system
     println("NEXT RESPONSE: 1")
+    callResponse.next=null
     if (callResponse.errorType!=null) {
         dbUpdated=false
         requestNumber()
