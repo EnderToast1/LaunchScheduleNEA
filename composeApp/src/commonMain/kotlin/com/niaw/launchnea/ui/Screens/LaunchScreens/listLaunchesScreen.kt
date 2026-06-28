@@ -29,7 +29,6 @@ fun ListLaunchesScreen(viewModel: LaunchesViewModel, searchText: String,onClick:
 
             // Show list of launches
         ListOfBoxesLaunches(null,launches, listState,onClick)
-        println("number of launches: ${launches.size }")
         SliderPlatform(launches, listState)
     }
 

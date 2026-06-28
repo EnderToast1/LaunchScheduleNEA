@@ -1,50 +1,11 @@
 
-        🧪 Unit test for this
-
-        Create Database schemas with all tables,
-        create actual database in both local types (and ,jvm)
-
-        ✔ Function for parsing JSON 🧪(none)🧪(R)🧪(V)🧪(A)🧪(RV)🧪(RA)🧪(VA)🧪(RVA):
-           1) Pass into Launch object then add to list
-           2) check if rocket, version or agency exists
-           3) if not then add create the object and add to the respective lists
-           4) parse all additions into the database
-           5) return flag
+Agency Page
+Launch Reuse Connect
+Filter (Rocket Active)
+Auto updates
+Notifications
 
 
-        ✔ Function for API call 🧪(Internet)🧪(No connection)🧪(call limit):
-            1) check internet
-            2) call API URL given
-            3) check results status code is OK (200)
-            4) return results and flag
-
-        Function for filtering the database 🧪(Valid dictionary)🧪(Invalid dictionary)🧪(No results):
-            1) get filter dictionary enumerated
-            2) apply filters to database SQL term
-            3) return list and flag
-
-        Function for on This Day system 🧪(test years and launches returned on set day):
-            1) get date
-            2) generalise year
-            3) put into filter dictionary
-            4) call filter function
-            5) return results with the year attached? (may not attach)
-
-        Function for searching the database 🧪(SQL inj)🧪(code inj)🧪(nested dictionary)🧪(valid):
-            1) VALIDATE input is safe
-                A) check for SQL injection
-                B) check for code injection
-                C) check for nested dictionary
-            2) put into filter dictionary
-            3) call filter function
-            4) return results
-
-        ✔ Function for updating databases:
-            1) update Upcoming
-            2) find last past call
-            3) from past call -1 update past
-
-Info
 
 1. Display          Used for the largest, most prominent text on a screen (like a hero header).
 displayLarge (57sp)

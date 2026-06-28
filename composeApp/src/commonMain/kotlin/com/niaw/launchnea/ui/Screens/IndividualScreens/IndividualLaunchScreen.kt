@@ -1,76 +1,59 @@
 package com.niaw.launchnea.ui.Screens.IndividualScreens
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material.icons.sharp.Star
 import androidx.compose.material3.*
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.niaw.launchnea.database.entities.Launch
-import com.niaw.launchnea.database.entities.Rocket
+import coil3.compose.SubcomposeAsyncImage
+import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
+import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
+import com.niaw.launchnea.database.ScheduleDao
+import com.niaw.launchnea.database.entities.*
+import com.niaw.launchnea.getPlatform
+import com.niaw.launchnea.navigation.ViewModels.ReusableViewModel
 import com.niaw.launchnea.navigation.setBackHandler
+import com.niaw.launchnea.ui.UiElements.BoxChip
+import com.niaw.launchnea.ui.UiElements.BoxLeftImage
+import com.niaw.launchnea.ui.UiElements.Chip
 import com.niaw.launchnea.ui.UiElements.IconTextRow
-import com.niaw.launchnea.utils.LaunchTimesFormated
-import com.niaw.launchnea.utils.Location
-import com.niaw.launchnea.utils.abbreviate
-import com.niaw.launchnea.utils.getLaunchTimesAsNeededFormat
+import com.niaw.launchnea.utils.*
+import kotlinx.coroutines.launch
 import launchnea.composeapp.generated.resources.FilledRocket
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.search_book
 import org.jetbrains.compose.resources.painterResource
 import org.maplibre.compose.camera.CameraPosition
-import org.maplibre.compose.camera.rememberCameraState
-import org.maplibre.compose.map.MaplibreMap
-import org.maplibre.compose.style.BaseStyle
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.layout.ContentScale
-import coil3.compose.SubcomposeAsyncImage
-import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.database.entities.Agency
-import com.niaw.launchnea.database.entities.Reuse
-import com.niaw.launchnea.database.entities.RocketVersion
-import com.niaw.launchnea.getPlatform
-import com.niaw.launchnea.navigation.ViewModels.ReusableViewModel
-import com.niaw.launchnea.ui.UiElements.BoxChip
-import com.niaw.launchnea.ui.UiElements.BoxLeftImage
-import com.niaw.launchnea.ui.UiElements.Chip
-import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
-import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
-import com.niaw.launchnea.utils.Reusable
+import org.maplibre.compose.camera.CameraState
 import org.maplibre.compose.expressions.dsl.const
 import org.maplibre.compose.expressions.dsl.image
 import org.maplibre.compose.expressions.value.SymbolAnchor
 import org.maplibre.compose.layers.SymbolLayer
+import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.sources.GeoJsonData
 import org.maplibre.compose.sources.rememberGeoJsonSource
+import org.maplibre.compose.style.BaseStyle
 import org.maplibre.spatialk.geojson.Position
-import kotlin.io.println
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -155,7 +138,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
             HeaderRow(launch, onBackLaunch) { agencyID -> selectedAgencyID = agencyID }
 
 
-            MissionMainBox(launch)
+            MissionMainBox(launch,scheduleDao)
             Spacer(Modifier.height(5.dp))
             Column(Modifier.fillMaxWidth().padding(10.dp)) {
                 LiveStreamBox()
@@ -174,14 +157,12 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
             AgencyBox(launch.agencyID, launch.agencyName,agencyLogo) { agencyID -> selectedAgencyID = agencyID }
             Spacer(Modifier.height(10.dp))
 
-            ReuseDetails(scheduleDao,launch) { reuseID -> selectedReuseID = reuseID }//TODO Reuse
+            ReuseDetails(scheduleDao,launch) { reuseID -> selectedReuseID = reuseID }
             Spacer(Modifier.height(10.dp))
             Column(Modifier.fillMaxWidth().padding(10.dp)) {
                 PadLocation(launch.padCords)
                 Spacer(Modifier.height(10.dp))
             }
-            //TODO Stats maybe cut
-
         }
     }
 
@@ -249,7 +230,7 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit,onClick: (String) -> Unit){
 }
 
 @Composable
-fun MissionMainBox(launch:Launch){
+fun MissionMainBox(launch:Launch, scheduleDao: ScheduleDao){
         var selectedZone by remember {mutableStateOf(LiftoffTimeZone.DEVICE_LOCAL)}
 
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer).fillMaxWidth().padding(10.dp)) {
@@ -262,7 +243,8 @@ fun MissionMainBox(launch:Launch){
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
-                        Icon(Icons.Filled.StarOutline, contentDescription = "Star", tint = MaterialTheme.colorScheme.onPrimaryContainer)
+
+                        StarToggle(launch, scheduleDao)
                     }
                         Spacer(Modifier.height(5.dp))
                         TimeDropDown(selected = selectedZone, onSelected = { selectedZone = it }, modifier = Modifier.fillMaxWidth())
@@ -286,6 +268,41 @@ fun MissionMainBox(launch:Launch){
                 }
         }
 }
+
+@Composable
+fun StarToggle(launch:Launch,scheduleDao: ScheduleDao) {
+        var isStarred by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+
+        LaunchedEffect(launch.launchID) {
+            isStarred = scheduleDao.isStarred(launch.launchID)
+        }
+
+        Icon(
+            imageVector = if (isStarred) Icons.Filled.Star else Icons.Outlined.StarOutline,
+            contentDescription = "Star",
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier
+                .size(40.dp)
+                .clickable {
+                    scope.launch {
+                        if (isStarred) {
+                            scheduleDao.unstarLaunch(launch.launchID)
+                            println("${launch.missionName} is Unstarred")
+                        } else {
+                            scheduleDao.starLaunch(
+                                StarredLaunch(launch.launchID)
+                            )
+                            println("${launch.missionName} is Starred")
+                        }
+
+                        isStarred = !isStarred
+                    }
+                }
+        )
+    }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -523,7 +540,6 @@ fun RocketSection(launch:Launch, vehicle: RocketVersion?, onClick: (Launch) -> U
         )
         Column(modifier = Modifier.clip(RoundedCornerShape(12.dp)).fillMaxWidth().border(0.5.dp, Color.Gray,
             RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.secondaryContainer).clickable(onClick = { onClick(launch) })) {
-            //TODO image and row
             Row(Modifier.fillMaxWidth().padding(5.dp)) {
                 BoxLeftImage(vehicle.listBoxText().imageGroup)
                 Spacer(Modifier.width(5.dp))
@@ -544,7 +560,6 @@ fun RocketSection(launch:Launch, vehicle: RocketVersion?, onClick: (Launch) -> U
 
 @Composable
 fun RocketInformationSection(vehicle: RocketVersion){
-        //TODO get data
     val pricePerLaunch=vehicle.launchCost
     val liftoffThrust=vehicle.liftoffThrust
     val rocketDiameter = vehicle.diameterMe
@@ -679,7 +694,7 @@ fun LogoPlaceholder() {
 
 
 @Composable
-fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Unit){
+fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Unit){//TODO ADD onClick
         Column(modifier = Modifier.padding(5.dp,0.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
@@ -717,7 +732,7 @@ fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable) {
     if (viewModel != null) {
         val reuses by viewModel.reuses.collectAsState()
         val dayTurnAround by viewModel.dayTurnAround.collectAsState()
-        println(dayTurnAround)//TODO fix all ways null for some reason
+
         Column(modifier = Modifier.fillMaxWidth().border(width = 3.dp,MaterialTheme.colorScheme.outline,RoundedCornerShape(20.dp)).padding(15.dp,5.dp)) {
             BoxChip(Chip(reusable.landingLocationName))
             reusable.reuseName?.let { Text(it,style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
@@ -746,9 +761,15 @@ fun PadLocation(location: Location) {
     val lon = location.longitude
 
     if (lat != null && lon != null) {
-        val siteCoordinates = remember(lon, lat) { Position(lon, lat) }
 
-        val camera = rememberCameraState(firstPosition = CameraPosition(target = siteCoordinates, zoom = 11.5))
+        val camera = remember {
+            CameraState(
+                firstPosition = CameraPosition(
+                    target = Position(lon, lat),
+                    zoom = 11.5
+                )
+            )
+        }
 
 
         if (getPlatform().name == "Android") {
@@ -774,7 +795,7 @@ fun PadLocation(location: Location) {
             Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).height(220.dp)) {
                 MaplibreMap(
                     baseStyle = BaseStyle.Uri("https://api.maptiler.com/maps/hybrid/style.json?key=nCtZa4uILboOm2evI9Dy"),
-                    cameraState = camera
+                    cameraState = camera,
                 ) {
                     val source = rememberGeoJsonSource(
                         data = GeoJsonData.JsonString(markerGeoJson)

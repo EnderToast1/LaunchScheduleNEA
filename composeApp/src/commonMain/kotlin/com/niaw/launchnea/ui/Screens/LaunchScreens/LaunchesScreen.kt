@@ -23,7 +23,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LaunchesScreen(scheduleDao: ScheduleDao) {
-    println("Click on Launches bottom navigation.")
     var searchText by rememberSaveable { mutableStateOf("") }
     var selectedLaunchID by rememberSaveable { mutableStateOf<String?>(null) } // track selected launch
     var selectedLaunch by remember { mutableStateOf<Launch?>(null) }
@@ -78,12 +77,7 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
                         label = { Text("Search missions") },
                         singleLine = true
                     )
-                    LaunchedEffect(pagerState.currentPage) {
-                        when (pagerState.currentPage) {
-                            0 -> println("Click on Upcoming tab row")
-                            1 -> println("Click on Previous tab row")
-                        }
-                    }
+
 
                     HorizontalPager(
                         state = pagerState,

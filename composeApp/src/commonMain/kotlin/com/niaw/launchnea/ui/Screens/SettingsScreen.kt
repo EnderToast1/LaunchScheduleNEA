@@ -73,7 +73,6 @@ fun SettingsScreen(currentTheme: ThemeMode, currentColourTheme: ColourTheme, app
                    onColourThemeChanged: (ColourTheme) -> Unit //callback
 ) {
     val scrollState = rememberScrollState()
-    println("Click on Settings bottom navigation.")
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(scrollState).padding(5.dp)) {
 
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.primaryContainer).padding(5.dp)) {

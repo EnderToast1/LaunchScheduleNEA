@@ -37,7 +37,7 @@ import com.niaw.launchnea.ui.Screens.IndividualScreens.LaunchesSection
 
 @Composable
 fun HomeScreen(scheduleDao: ScheduleDao) {
-    println("Click on Home bottom navigation.")
+
     val scrollState = rememberScrollState()
     var selectedLaunchID by rememberSaveable { mutableStateOf<String?>(null) } // track selected launch
     var selectedLaunch by remember { mutableStateOf<Launch?>(null) }
@@ -95,7 +95,7 @@ fun HomeLaunchesSection(nextLaunches: List<Launch>, pastLaunches: List<Launch>, 
         targetState = isNextExpanded,
         transitionSpec = {fadeIn(animationSpec = tween(500)) togetherWith fadeOut(animationSpec = tween(500))}
     ) { expanded  ->
-        val count = if (expanded) 10 else 3
+        val count = if (expanded) 10 else 2
         LaunchDisplay(count, nextLaunches, onClickList = onClick)
     }
 
@@ -110,7 +110,7 @@ fun HomeLaunchesSection(nextLaunches: List<Launch>, pastLaunches: List<Launch>, 
         targetState = isPastExpanded,
         transitionSpec = {fadeIn(animationSpec = tween(500)) togetherWith fadeOut(animationSpec = tween(500))}
     ) { expanded  ->
-        val count = if (expanded) 10 else 1
+        val count = if (expanded) 10 else 2
         LaunchDisplay(count, pastLaunches, onClickList = onClick)
     }
 }

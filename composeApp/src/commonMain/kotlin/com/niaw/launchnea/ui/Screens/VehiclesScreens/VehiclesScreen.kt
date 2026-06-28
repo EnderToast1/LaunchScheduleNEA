@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun VehiclesScreen(scheduleDao: ScheduleDao) {
-    println("Click on Vehicles bottom navigation.")
+
     var searchText by rememberSaveable { mutableStateOf("") }
     var selectedRocketID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Rocket
     var selectedReuseID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Reuse
@@ -96,12 +96,7 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
                         label = { Text("Search") },
                         singleLine = true
                     )
-                    LaunchedEffect(pagerState.currentPage) {
-                        when (pagerState.currentPage) {
-                            0 -> println("Click on Rocket tab row")
-                            1 -> println("Click on Reuse tab row")
-                        }
-                    }
+
                     // HorizontalPager handles swipe gestures on desktop and Android
                     HorizontalPager(
                         state = pagerState,

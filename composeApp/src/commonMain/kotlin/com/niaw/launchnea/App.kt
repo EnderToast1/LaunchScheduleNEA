@@ -1,4 +1,4 @@
-package com.niaw.launchnea
+ package com.niaw.launchnea
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +43,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
+
     var currentRoute by rememberSaveable  { mutableStateOf("home") }
     var currentTheme by remember { mutableStateOf(appSettings.getTheme()) }
     var currentColourTheme by remember { mutableStateOf(appSettings.getColourTheme()) }
@@ -65,9 +66,7 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
 
 
         LaunchedEffect(Unit) {
-            updateLaunchData(scheduleDao)
-            scheduleDao.starLaunch(StarredLaunch("dd82ccd7-9ab2-410a-ac41-306218015c05"))
-            scheduleDao.starLaunch(StarredLaunch("05530ccb-7184-41e7-b2e5-c090b61e0e3a"))
+            //updateLaunchData(scheduleDao)
         }
 
         val items = listOf<NavigationItem>(
