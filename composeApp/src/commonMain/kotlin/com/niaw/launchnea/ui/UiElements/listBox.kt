@@ -37,7 +37,7 @@ interface ListBoxItem {
 val cardShape = RoundedCornerShape(topStart = 20.dp, bottomStart = 0.dp, topEnd = 0.dp, bottomEnd = 20.dp
 )
 
-//TODO need to make it so it only takes a listboxitem which will contain a id to use on click, when replace the listBox to individual functions which deal with the dao data (reuse and rockets) so launchs can use a modified listbox also the listboxitem needs a success and chip success and optional icon info to display also implement the acronymizer for landing locations 
+
 @Composable
 fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
     val launchBorder = when (boxContent.success) {

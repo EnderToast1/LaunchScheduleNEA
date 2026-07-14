@@ -8,33 +8,57 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 
 class RocketViewModel(
     private val dao: ScheduleDao
-    )
-    : ViewModel() {
+) : ViewModel() {
 
-        private val searchQuery = MutableStateFlow("")
+    private val searchQuery = MutableStateFlow("")
 
-        fun updateSearch(query: String) {
-            searchQuery.value = query
+    private val onlyShowActive = MutableStateFlow(false)
+
+    fun updateSearch(query: String) {
+        searchQuery.value = query
+    }
+
+    fun updateOnlyShowActive(showOnlyActive: Boolean) {
+        onlyShowActive.value = showOnlyActive
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val rockets: StateFlow<List<Rocket>> =
+        combine(
+            searchQuery,
+            onlyShowActive
+        ) { query, activeOnly ->
+            query to activeOnly
         }
+            .flatMapLatest { (query, activeOnly) ->
 
-        @OptIn(ExperimentalCoroutinesApi::class)
-        val rocket: StateFlow<List<Rocket>> =
-            searchQuery
-                .flatMapLatest { query ->
-                    if (query.isBlank()) {
+                when {
+                    activeOnly && query.isBlank() -> {
+                        dao.getActiveRockets()
+                    }
+
+                    activeOnly -> {
+                        dao.getActiveRocketLikeName(query)
+                    }
+
+                    query.isBlank() -> {
                         dao.getRockets()
-                    } else {
+                    }
+
+                    else -> {
                         dao.getRocketLikeName(query)
                     }
                 }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5_000),
-                    initialValue = emptyList()
-                )
-    }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
+}

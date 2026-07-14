@@ -38,7 +38,8 @@ data class Rocket(
     var imageCredit: String? = null,
     var licenseType: String? = null,
     var desc: String? =null, //long
-    var lastUpdated: LocalDateTime?=null
+    var lastUpdated: LocalDateTime?=null,
+    var active: Boolean? = false,
   )
     : ListBoxItem {
     override fun listBoxText() = DisplayItems(

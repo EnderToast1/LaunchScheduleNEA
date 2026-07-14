@@ -1,6 +1,11 @@
 package com.niaw.launchnea.ui.Screens.IndividualScreens
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -9,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
@@ -17,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -52,6 +59,7 @@ import org.maplibre.compose.sources.GeoJsonData
 import org.maplibre.compose.sources.rememberGeoJsonSource
 import org.maplibre.compose.style.BaseStyle
 import org.maplibre.spatialk.geojson.Position
+import java.time.Duration
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
@@ -86,7 +94,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
     // THIS HANDLES MAIN SCREEN BACK PRESS
     // Active only when the main list is visible. It calls the parent's back function.
     setBackHandler(enabled = selectedAgencyID == null && selectedReuseID == null && selectedRocketID == null) {
-        println("Main Back: Exiting IndividualReuseScreen")
+        //println("Main Back: Exiting IndividualReuseScreen")
         onBackLaunch()
     }
 
@@ -122,7 +130,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
         }
         selectedAgency?.let { agency ->
             println("Clicked on ${agency.name},  \n$agency")
-            IndividualAgencyScreen(agency) {
+            IndividualAgencyScreen(scheduleDao,agency) {
                 println("Backed out of ${agency.name}")
                 selectedAgency = null
                 selectedAgencyID = null
@@ -263,8 +271,10 @@ fun MissionMainBox(launch:Launch, scheduleDao: ScheduleDao){
                         Spacer(Modifier.height(4.dp))
                     launch.padName?.let { IconTextRow(it,"pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer) }
 
-                        Spacer(Modifier.height(15.dp))
-                        LaunchWindowTimeline(launchTimes)
+                    Spacer(Modifier.height(15.dp))
+                    LaunchWindowTimeline(launchTimes)
+                    Spacer(Modifier.height(15.dp))
+                    LaunchTimeLine(launch.timeline)
                 }
         }
 }
@@ -612,15 +622,11 @@ fun AgencyBox(id:String?, name:String?,logo:String?, onClick: (String) -> Unit) 
                     .fillMaxWidth()
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.Start) {
-                    if (name != "SpaceX") {
-                        Box(modifier = Modifier.height(45.dp).background(MaterialTheme.colorScheme.onSurface, RoundedCornerShape(10.dp)).padding(5.dp)) {
-                            LogoLeft(logo, name)
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                    }
+                    Icon(painter = rememberVectorPainter(Icons.Filled.Business),"Agency", tint = MaterialTheme.colorScheme.onTertiaryContainer)
+                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = name,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
                         style = MaterialTheme.typography.headlineMedium
                     )
                 }
@@ -630,7 +636,7 @@ fun AgencyBox(id:String?, name:String?,logo:String?, onClick: (String) -> Unit) 
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = "Agency Link",
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -694,7 +700,7 @@ fun LogoPlaceholder() {
 
 
 @Composable
-fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Unit){//TODO ADD onClick
+fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Unit){
         Column(modifier = Modifier.padding(5.dp,0.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
@@ -709,7 +715,7 @@ fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Un
             )
 
             launch.reusableParts.forEach { reusable ->
-                ReusableBox(scheduleDao, launch, reusable)
+                ReusableBox(scheduleDao, launch, reusable,onClick)
                 Spacer(modifier = Modifier.height(5.dp))
 
             }
@@ -717,7 +723,7 @@ fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Un
 }
 
 @Composable
-fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable) {
+fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable,onClick1: (String) -> Unit) {
     val viewModel = remember(reusable.reuseID) {
         reusable.reuseID?.let {
             launch.launchTimeUTC?.let { launchTime ->
@@ -733,7 +739,7 @@ fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable) {
         val reuses by viewModel.reuses.collectAsState()
         val dayTurnAround by viewModel.dayTurnAround.collectAsState()
 
-        Column(modifier = Modifier.fillMaxWidth().border(width = 3.dp,MaterialTheme.colorScheme.outline,RoundedCornerShape(20.dp)).padding(15.dp,5.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().border(width = 3.dp,MaterialTheme.colorScheme.outline,RoundedCornerShape(20.dp)).padding(15.dp,5.dp).clickable(onClick = {onClick1(reusable.reuseID!!)})) {
             BoxChip(Chip(reusable.landingLocationName))
             reusable.reuseName?.let { Text(it,style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
             reusable.reuseName?.contains("Unknown")?.let {
@@ -825,4 +831,81 @@ fun PadLocation(location: Location) {
             }
         }
     }
+}
+
+
+@Composable
+fun LaunchTimeLine(timeline:List<TimelineEvent>){
+    var isExpanded by rememberSaveable  { mutableStateOf(false) }
+
+
+    // This animates the container height and content appearance
+    AnimatedContent(
+        targetState = isExpanded,
+        transitionSpec = {fadeIn(animationSpec = tween(500)) togetherWith fadeOut(animationSpec = tween(500))}
+    ) { expanded  ->
+        val count = if (expanded) timeline.size else 3
+        LaunchTimeLineList(count, timeline)
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },color = MaterialTheme.colorScheme.primaryContainer){
+        val rotation by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f)
+        // Right side: "See More" link
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = if (isExpanded) "See Less" else "See More",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = "Arrow",
+                modifier = Modifier.size(30.dp).rotate(rotation),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+    }
+}
+
+@Composable
+fun LaunchTimeLineList(count:Int, list:List<TimelineEvent>){
+    Column(modifier = Modifier.fillMaxWidth()/*.padding(16.dp,0.dp)*/,  verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        list.take(count).forEach { event ->
+            TimeLineEventDisplay(event)
+        }
+    }
+}
+
+@Composable
+fun TimeLineEventDisplay(event:TimelineEvent){
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        IconTextRow(event.abbrev,"timeline event",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Outlined.Circle),Modifier,Color.Green)
+        Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+    }
+}
+
+@Suppress("DefaultLocale")
+fun formatTTime(
+    durationString: String
+): String {
+    val negative = durationString.startsWith("-")
+
+    val duration = Duration.parse(
+        durationString.removePrefix("-")
+    )
+
+    val totalSeconds = duration.seconds
+
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+
+    return String.format(
+        "T%s%02d:%02d:%02d",
+        if (negative) "-" else "+",
+        hours,
+        minutes,
+        seconds
+    )
 }

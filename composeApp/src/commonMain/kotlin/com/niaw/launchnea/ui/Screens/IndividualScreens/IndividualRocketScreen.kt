@@ -142,7 +142,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
         }
         selectedAgency?.let { agency ->
             println("Clicked on ${agency.name},  \n$agency")
-            IndividualAgencyScreen(agency) {
+            IndividualAgencyScreen(scheduleDao,agency) {
                 println("Backed out of ${agency.name}")
                 selectedAgency = null
                 selectedAgencyID = null

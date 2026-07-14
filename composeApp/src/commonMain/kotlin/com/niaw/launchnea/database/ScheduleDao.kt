@@ -57,6 +57,9 @@ interface ScheduleDao {
     @Query("SELECT * FROM Reuse")
     fun getReuse(): Flow<List<Reuse>>
 
+    @Query("SELECT * FROM Rocket WHERE active = true ORDER BY name ASC")
+    fun getActiveRockets(): Flow<List<Rocket>>
+
     @Query("""
         SELECT Reuse.*
         FROM Reuse
@@ -73,7 +76,25 @@ interface ScheduleDao {
             END
         ) DESC
 """)
-    fun getReuseOrdered(): Flow<List<Reuse>>//The NOT 106 is to stop the Unknown booster showing up
+    fun getReuseOrdered(): Flow<List<Reuse>>
+
+    @Query("""
+        SELECT Reuse.*
+        FROM Reuse
+        LEFT JOIN LaunchReuseCrossRef 
+            ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
+        LEFT JOIN Launch
+            ON Launch.launchID = LaunchReuseCrossRef.launchID
+        WHERE Reuse.name NOT LIKE 'Unknown%' AND Reuse.status='ACTIVE'
+        GROUP BY Reuse.reuseID
+        ORDER BY COUNT(
+            CASE 
+                WHEN datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
+                THEN 1 
+            END
+        ) DESC
+""")
+    fun getActiveReuse(): Flow<List<Reuse>>
 
     @Query("SELECT l.* FROM launch l INNER JOIN starred_launches s ON l.launchID = s.launchID")
     fun getStarredLaunches(): Flow<List<Launch>>
@@ -112,6 +133,18 @@ interface ScheduleDao {
     ORDER BY launchTimeUTC DESC
 """)
     fun getPreviousLaunchesByRocketId(rocketID: String): Flow<List<Launch>>
+
+    @Query("SELECT * FROM Launch WHERE agencyID = :agencyID AND datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP) ORDER BY launchTimeUTC ASC")
+    fun getUpcomingLaunchesByAgencyId(agencyID: String): Flow<List<Launch>>
+
+    @Query("SELECT * FROM Launch WHERE agencyID = :agencyID AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP) ORDER BY launchTimeUTC DESC")
+    fun getPreviousLaunchesByAgencyId(agencyID: String): Flow<List<Launch>>
+
+    @Query("SELECT * FROM Rocket WHERE agencyID = :agencyID")
+    fun getRocketsByAgencyId(agencyID: String): Flow<List<Rocket>>
+
+    @Query("SELECT * FROM Reuse WHERE agencyID = :agencyID AND Reuse.name NOT LIKE 'Unknown%'")
+    fun getReuseByAgencyId(agencyID: String): Flow<List<Reuse>>
 
     @Query("""
         SELECT * FROM RocketVersion
@@ -204,6 +237,7 @@ interface ScheduleDao {
         LIMIT 1
     """)
     fun getLastFlightByRocketId(rocketID: String): Flow<Launch?>
+
 
     //Get singular item
     @Query("SELECT * FROM Launch WHERE launchID = :id")
@@ -315,6 +349,14 @@ interface ScheduleDao {
            """)
     fun getRocketLikeName(givenName: String): Flow<List<Rocket>>
 
+    @Query("""SELECT * FROM rocket 
+           WHERE (name LIKE '%' || :givenName || '%' COLLATE NOCASE          
+           OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE)
+            AND active = true
+           ORDER BY name DESC 
+           """)
+    fun getActiveRocketLikeName(givenName: String): Flow<List<Rocket>>
+
     @Query("""SELECT Reuse.* FROM reuse
             LEFT JOIN LaunchReuseCrossRef ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
             WHERE LOWER(Reuse.name) NOT LIKE 'unknown%'
@@ -330,6 +372,22 @@ interface ScheduleDao {
             ORDER BY COUNT(LaunchReuseCrossRef.launchID) ASC
             """)
     fun getReuseLikeName(givenName: String): Flow<List<Reuse>>
+
+    @Query("""SELECT Reuse.* FROM reuse
+            LEFT JOIN LaunchReuseCrossRef ON Reuse.reuseID = LaunchReuseCrossRef.reuseID
+            WHERE LOWER(Reuse.name) NOT LIKE 'unknown%' AND Reuse.status='ACTIVE'
+               AND (
+                name LIKE '%' || :givenName || '%' COLLATE NOCASE 
+               OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
+               OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
+               OR reuseType LIKE '%' || :givenName || '%' COLLATE NOCASE
+               OR status  LIKE '%' || :givenName || '%' COLLATE NOCASE
+               OR activeSince  LIKE '%' || :givenName || '%' COLLATE NOCASE
+              )
+            GROUP BY Reuse.reuseID
+            ORDER BY COUNT(LaunchReuseCrossRef.launchID) ASC
+            """)
+    fun getActiveReuseLikeName(givenName: String): Flow<List<Reuse>>
 
 
 }

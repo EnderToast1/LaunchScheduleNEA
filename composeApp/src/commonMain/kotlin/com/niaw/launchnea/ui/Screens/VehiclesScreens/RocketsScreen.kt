@@ -18,14 +18,18 @@ import com.niaw.launchnea.ui.SliderPlatform
 import com.niaw.launchnea.ui.UiElements.ListOfBoxesRocket
 
 @Composable
-fun RocketsScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (String) -> Unit) {
+fun RocketsScreen(searchText: String, scheduleDao: ScheduleDao, showOnlyActive: Boolean, onClick: (String) -> Unit) {
     val viewModel= remember{ RocketViewModel(scheduleDao)}
-    val rockets by viewModel.rocket.collectAsState()
+    val rockets by viewModel.rockets.collectAsState()
     val listState = rememberLazyListState()
 
 
     LaunchedEffect(searchText) {
         viewModel.updateSearch(searchText)
+        listState.scrollToItem(0)
+    }
+    LaunchedEffect(showOnlyActive) {
+        viewModel.updateOnlyShowActive(showOnlyActive)
         listState.scrollToItem(0)
     }
 

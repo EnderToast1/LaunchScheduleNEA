@@ -123,7 +123,7 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
         }
         selectedAgency?.let { agency ->
             println("Clicked on ${agency.name},  \n$agency")
-            IndividualAgencyScreen(agency) {
+            IndividualAgencyScreen(scheduleDao,agency) {
                 println("Backed out of ${agency.name}")
                 selectedAgency = null
                 selectedAgencyID = null
@@ -422,7 +422,7 @@ fun LaunchDisplay(defaultNumberOfLaunch: Int = 0,launches: List<Launch>, onClick
     var takeCount =defaultNumberOfLaunch
     if (defaultNumberOfLaunch == 0) { takeCount=launches.size }
 
-    Column(modifier = Modifier.fillMaxWidth()/*.padding(16.dp,0.dp)*/,  verticalArrangement = Arrangement.spacedBy(5.dp)) {
+    Column(modifier = Modifier.fillMaxWidth(),  verticalArrangement = Arrangement.spacedBy(5.dp)) {
         launches.take(takeCount).forEach { launch ->
             ListBox(launch.listBoxText(), onClick = onClickList)
         }

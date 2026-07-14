@@ -12,7 +12,7 @@ import com.niaw.launchnea.ui.SliderPlatform
 import com.niaw.launchnea.ui.UiElements.ListOfBoxesReuse
 
 @Composable
-fun ReusesScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (String) -> Unit) {
+fun ReusesScreen(searchText: String,scheduleDao: ScheduleDao ,showOnlyActive: Boolean,onClick: (String) -> Unit) {
     val viewModel= remember{ ReuseViewModel(scheduleDao) }
     val reuse by viewModel.reuse.collectAsState()
     val listState = rememberLazyListState()
@@ -20,6 +20,10 @@ fun ReusesScreen(searchText: String,scheduleDao: ScheduleDao ,onClick: (String) 
 
     LaunchedEffect(searchText) {
         viewModel.updateSearch(searchText)
+        listState.scrollToItem(0)
+    }
+    LaunchedEffect(showOnlyActive) {
+        viewModel.updateOnlyShowActive(showOnlyActive)
         listState.scrollToItem(0)
     }
 

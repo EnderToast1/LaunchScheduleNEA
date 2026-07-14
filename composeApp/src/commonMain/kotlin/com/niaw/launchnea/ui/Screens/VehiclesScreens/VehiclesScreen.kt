@@ -5,10 +5,15 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.database.ScheduleDao
@@ -28,6 +33,7 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
     var selectedReuseID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Reuse
     var selectedReuse by remember { mutableStateOf<Reuse?>(null) }
     var selectedRocket by remember { mutableStateOf<Rocket?>(null) }
+    var showOnlyActive by remember { mutableStateOf(false) }
 
     val tabItems = listOf(
         TabItem("Rockets"),
@@ -87,16 +93,20 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
                         }
                     }
 
-                    TextField(
-                        value = searchText,
-                        onValueChange = { searchText = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        label = { Text("Search") },
-                        singleLine = true
-                    )
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
 
+                        TextField(
+                            value = searchText,
+                            onValueChange = { searchText = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            label = { Text("Search") },
+                            singleLine = true
+                        )
+
+                        SettingsMenu(enabled = showOnlyActive,onEnabledChange = { showOnlyActive = it })
+                    }
                     // HorizontalPager handles swipe gestures on desktop and Android
                     HorizontalPager(
                         state = pagerState,
@@ -124,11 +134,11 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
                         when (page) {
 
                             0 -> {
-                                RocketsScreen(searchText,scheduleDao){ rocketId ->selectedRocketID = rocketId}
+                                RocketsScreen(searchText,scheduleDao,showOnlyActive){ rocketId ->selectedRocketID = rocketId}
                             }
 
                             1 -> {
-                                ReusesScreen(searchText,scheduleDao){ reuseId ->selectedReuseID = reuseId}
+                                ReusesScreen(searchText,scheduleDao,showOnlyActive){ reuseId ->selectedReuseID = reuseId}
                             }
 
                         }
@@ -137,4 +147,64 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
             }
         }
     }
+}
+
+
+@Composable
+fun SettingsMenu(enabled: Boolean, onEnabledChange: (Boolean) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.padding(8.dp)) {
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.List,
+                contentDescription = "Settings",
+                modifier = Modifier.size(40.dp)
+
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            ToggleMenuItem(text = "Show Only Active",checked = enabled,onCheckedChange = onEnabledChange)
+        }
+    }
+}
+
+
+
+@Composable
+fun ToggleMenuItem(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    DropdownMenuItem(
+        text = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(8.dp))
+                Switch(
+                    checked = checked,
+                    onCheckedChange = onCheckedChange,
+                    colors = SwitchDefaults.colors(
+                        uncheckedThumbColor = Color.White,
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Color(0xFF4CAF50),
+                        uncheckedTrackColor = Color(0xFFF44336)
+                    )
+                )
+            }
+        },
+        onClick = { onCheckedChange(!checked) }
+    )
 }

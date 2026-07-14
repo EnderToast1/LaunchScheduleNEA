@@ -33,13 +33,15 @@ enum class StatusReuse {
     }
 }
 
-enum class LeaderType {
-    CEO,
-    ADMINISTRATOR,
-    CHAIRMAN,
-    PRESIDENT,
-    CHAIRMAN_PRESIDENT,
-    UnknownLeaderType
+enum class LeaderType(val displayName: String) {
+    CEO("CEO"),
+    ADMINISTRATOR("Administrator"),
+    CHAIRMAN("Chairman"),
+    PRESIDENT("President"),
+    CHAIRMAN_PRESIDENT("Chairman & President"),
+    DIRECTOR_GENERAL("Director General"),
+    FOUNDER("Founder"),
+    UnknownLeaderType("Unknown Type"),
 }
 @Serializable
 enum class ReuseType{

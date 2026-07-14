@@ -70,7 +70,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     var dbUpdated=true
     var callResponse=APIFetchRequest(callApiUrl) //passes the url as a string with the last updated dateTime as part of it in the API filter system
     println("NEXT RESPONSE: 1")
-    callResponse.next=null
+    callResponse.next=null//TODO TEMP
     if (callResponse.errorType!=null) {
         dbUpdated=false
         requestNumber()
@@ -396,9 +396,21 @@ suspend fun parseAgency(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ag
         "Chairman" -> LeaderType.CHAIRMAN
         "President" -> LeaderType.PRESIDENT
         "Chairman & President" -> LeaderType.CHAIRMAN_PRESIDENT
+        "Director General" -> LeaderType.DIRECTOR_GENERAL
+        "Founder"-> LeaderType.FOUNDER
         else -> LeaderType.UnknownLeaderType
     }
     val leaderName= administratorPair?.substringAfter(":")
+    val socialUrls=agencyJsonObj?.get("social_media_links")?.jsonArray?.toList()
+    val id428 = socialUrls
+        ?.firstOrNull { it.jsonObject["id"]?.jsonPrimitive?.int == 428 }
+        ?.jsonObject
+        ?.get("url")?.jsonPrimitive?.content
+
+    val id429 = socialUrls
+        ?.firstOrNull { it.jsonObject["id"]?.jsonPrimitive?.int == 429 }
+        ?.jsonObject
+        ?.get("url")?.jsonPrimitive?.content
 
     val toReturn = Agency(//Gets all parts for the Object from the JSON
         agencyID = agencyJsonObj?.get("id")?.jsonPrimitive?.content!!,
@@ -409,9 +421,11 @@ suspend fun parseAgency(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ag
         leader = leaderName,
         leaderType = leaderType,
         founded = agencyJsonObj["founding_year"]?.takeIf { it !is JsonNull }?.jsonPrimitive?.intOrNull?: 0,
-        logoURL = (agencyJsonObj["logo"] as? JsonObject)?.get("thumbnail_url")?.let { it as? JsonPrimitive }?.contentOrNull,
+        logoURL = (agencyJsonObj["logo"] as? JsonObject)?.get("image_url")?.let { it as? JsonPrimitive }?.contentOrNull,
         websiteURL = agencyJsonObj["info_url"]?.jsonPrimitive?.content,
         wikiURL =  agencyJsonObj["wiki_url"]?.jsonPrimitive?.content,
+        socialsURL = id428,
+        youtubeURL = id429,
         lastUpdated= scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
     )
     println("      $toReturn")//LOG
