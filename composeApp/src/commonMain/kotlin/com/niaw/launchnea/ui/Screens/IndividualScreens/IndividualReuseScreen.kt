@@ -67,7 +67,6 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
     // THIS HANDLES SUB-SCREEN BACK PRESS
     // Active only when you are looking at an Agency, Rocket, or Launch
     setBackHandler(enabled = selectedAgencyID != null || selectedLaunchID != null || selectedRocketID != null) {
-        println("Internal Back: Closing sub-screen")
         selectedAgencyID = null
         selectedLaunchID = null
         selectedRocketID = null
@@ -79,7 +78,6 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
     // THIS HANDLES MAIN SCREEN BACK PRESS
     // Active only when the main list is visible. It calls the parent's back function.
     setBackHandler(enabled = selectedAgencyID == null && selectedLaunchID == null && selectedRocketID == null) {
-        println("Main Back: Exiting IndividualReuseScreen")
         onBackReuse()
     }
 

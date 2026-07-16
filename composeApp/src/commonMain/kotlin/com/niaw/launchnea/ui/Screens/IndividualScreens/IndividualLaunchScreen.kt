@@ -82,7 +82,6 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
     // THIS HANDLES SUB-SCREEN BACK PRESS
     // Active only when you are looking at an Agency, Rocket, or Launch
     setBackHandler(enabled = selectedAgencyID != null || selectedReuseID != null || selectedRocketID != null) {
-        println("Internal Back: Closing sub-screen")
         selectedAgencyID = null
         selectedReuseID = null
         selectedRocketID = null

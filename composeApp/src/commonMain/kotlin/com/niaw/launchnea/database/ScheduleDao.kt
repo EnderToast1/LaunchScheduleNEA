@@ -153,6 +153,7 @@ interface ScheduleDao {
     """)
     fun getRocketVersionsByRocketId(rocketID: String): Flow<List<RocketVersion>>
 
+
    //Get values for UI
    @Query("""
         SELECT COUNT(Launch.launchID) 
@@ -170,6 +171,30 @@ interface ScheduleDao {
         AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
     """)
     fun getRocketCountById(rocketID: String): Flow<Int>
+
+    @Query("""
+        SELECT COUNT(Launch.launchID)
+        FROM Launch
+        WHERE rocketID= :rocketID AND success='SUCCESS'
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
+    """)
+    fun getRocketSuccessCountById(rocketID: String): Flow<Int>
+
+    @Query("""
+        SELECT COUNT(Launch.launchID)
+        FROM Launch
+        WHERE rocketID= :rocketID AND success='FAILURE'
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
+    """)
+    fun getRocketFailuresCountById(rocketID: String): Flow<Int>
+
+    @Query("""
+        SELECT COUNT(Launch.launchID)
+        FROM Launch
+        WHERE rocketID= :rocketID AND success='PARTIAL_SUCCESS'
+        AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
+    """)
+    fun getRocketPartialSuccessCountById(rocketID: String): Flow<Int>
 
 
     @Query("""
@@ -217,6 +242,7 @@ interface ScheduleDao {
 """)
     fun getFastestReuseTime(reuseID: String): Flow<Long?>
 
+
     @Transaction
     @Query("""
     SELECT Launch.* FROM Launch
@@ -237,7 +263,6 @@ interface ScheduleDao {
         LIMIT 1
     """)
     fun getLastFlightByRocketId(rocketID: String): Flow<Launch?>
-
 
     //Get singular item
     @Query("SELECT * FROM Launch WHERE launchID = :id")
@@ -281,6 +306,7 @@ interface ScheduleDao {
     ORDER BY datetime(Launch.launchTimeUTC) DESC
 """)
     fun getStarredUpcomingLaunches(): Flow<List<Launch>>
+
 
 
 

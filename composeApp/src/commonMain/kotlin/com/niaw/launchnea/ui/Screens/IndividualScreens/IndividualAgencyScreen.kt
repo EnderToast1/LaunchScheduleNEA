@@ -102,7 +102,6 @@ fun IndividualAgencyScreen(scheduleDao: ScheduleDao, agency: Agency, onBack: () 
     var selectedLaunch by remember { mutableStateOf<Launch?>(null) }
 
     setBackHandler(enabled = selectedLaunchID != null || selectedReuseID != null || selectedRocketID != null) {
-        println("Internal Back: Closing sub-screen")
         selectedLaunchID = null
         selectedReuseID = null
         selectedRocketID = null
@@ -127,7 +126,6 @@ fun IndividualAgencyScreen(scheduleDao: ScheduleDao, agency: Agency, onBack: () 
     // THIS HANDLES MAIN SCREEN BACK PRESS
     // Active only when the main list is visible. It calls the parent's back function.
     setBackHandler(enabled = selectedLaunchID == null && selectedReuseID == null && selectedRocketID == null) {
-        println("Main Back: Exiting IndividualReuseScreen")
         onBack()
     }
 

@@ -1,66 +1,45 @@
 package com.niaw.launchnea.ui.Screens.IndividualScreens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil3.compose.SubcomposeAsyncImage
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Agency
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.database.entities.RocketVersion
-import com.niaw.launchnea.navigation.ViewModels.ReuseLaunchesViewModel
 import com.niaw.launchnea.navigation.ViewModels.RocketLaunchesViewModel
 import com.niaw.launchnea.navigation.setBackHandler
 import com.niaw.launchnea.ui.UiElements.IconTextRow
-import com.niaw.launchnea.ui.UiElements.ImagePlaceholder
 import com.niaw.launchnea.ui.UiElements.ListBox
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import com.niaw.launchnea.utils.Status
 
 @Composable
 fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocket: () -> Unit) {
@@ -73,6 +52,13 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
     val nextLaunches by viewModel.upcomingLaunches.collectAsState()
     val pastLaunches by viewModel.pastLaunches.collectAsState()
 
+    val successes by viewModel.successes.collectAsState()
+    val failures by viewModel.failures.collectAsState()
+    val partialFailures by viewModel.partialFailures.collectAsState()
+    val launches by viewModel.launches.collectAsState()
+
+
+
     var selectedReuseID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Rocket
     var selectedLaunchID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Launch
     var selectedAgencyID by rememberSaveable { mutableStateOf<String?>(null) } // track selected Agency
@@ -83,6 +69,8 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
     var agencyName by rememberSaveable { mutableStateOf<String?>(null) }
     var agencyLogo by rememberSaveable { mutableStateOf<String?>(null) }
     var rocketVersion by remember { mutableStateOf<RocketVersion?>(null) }
+    var successStreak by rememberSaveable { mutableIntStateOf(0) }
+    successStreak=calculateSuccessStreak(launches)
 
     // THIS HANDLES SUB-SCREEN BACK PRESS
     // Active only when you are looking at an Agency, Rocket, or Launch
@@ -99,7 +87,6 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
     // THIS HANDLES MAIN SCREEN BACK PRESS
     // Active only when the main list is visible. It calls the parent's back function.
     setBackHandler(enabled = selectedAgencyID == null && selectedLaunchID == null && selectedReuseID == null) {
-        println("Main Back: Exiting IndividualReuseScreen")
         onBackRocket()
     }
 
@@ -157,7 +144,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
         ) {
             rocket.name?.let { TopImage(rocket.imageURL,it, agencyName) }
             Column(Modifier.fillMaxWidth()) {
-                RocketStats(rocket)
+                RocketStats(rocket,successes,failures,partialFailures,successStreak)
                 Spacer(Modifier.height(10.dp))
                 AgencyBox(rocket.agencyID, agencyName,agencyLogo) { agencyID -> selectedAgencyID = agencyID }
                 Spacer(Modifier.height(10.dp))
@@ -175,16 +162,13 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
 
 
 @Composable
-fun RocketStats(rocket: Rocket) {
+fun RocketStats(rocket: Rocket,successes: Int, failures: Int, partialFailures: Int, successStreak: Int) {
+    val missions=successes+failures+partialFailures
+    val successRate = if (missions > 0) {((successes + 0.5 * partialFailures) / missions) * 100} else {0.0}
 
-    val success = 1//TODO get real data
-    val failure = 0
-    val partialFailures = 0
+    //TODO maybe change to just success not 0.5 of partials
 
-    val missions=success+failure+partialFailures
-    val successRate=((success+0.5*(partialFailures))/missions)*100  //TODO maybe change to just success not 0.5 of partials
 
-    val successStreak = 1
 
     Column(modifier = Modifier.clip(RoundedCornerShape(0.dp,0.dp,15.dp,15.dp)).fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Row 1
@@ -195,8 +179,8 @@ fun RocketStats(rocket: Rocket) {
 
         // Row 2
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Success:\n $success", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
-            Text("Failure:\n $failure", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            Text("Success:\n $successes", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            Text("Failure:\n $failures", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
         }
 
         // Row 3
@@ -234,6 +218,19 @@ fun VersionsList(rocket: Rocket,scheduleDao:ScheduleDao) {
 
 @Composable
 fun VersionBox(rocketVersion: RocketVersion) {
-    ListBox(rocketVersion.listBoxText()){}
+    ListBox(rocketVersion.listBoxText()){onClick -> println("Clicked on ${rocketVersion}")}
 }
 
+private fun calculateSuccessStreak(launches: List<Launch>): Int {
+    var streak = 0
+
+    for (launch in launches) {
+        if (launch.success == Status.SUCCESS) {
+            streak++
+        } else {
+            break
+        }
+    }
+
+    return streak
+}

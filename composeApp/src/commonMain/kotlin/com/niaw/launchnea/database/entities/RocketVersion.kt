@@ -1,16 +1,24 @@
 package com.niaw.launchnea.database.entities
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Numbers
+import androidx.compose.material.icons.filled.Rocket
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.ui.UiElements.Chip
+import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @Entity(
     foreignKeys = [
@@ -57,8 +65,10 @@ data class RocketVersion(
         id=rocketVersionID,
         title =this.name,
         imageGroup = ImageGroup(this.imageThumbURL, imageCredit,licenseType,true),
-        secondRow = "$activeSince",
-        thirdRow = "20",
+        secondRowIcon = DisplayIcon.Vector(Icons.Filled.Schedule),
+        secondRow = "${activeSince?.format(DateTimeFormatter.ofPattern(dateFormat))}",
+        thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Numbers),
+        thirdRow = "$launches",
         chips = getChips(),
     )
 
