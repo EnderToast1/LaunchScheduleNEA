@@ -243,14 +243,15 @@ fun MissionMainBox(launch:Launch, scheduleDao: ScheduleDao){
         Box(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer).fillMaxWidth().padding(10.dp)) {
                 Column(Modifier.fillMaxWidth()) {
                     Row(Modifier.fillMaxWidth(),Arrangement.SpaceBetween) {
-                        launch.missionName?.let {
-                            Text(
-                                it,
-                                style = MaterialTheme.typography.displaySmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
+                        Box(modifier = Modifier.weight(0.8f)) {
+                            launch.missionName?.let {
+                                Text(
+                                    it,
+                                    style = MaterialTheme.typography.displaySmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
                         }
-
                         StarToggle(launch, scheduleDao)
                     }
                         Spacer(Modifier.height(5.dp))
@@ -258,7 +259,7 @@ fun MissionMainBox(launch:Launch, scheduleDao: ScheduleDao){
 
                         val dateFormatter = DateTimeFormatter.ofPattern(dateFormat)
                         val timeFormatter = DateTimeFormatter.ofPattern(timeFormat)
-                        val launchTimes=getLaunchTimesAsNeededFormat(launch, dateFormatter, timeFormatter)
+                        val launchTimes=getLaunchTimesAsNeededFormat(launch, dateFormatter, timeFormatter,selectedZone)
 
                         Text(
                                 text=launchTimes.liftoffTime,
