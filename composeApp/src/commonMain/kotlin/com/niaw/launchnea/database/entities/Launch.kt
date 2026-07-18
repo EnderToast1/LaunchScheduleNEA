@@ -101,5 +101,5 @@ data class Launch(
             success=success
     )
 
-    fun getChips():List<Chip>  = reusableParts.map { Chip(it.landingLocationName?.let { name -> abbreviate(name) },) }
+    fun getChips():List<Chip>  = reusableParts.map { Chip(abbreviate(it.landingLocationName,3),null,it.status,it.landingType) }
 }

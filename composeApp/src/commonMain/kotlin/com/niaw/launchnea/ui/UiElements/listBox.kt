@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ImageNotSupported
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
@@ -216,7 +219,7 @@ fun LowerRow(icon: DisplayIcon?,value:String?) {
 fun BoxChipsRow(chips: List<Chip>) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {//TODO add 
+    ) {
        chips.forEach { chip ->
             BoxChip(chip)
         }
@@ -226,17 +229,25 @@ fun BoxChipsRow(chips: List<Chip>) {
 
 @Composable
 fun BoxChip(chip: Chip ) {
+    var colour=MaterialTheme.colorScheme.secondaryContainer
+    if ((chip.success==true) or (chip.status==Status.SUCCESS)){
+        colour=successColour
+    }else if ((chip.success==false) or (chip.status==Status.FAILURE)){
+        colour=failureColour
+    }else if (chip.status==Status.PARTIAL_SUCCESS){
+        colour=partialFailureColour
+    }
+    val icon = rememberVectorPainter(Icons.Default.Shield)
+
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(colour)
             .padding(horizontal = 5.dp, vertical = 3.dp)
     ) {
-        //TODO add row with Icon and colour for success
-        Text(
-            text = chip.text ?: "Unknown",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondaryContainer
-        )
+        //TODO add row with Icon
+        IconTextRow(chip.text ?: "Unknown",chip.text?: "Unknown",MaterialTheme.typography.labelMedium,icon,Modifier,MaterialTheme.colorScheme.onSecondaryContainer)
+        
     }
 }

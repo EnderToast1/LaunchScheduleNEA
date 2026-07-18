@@ -72,6 +72,6 @@ data class RocketVersion(
         chips = getChips(),
     )
 
-    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired"))
+    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired",null,if (active == true) true else false,null))
 }
 

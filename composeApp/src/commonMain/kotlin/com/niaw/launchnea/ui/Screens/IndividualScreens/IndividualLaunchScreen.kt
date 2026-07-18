@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import coil3.compose.SubcomposeAsyncImage
 import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
 import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
@@ -445,7 +446,7 @@ fun LaunchWindowTimeline(launchTimes: LaunchTimesFormated) {
         val windowClose = launchTimes.windowClose
         val liftoff = launchTimes.liftoff
 
-        if (windowClose == windowOpen) return//If There is no window then do not display anything
+        if (windowClose == windowOpen) return//If there is no window then do not display anything
 
         // Total seconds relative to window open
         val totalWindowSeconds = windowClose.toEpochSecond(ZoneOffset.UTC) - windowOpen.toEpochSecond(ZoneOffset.UTC)
@@ -461,8 +462,8 @@ fun LaunchWindowTimeline(launchTimes: LaunchTimesFormated) {
                                 .fillMaxWidth()
                                 .height(48.dp) // space for label + timeline
                 ) {
-                        val dotSize = 10.dp
-                        val usableWidth = maxWidth - dotSize
+                        val dotSize = 16.dp
+                        val usableWidth = maxWidth - (1 * dotSize)
                         val markerX = usableWidth * progress
 
                         // === Timeline base ===
