@@ -17,12 +17,6 @@ class ReusableViewModel(
     private val reuseID: String,
     private val launchTime: ZonedDateTime
 ) : ViewModel() {
-    val reuses: StateFlow<Int> = scheduleDao.getReuseCountById(reuseID)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = 0
-        )
    private val _dayTurnAround = MutableStateFlow<Duration?>(null)
     val dayTurnAround: StateFlow<Duration?> = _dayTurnAround
 

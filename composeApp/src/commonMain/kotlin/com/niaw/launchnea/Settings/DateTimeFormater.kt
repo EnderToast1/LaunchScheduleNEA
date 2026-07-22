@@ -130,3 +130,99 @@ fun DateFormat.toLabel(): String = when(this) {
     DateFormat.WeekFMonthDayYear      -> "Eg Friday January 01 2026"
     DateFormat.WeekYearFMonthDay      -> "Eg Friday 2026 January 01"
 }
+
+fun DateFormat.initialWeekday():String = when (this) {
+    DateFormat.DayNMonthYear,
+    DateFormat.NMonthDayYear,
+    DateFormat.YearNMonthDay,
+    DateFormat.DaySMonthYear,
+    DateFormat.SMonthDayYear,
+    DateFormat.YearSMonthDay,
+    DateFormat.DayFMonthYear,
+    DateFormat.FMonthDayYear,
+    DateFormat.YearFMonthDay -> "None"
+
+    DateFormat.SWeekDayNMonthYear,
+    DateFormat.SWeekNMonthDayYear,
+    DateFormat.SWeekYearNMonthDay,
+    DateFormat.SWeekDaySMonthYear,
+    DateFormat.SWeekSMonthDayYear,
+    DateFormat.SWeekYearSMonthDay,
+    DateFormat.SWeekDayFMonthYear,
+    DateFormat.SWeekFMonthDayYear,
+    DateFormat.SWeekYearFMonthDay -> "Short"
+
+    DateFormat.WeekDayNMonthYear,
+    DateFormat.WeekNMonthDayYear,
+    DateFormat.WeekYearNMonthDay,
+    DateFormat.WeekDaySMonthYear,
+    DateFormat.WeekSMonthDayYear,
+    DateFormat.WeekYearSMonthDay,
+    DateFormat.WeekDayFMonthYear,
+    DateFormat.WeekFMonthDayYear,
+    DateFormat.WeekYearFMonthDay -> "Full"
+}
+
+fun DateFormat.initialOrder():String = when (this) {
+    DateFormat.DayNMonthYear,
+    DateFormat.DaySMonthYear,
+    DateFormat.DayFMonthYear,
+    DateFormat.SWeekDayNMonthYear,
+    DateFormat.SWeekDaySMonthYear,
+    DateFormat.SWeekDayFMonthYear,
+    DateFormat.WeekDayNMonthYear,
+    DateFormat.WeekDaySMonthYear,
+    DateFormat.WeekDayFMonthYear -> "Day-Month-Year"
+
+    DateFormat.NMonthDayYear,
+    DateFormat.SMonthDayYear,
+    DateFormat.FMonthDayYear,
+    DateFormat.SWeekNMonthDayYear,
+    DateFormat.SWeekSMonthDayYear,
+    DateFormat.SWeekFMonthDayYear,
+    DateFormat.WeekNMonthDayYear,
+    DateFormat.WeekSMonthDayYear,
+    DateFormat.WeekFMonthDayYear -> "Month-Day-Year"
+
+    DateFormat.YearNMonthDay,
+    DateFormat.YearSMonthDay,
+    DateFormat.YearFMonthDay,
+    DateFormat.SWeekYearNMonthDay,
+    DateFormat.SWeekYearSMonthDay,
+    DateFormat.SWeekYearFMonthDay,
+    DateFormat.WeekYearNMonthDay,
+    DateFormat.WeekYearSMonthDay,
+    DateFormat.WeekYearFMonthDay -> "Year-Month-Day"
+}
+
+fun DateFormat. initialMonth():String = when (this) {
+    DateFormat.DayNMonthYear,
+    DateFormat.NMonthDayYear,
+    DateFormat.YearNMonthDay,
+    DateFormat.SWeekDayNMonthYear,
+    DateFormat.SWeekNMonthDayYear,
+    DateFormat.SWeekYearNMonthDay,
+    DateFormat.WeekDayNMonthYear,
+    DateFormat.WeekNMonthDayYear,
+    DateFormat.WeekYearNMonthDay -> "Numeric"
+
+    DateFormat.DaySMonthYear,
+    DateFormat.SMonthDayYear,
+    DateFormat.YearSMonthDay,
+    DateFormat.SWeekDaySMonthYear,
+    DateFormat.SWeekSMonthDayYear,
+    DateFormat.SWeekYearSMonthDay,
+    DateFormat.WeekDaySMonthYear,
+    DateFormat.WeekSMonthDayYear,
+    DateFormat.WeekYearSMonthDay -> "Short"
+
+    DateFormat.DayFMonthYear,
+    DateFormat.FMonthDayYear,
+    DateFormat.YearFMonthDay,
+    DateFormat.SWeekDayFMonthYear,
+    DateFormat.SWeekFMonthDayYear,
+    DateFormat.SWeekYearFMonthDay,
+    DateFormat.WeekDayFMonthYear,
+    DateFormat.WeekFMonthDayYear,
+    DateFormat.WeekYearFMonthDay -> "Full"
+}

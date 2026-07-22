@@ -15,6 +15,7 @@ import com.niaw.launchnea.ui.UiElements.DisplayIcon
 import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
+import com.niaw.launchnea.utils.LandingType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -72,6 +73,6 @@ data class RocketVersion(
         chips = getChips(),
     )
 
-    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired",null,if (active == true) true else false,null))
+    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired",null,if (active == true) true else false,if (active == true) LandingType.ACTIVE else LandingType.RETIRED))
 }
 

@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network)
             implementation(compose.foundation)
+            implementation(libs.colorpicker.compose)
             implementation(compose.material3)
             implementation(compose.runtime)
             implementation(compose.ui)

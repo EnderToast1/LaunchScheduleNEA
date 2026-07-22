@@ -218,7 +218,7 @@ fun VersionsList(rocket: Rocket,scheduleDao:ScheduleDao) {
 
 @Composable
 fun VersionBox(rocketVersion: RocketVersion) {
-    ListBox(rocketVersion.listBoxText()){onClick -> println("Clicked on ${rocketVersion}")}
+    ListBox(rocketVersion.listBoxText()){onClick -> println("Clicked on $rocketVersion")}
 }
 
 private fun calculateSuccessStreak(launches: List<Launch>): Int {

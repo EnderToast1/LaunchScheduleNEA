@@ -280,8 +280,20 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
         else -> ProgramType.UNKNOWN
     }
 
-//TODO need to add launchLiveStream link
-    val liveStreamURL="HOLD TEST"
+    val officialStreamUrl = launchJsonObj["vid_urls"]
+        ?.jsonArray
+        ?.lastOrNull()
+        ?.jsonObject
+        ?.takeIf { video ->
+            video["type"]
+                ?.jsonObject
+                ?.get("id")
+                ?.jsonPrimitive
+                ?.intOrNull == 1
+        }
+        ?.get("url")
+        ?.jsonPrimitive
+        ?.contentOrNull
 //adds all the variables into an object to return
     val toReturn=Launch(
         launchID = id,
@@ -311,7 +323,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
         padCountry =  padCountry,
         padTimeZone =padTimeZoneID,
         netPrecision = netPrecision,
-        liveStreamUrl = liveStreamURL,
+        liveStreamUrl = officialStreamUrl,
         weatherConcerns = weatherConcerns,
         timeline=timelineEvents,
         precisionAbbrev = precisionAbbrev,

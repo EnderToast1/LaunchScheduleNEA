@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -32,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,9 +45,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.utils.ColourTheme
 import com.niaw.launchnea.utils.DateFormat
@@ -61,6 +66,9 @@ import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
 import com.niaw.launchnea.utils.ThemeMode
 import com.niaw.launchnea.utils.TimeFormat
 import com.niaw.launchnea.Settings.getSeedColour
+import com.niaw.launchnea.Settings.initialMonth
+import com.niaw.launchnea.Settings.initialOrder
+import com.niaw.launchnea.Settings.initialWeekday
 import com.niaw.launchnea.Settings.toDateFormat
 import com.niaw.launchnea.Settings.toLabel
 import com.niaw.launchnea.Settings.toTimeFormat
@@ -235,11 +243,14 @@ fun TimeDateBox(
                 }
             )
         }
-
+        var currentDateFormat by remember {
+            mutableStateOf(appSettings.getDateFormat())
+        }
         Box(Modifier.fillMaxWidth().padding(10.dp, 5.dp)) {
             DateFormatPickerBox(
-                currentFormat = dateFormat.toDateFormat(),
+                currentFormat = currentDateFormat,
                 onDateFormatSelected = { newFormat ->
+                    currentDateFormat = newFormat
                     GlobalSettings.setDateFormat(newFormat)
                     GlobalSettings.setDateTimeFormat()
                     appSettings.saveDateFormat(newFormat)
@@ -303,6 +314,14 @@ fun TimeFormatPickerBox(
     }
 }
 
+
+
+
+
+
+
+
+
 @Composable
 fun DateFormatPickerBox(
     currentFormat: DateFormat,
@@ -312,9 +331,17 @@ fun DateFormatPickerBox(
     val orderOptions = listOf("Day-Month-Year", "Month-Day-Year", "Year-Month-Day")
     val monthOptions = listOf("Numeric", "Short", "Full")
 
-    var selectedWeekday by rememberSaveable { mutableStateOf(weekdayOptions[0]) }
-    var selectedOrder by rememberSaveable { mutableStateOf(orderOptions[0]) }
-    var selectedMonth by rememberSaveable { mutableStateOf(monthOptions[0]) }
+    var selectedWeekday by rememberSaveable {
+        mutableStateOf(currentFormat.initialWeekday())
+    }
+
+    var selectedOrder by rememberSaveable {
+        mutableStateOf(currentFormat.initialOrder())
+    }
+
+    var selectedMonth by rememberSaveable {
+        mutableStateOf(currentFormat.initialMonth())
+    }
 
     // Build pattern dynamically
     val pattern = remember(selectedWeekday, selectedOrder, selectedMonth) {
@@ -443,8 +470,11 @@ fun SuccessTypeColourPickerBox(
     onColourSelected: (Color) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showColourPicker by remember { mutableStateOf(false) }
 
-    // Determine the text to show in the field
+    val controller = rememberColorPickerController()
+    var pickedColour by remember { mutableStateOf(currentColour) }
+
     val selectedLabel = if (currentColour == defaultColour) "Default" else "More"
 
     Column(modifier = Modifier.fillMaxWidth().padding(5.dp)) {
@@ -457,7 +487,7 @@ fun SuccessTypeColourPickerBox(
                 value = selectedLabel,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text(title,style=MaterialTheme.typography.labelLarge) }, // Title acts as the field label
+                label = { Text(title, style = MaterialTheme.typography.labelLarge) },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
@@ -472,13 +502,18 @@ fun SuccessTypeColourPickerBox(
 
             ExposedDropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
+                onDismissRequest = { expanded = false }
             ) {
-                // Option 1: Default
+
                 DropdownMenuItem(
                     text = { Text("Default") },
                     leadingIcon = {
-                        Box(Modifier.size(18.dp).clip(CircleShape).background(defaultColour))
+                        Box(
+                            Modifier
+                                .size(18.dp)
+                                .clip(CircleShape)
+                                .background(defaultColour)
+                        )
                     },
                     onClick = {
                         onColourSelected(defaultColour)
@@ -486,18 +521,70 @@ fun SuccessTypeColourPickerBox(
                     }
                 )
 
-                // Option 2: More
                 DropdownMenuItem(
-                    text = { Text("More") },
+                    text = { Text("Other") },
                     leadingIcon = {
-                        Box(Modifier.size(18.dp).clip(CircleShape).background(Color.Magenta))
+                        Box(
+                            Modifier
+                                .size(18.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    brush = Brush.sweepGradient(
+                                        colors = listOf(
+                                            Color.Red,
+                                            Color.Yellow,
+                                            Color.Green,
+                                            Color.Cyan,
+                                            Color.Blue,
+                                            Color.Magenta,
+                                            Color.Red
+                                        )
+                                    )
+                                )
+                        )
                     },
                     onClick = {
-                        onColourSelected(Color.Magenta)
+                        pickedColour = currentColour
                         expanded = false
+                        showColourPicker = true
                     }
                 )
             }
         }
+    }
+
+
+    // Outside the dropdown
+    if (showColourPicker) {
+        AlertDialog(
+            onDismissRequest = { showColourPicker = false },
+            title = { Text("Choose Colour") },
+            text = {
+                HsvColorPicker(
+                    modifier = Modifier.size(250.dp),
+                    controller = controller,
+                    onColorChanged = { colorEnvelope ->
+                        pickedColour = colorEnvelope.color
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onColourSelected(pickedColour)
+                        showColourPicker = false
+                    }
+                ) {
+                    Text("Select")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showColourPicker = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

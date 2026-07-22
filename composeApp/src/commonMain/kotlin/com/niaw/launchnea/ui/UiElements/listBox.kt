@@ -5,9 +5,27 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Cable
+import androidx.compose.material.icons.filled.CarCrash
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.Flight
+import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.ImageNotSupported
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.Paragliding
+import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Recycling
+import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.Sailing
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.VerticalAlignBottom
+import androidx.compose.material.icons.filled.Water
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -28,6 +47,7 @@ import com.niaw.launchnea.Settings.GlobalSettings.holdColour
 import com.niaw.launchnea.Settings.GlobalSettings.inFlightColour
 import com.niaw.launchnea.Settings.GlobalSettings.partialFailureColour
 import com.niaw.launchnea.Settings.GlobalSettings.successColour
+import com.niaw.launchnea.utils.LandingType
 import com.niaw.launchnea.utils.Status
 import org.jetbrains.compose.resources.painterResource
 
@@ -237,7 +257,24 @@ fun BoxChip(chip: Chip ) {
     }else if (chip.status==Status.PARTIAL_SUCCESS){
         colour=partialFailureColour
     }
-    val icon = rememberVectorPainter(Icons.Default.Shield)
+
+    val icon=when(chip.type){
+        LandingType.ASDS -> rememberVectorPainter(Icons.Default.Shield)
+        LandingType.RTLS -> rememberVectorPainter(Icons.Default.Shield)
+        LandingType.VL -> rememberVectorPainter(Icons.Default.Shield)//Same as RTLS icon
+        LandingType.PCL -> rememberVectorPainter(Icons.Default.Shield)
+        LandingType.OCEAN -> rememberVectorPainter(Icons.Default.Water)// add rocket
+        LandingType.HC -> rememberVectorPainter(Icons.Default.Shield)
+        LandingType.HL -> rememberVectorPainter(Icons.Default.Shield)
+        LandingType.ATM -> rememberVectorPainter(Icons.Default.Shield)
+        LandingType.EXP -> rememberVectorPainter(Icons.Default.Shield)
+        LandingType.PFL -> rememberVectorPainter(Icons.Default.Paragliding)
+
+        LandingType.REUSE -> rememberVectorPainter(Icons.Default.Recycling)
+        LandingType.ACTIVE -> rememberVectorPainter(Icons.Default.CheckCircle)
+        LandingType.RETIRED -> rememberVectorPainter(Icons.Default.Inventory2)
+        else -> rememberVectorPainter(Icons.Default.QuestionMark)
+    }
 
 
     Box(
@@ -247,7 +284,12 @@ fun BoxChip(chip: Chip ) {
             .padding(horizontal = 5.dp, vertical = 3.dp)
     ) {
         //TODO add row with Icon
-        IconTextRow(chip.text ?: "Unknown",chip.text?: "Unknown",MaterialTheme.typography.labelMedium,icon,Modifier,MaterialTheme.colorScheme.onSecondaryContainer)
+        IconTextRow(chip.text?.ifBlank { "Unknown" } ?: "Unknown",chip.text?.ifBlank { "Unknown" } ?: "Unknown",MaterialTheme.typography.labelMedium,icon,Modifier,colour.onColor())
         
     }
+}
+
+
+fun Color.onColor(): Color {
+    return if (luminance() > 0.5f) Color.DarkGray else Color.White
 }

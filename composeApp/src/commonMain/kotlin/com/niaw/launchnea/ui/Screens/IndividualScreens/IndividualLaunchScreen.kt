@@ -28,6 +28,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -149,7 +152,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
             MissionMainBox(launch,scheduleDao)
             Spacer(Modifier.height(5.dp))
             Column(Modifier.fillMaxWidth().padding(10.dp)) {
-                LiveStreamBox()
+                LiveStreamBox(launch)
                 Spacer(Modifier.height(15.dp))
 
                 MissionDetails(launch)
@@ -366,34 +369,49 @@ enum class LiftoffTimeZone(val label: String) {
 }
 
 @Composable
-fun LiveStreamBox() {//TODO add click functionality
-        Box(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .clip(RoundedCornerShape(percent = 50)) // pill shape
-                        .background(Color(0xFFC40000))
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                contentAlignment = Alignment.Center
-        ) {
-                Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                ) {
-                        Text(
-                                text = "Watch Livestream",
-                                color = Color.White,
-                                style = MaterialTheme.typography.labelLarge
-                        )
+fun LiveStreamBox(launch: Launch) {
+    val uriHandler = LocalUriHandler.current
+    val url = launch.liveStreamUrl ?: return
 
-                        Icon(
-                                imageVector = Icons.Outlined.Link,
-                                contentDescription = "Livestream link",
-                                tint = Color.White
-                        )
-                }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(percent = 50))
+            .background(Color(0xFFC40000))
+            .clickable {
+                uriHandler.openUri(url)
+            }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Watch livestream on: ${extractWebsiteName(url)}",
+                color = Color.White,
+                style = MaterialTheme.typography.labelLarge
+            )
+
+            Icon(
+                imageVector = Icons.Outlined.Link,
+                contentDescription = "Livestream link",
+                tint = Color.White
+            )
         }
+    }
+}
+
+fun extractWebsiteName(url: String?): String? {
+    if (url.isNullOrEmpty()) return null
+    return url
+        .removePrefix("https://")
+        .removePrefix("http://")
+        .substringBefore("/")
+        .removePrefix("www.")
 }
 
 @Composable
@@ -647,39 +665,6 @@ fun AgencyBox(id:String?, name:String?,logo:String?, onClick: (String) -> Unit) 
 
 
 @Composable
-fun LogoLeft(logoUrl:String?, name:String?) {
-    SubcomposeAsyncImage(
-        model = logoUrl,
-        contentDescription = "Logo of $name",
-        modifier = Modifier
-            .fillMaxHeight()
-            .wrapContentWidth(),
-        contentScale = ContentScale.FillHeight,
-        loading = {//While image loading
-            Box(
-                modifier = Modifier
-                    .width(35.dp)
-                    .fillMaxHeight()
-                    .background(Color.DarkGray),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(15.dp),
-                    color = Color.White,
-                    strokeWidth = 1.dp,
-                    strokeCap = StrokeCap.Round
-                )
-            }
-        },
-        // This catches 'NoSuchKey' / 404 errors
-        error = {
-            LogoPlaceholder()
-        }
-    )
-}
-
-
-@Composable
 fun LogoPlaceholder() {
     Box(
         modifier = Modifier
@@ -737,16 +722,19 @@ fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable,onCli
         }
     }
     if (viewModel != null) {
-        val reuses by viewModel.reuses.collectAsState()
         val dayTurnAround by viewModel.dayTurnAround.collectAsState()
 
-        Column(modifier = Modifier.fillMaxWidth().border(width = 3.dp,MaterialTheme.colorScheme.outline,RoundedCornerShape(20.dp)).padding(15.dp,5.dp).clickable(onClick = {onClick1(reusable.reuseID!!)})) {
-            BoxChip(Chip(reusable.landingLocationName))
+        Column(modifier = Modifier.fillMaxWidth().border(width = 3.dp,MaterialTheme.colorScheme.outline,RoundedCornerShape(20.dp)).padding(15.dp,5.dp).clickable(onClick = {if (reusable.reuseName?.contains("Unknown", ignoreCase = true) != true) {onClick1(reusable.reuseID!!)}})) {
+            if(reusable.landingType != LandingType.EXP) {
+                BoxChip(Chip(text = reusable.landingLocationName, type = reusable.landingType))
+            }else{
+                BoxChip(Chip(text="Expended (${reusable.landingLocationName})",type=reusable.landingType))
+            }
             reusable.reuseName?.let { Text(it,style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
-            reusable.reuseName?.contains("Unknown")?.let {
-                if (!(it)) {
+
+            if (reusable.reuseName?.contains("Unknown") != true) {
                     Text(
-                        "Flights #$reuses",
+                        "Flights #${reusable.flightNumber}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -760,7 +748,7 @@ fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable,onCli
             }
         }
     }
-}
+
 
 @Composable
 fun PadLocation(location: Location) {
@@ -881,7 +869,7 @@ fun LaunchTimeLineList(count:Int, list:List<TimelineEvent>){
 @Composable
 fun TimeLineEventDisplay(event:TimelineEvent){
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        IconTextRow(event.abbrev,"timeline event",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Outlined.Circle),Modifier,Color.Green)
+        IconTextRow(event.abbrev,"timeline event",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Outlined.Circle),Modifier,MaterialTheme.colorScheme.onSecondaryContainer)
         Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
     }
 }
