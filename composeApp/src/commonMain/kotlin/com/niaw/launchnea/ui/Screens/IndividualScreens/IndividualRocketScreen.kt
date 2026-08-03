@@ -146,7 +146,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
             Column(Modifier.fillMaxWidth()) {
                 RocketStats(rocket,successes,failures,partialFailures,successStreak)
                 Spacer(Modifier.height(10.dp))
-                AgencyBox(rocket.agencyID, agencyName,agencyLogo) { agencyID -> selectedAgencyID = agencyID }
+                AgencyBox(rocket.agencyID, agencyName) { agencyID -> selectedAgencyID = agencyID }
                 Spacer(Modifier.height(10.dp))
                 ConfigHeading()
                 Spacer(Modifier.height(5.dp))

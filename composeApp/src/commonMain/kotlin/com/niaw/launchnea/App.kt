@@ -28,18 +28,30 @@ import com.niaw.launchnea.navigation.NavigationItem
 import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.utils.AppTheme
 import com.niaw.launchnea.Settings.GlobalSettings
+import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.database.entities.StarredLaunch
 import com.niaw.launchnea.networking.requestNumber
 import com.niaw.launchnea.networking.updateLaunchData
+import com.niaw.launchnea.utils.NotificationManager
+import com.niaw.launchnea.utils.NotificationScheduler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.withContext
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
 import launchnea.composeapp.generated.resources.filledrocketh
 import org.jetbrains.compose.resources.painterResource
+import java.net.InetAddress
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 
-@Suppress("UnusedMaterial3ScaffoldPaddingParameter")
+ @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 
 @Composable
 fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
@@ -61,12 +73,31 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
 
 
     AppTheme(selectedMode = currentTheme, seedColourType = currentColourTheme ) {
+        /*
+        NotificationManager.showNotification(
+            "Launch Reminder",
+            "Launches in 15 minutes."
+        )
 
-
-
+        NotificationScheduler.scheduleNotification(
+            ZonedDateTime.now().plusMinutes(1).toInstant().toEpochMilli(),
+            "Launch Reminder",
+            "Launches in 10 minutes",
+            1000
+        )
+        */
 
         LaunchedEffect(Unit) {
-            //updateLaunchData(scheduleDao)
+            withContext(Dispatchers.IO) {
+                try {
+                    println(InetAddress.getByName("ll.thespacedevs.com"))
+                } catch (e: Exception) {
+                    println(e)
+                }
+
+                delay(1.seconds)
+                updateLaunchData(scheduleDao)
+            }
         }
 
         val items = listOf<NavigationItem>(

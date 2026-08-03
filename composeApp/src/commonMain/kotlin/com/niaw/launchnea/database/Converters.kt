@@ -28,7 +28,7 @@ class Converters {
     @TypeConverter fun stringToLocalDateTime(value: String?): LocalDateTime? = value?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
 
 
-    //Date? ↔ Long?
+    //Date? ↔ String?
     @TypeConverter fun fromLocalDate(date: LocalDate?): String? = date?.toString()
     @TypeConverter fun toLocalDate(value: String?): LocalDate? = value?.let { LocalDate.parse(it)
     }

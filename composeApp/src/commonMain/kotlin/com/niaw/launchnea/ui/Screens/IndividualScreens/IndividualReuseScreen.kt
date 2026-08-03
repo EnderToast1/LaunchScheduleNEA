@@ -149,7 +149,7 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
 
 
             Spacer(modifier = Modifier.size(10.dp))
-            AgencyBox(reuse.agencyID,agencyName,agencyLogo) { agencyID ->selectedAgencyID=agencyID}
+            AgencyBox(reuse.agencyID,agencyName) { agencyID ->selectedAgencyID=agencyID}
             Spacer(modifier = Modifier.size(10.dp))
             LaunchesSection(nextLaunches,pastLaunches){onClick-> selectedLaunchID = onClick}
 

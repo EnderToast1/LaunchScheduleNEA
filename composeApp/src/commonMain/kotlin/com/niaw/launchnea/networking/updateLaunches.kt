@@ -17,6 +17,8 @@ import com.niaw.launchnea.database.entities.MetaData
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.database.entities.RocketVersion
+import com.niaw.launchnea.utils.NotificationScheduler
+import com.niaw.launchnea.utils.enableLaunchReminder
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -47,7 +49,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
     //finds the last time the database updated and then updates it so it set to now()
     var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")//Gets lastUpdates time
-    println("Last Updated: $databaseLastUpdated")//LOG    //TODO remove 2mins from databaseLastUpdated
+    println("Last Updated: $databaseLastUpdated")//LOG    //TODO remove 1min from databaseLastUpdated
 
 
     //Only for if DB is reset
@@ -56,14 +58,8 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
         scheduleDao.upsertMetadata(MetaData("lastUpdated",databaseLastUpdated))
     }
 
-    //TODO TEMP DEV
-    databaseLastUpdated= LocalDateTime.of(2026,1,1,0,0).minusMinutes(2).toString()
+    var callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&ordering=-last_updated&last_updated__lte=$databaseLastUpdated"
 
-
-
-    //TODO change lldev to ll only for production not dev
-    var callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&last_updated__gte=$databaseLastUpdated"
-    callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&ordering=-last_updated"
 
     //Updates previous launches
     println("\n\nCalled $callApiUrl")
@@ -71,10 +67,14 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     var callResponse=APIFetchRequest(callApiUrl) //passes the url as a string with the last updated dateTime as part of it in the API filter system
     println("NEXT RESPONSE: 1")
     callResponse.next=null//TODO TEMP
-    if (callResponse.errorType!=null) {
+    if ((callResponse.errorType!=null) and (callResponse.errorType!= NetworkError.NO_DATA)) {
         dbUpdated=false
         requestNumber()
+    }else if (callResponse.errorType == NetworkError.NO_DATA){
+        println("\nNO DATA\n")
+
     }
+
     responseToDatabase(scheduleDao,callResponse)        //parses the response and adds each launch to the database (inside the function it checks for other tables that need adding to)
     var i=0
     while ((callResponse.count>=100) and (callResponse.next!=null)) {
@@ -90,10 +90,11 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     }
 
     if (dbUpdated){
-        scheduleDao.upsertMetadata(MetaData("lastUpdated",LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() ))  //updates LastUpdated to now TODO take UTC time
+        scheduleDao.upsertMetadata(MetaData("lastUpdated",LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES).toString() ))  //updates LastUpdated to now TODO take UTC time
         println("LastUpdated Updated to ${scheduleDao.getMetaData("lastUpdated")}")
     }
     println("\nDone updateLaunchData")
+    requestNumber()
 }
 
 //parses the response and adds each launch to the database (also calls for a function to check for other tables that need adding to)
@@ -107,8 +108,13 @@ suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseD
         val launchesJsonArray = callResponse.data
         launchesJsonArray?.forEachIndexed {i, launchJson ->              //goes though each launch in the return from the API
             val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch  TODO place in a try loop and catch and print the error
-            println("\n\nLaunch number ${i+1}: \n$launch")//LOG
+           println("\n\nLaunch number ${i+1}: \n$launch")//LOG
             if (launch != null) {
+                if (scheduleDao.isStarred(launch.launchID)) {
+                    NotificationScheduler.cancelNotification(launch.launchID)
+                    enableLaunchReminder(launch)
+                }
+
                 checkForOtherEntities(launchJson,launch, scheduleDao)
                 scheduleDao.upsertLaunch(launch) //adds to database if not null
                 checkForReuse(launchJson,launch, scheduleDao)
@@ -120,7 +126,7 @@ suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseD
         }
         println("\n\nNext: ${callResponse.next}\n")
     }else {//if there is an error it logs it
-        println(callResponse.errorType)//LOG
+        println("ERROR: ${callResponse.errorType}")//LOG
     }
     }
 

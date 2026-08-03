@@ -25,16 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import coil3.compose.SubcomposeAsyncImage
 import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
 import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
 import com.niaw.launchnea.database.ScheduleDao
@@ -165,7 +160,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
                 RocketSection(launch, vehicle) { launch -> selectedRocketID = launch.rocketID }
                 Spacer(Modifier.height(5.dp))
             }
-            AgencyBox(launch.agencyID, launch.agencyName,agencyLogo) { agencyID -> selectedAgencyID = agencyID }
+            AgencyBox(launch.agencyID, launch.agencyName) { agencyID -> selectedAgencyID = agencyID }
             Spacer(Modifier.height(10.dp))
 
             ReuseDetails(scheduleDao,launch) { reuseID -> selectedReuseID = reuseID }
@@ -301,12 +296,12 @@ fun StarToggle(launch:Launch,scheduleDao: ScheduleDao) {
                 .clickable {
                     scope.launch {
                         if (isStarred) {
+                            NotificationScheduler.cancelNotification(launch.launchID)
                             scheduleDao.unstarLaunch(launch.launchID)
                             println("${launch.missionName} is Unstarred")
                         } else {
-                            scheduleDao.starLaunch(
-                                StarredLaunch(launch.launchID)
-                            )
+                            enableLaunchReminder(launch)
+                            scheduleDao.starLaunch(StarredLaunch(launch.launchID))
                             println("${launch.missionName} is Starred")
                         }
 
@@ -318,7 +313,6 @@ fun StarToggle(launch:Launch,scheduleDao: ScheduleDao) {
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeDropDown(selected: LiftoffTimeZone, onSelected: (LiftoffTimeZone) -> Unit, modifier: Modifier = Modifier) {
         var expanded by remember { mutableStateOf(false) }
@@ -623,7 +617,7 @@ fun RocketInformationSection(vehicle: RocketVersion){
 }
 
 @Composable
-fun AgencyBox(id:String?, name:String?,logo:String?, onClick: (String) -> Unit) {
+fun AgencyBox(id:String?, name:String?, onClick: (String) -> Unit) {
 
     if (id != null && name != null) {
         Surface(
@@ -662,27 +656,6 @@ fun AgencyBox(id:String?, name:String?,logo:String?, onClick: (String) -> Unit) 
         }
     }
 }
-
-
-@Composable
-fun LogoPlaceholder() {
-    Box(
-        modifier = Modifier
-            .width(25.dp)
-            .fillMaxHeight()
-            .background(Color.DarkGray),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.ImageNotSupported,
-            contentDescription = "Logo not found",
-            tint = Color.LightGray,
-            modifier = Modifier.size(15.dp)
-        )
-    }
-}
-
-
 
 
 @Composable

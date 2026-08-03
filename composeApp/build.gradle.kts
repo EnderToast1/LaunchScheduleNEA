@@ -27,6 +27,8 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
+            implementation("androidx.core:core-ktx:1.17.0")
+            implementation("androidx.core:core:1.17.0")
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
         }

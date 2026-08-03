@@ -2,6 +2,7 @@ package com.niaw.launchnea.networking
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -19,12 +20,13 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.net.http.HttpConnectTimeoutException
 import java.net.http.HttpTimeoutException
+import java.net.UnknownHostException
 
 //Creates an object to connect to the internet and perform the requests
 val httpClient = HttpClient(OkHttp.create()) {
     install(HttpTimeout) {            //Extends Time to time out as the API is sometime slow
         requestTimeoutMillis = 60*1000 // 60 seconds
-        connectTimeoutMillis = 2*1000  //2 seconds
+        connectTimeoutMillis = 15*1000  //15 seconds
         socketTimeoutMillis = 60*1000   //60 seconds
     }
     install(ContentNegotiation){        //adds JSON functionality to the object
@@ -44,8 +46,10 @@ val httpClient = HttpClient(OkHttp.create()) {
             httpClient.get(urlString)                                 //Tries to get request the data from the api
         } catch (_: HttpRequestTimeoutException) {
             return ResponseData(null, NetworkError.REQUEST_TIMEOUT)          //If the Request timeout it catches it and returns the error
-        }catch (_: HttpConnectTimeoutException){
-            return ResponseData(null, NetworkError.CONNECTION_TIMEOUT)         //If the connection is timed out it catches and returns the error
+        }catch (_: ConnectTimeoutException) {
+            return ResponseData(null,NetworkError.CONNECTION_TIMEOUT)         //If the connection is timed out it catches and returns the error
+        }catch (_: UnknownHostException) {
+                return ResponseData(null, NetworkError.NO_INTERNET)           //If DNS fails
         }catch (_: SocketTimeoutException){
             return ResponseData(null, NetworkError.SOCKET_TIMEOUT)           //If the Socket is closed before a response it catches and return the error
         }catch(_: UnresolvedAddressException){
@@ -53,9 +57,12 @@ val httpClient = HttpClient(OkHttp.create()) {
         }catch(_: SerializationException){
             return ResponseData(null,NetworkError.SERIALIZATION)       //If there is a JSON error it catches it and returns the error
         }catch(e: Exception){                                         //If it is another error it catches and prints the error returns unknown error
-            println(e)
+            println("Type: ${e::class.qualifiedName}")
+            println("Cause: ${e.cause}")
+            e.printStackTrace()
             return ResponseData(null, NetworkError.UNKNOWN)
         }
+        println("API request finished")
         return when(response.status.value) {
             in 200..299 -> {                           
                 val jsonElement = Json.parseToJsonElement(response.bodyAsText())         //If the HTTP code is a 2xx code which means success then it returns the response body
