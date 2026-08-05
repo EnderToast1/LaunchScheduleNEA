@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.niaw.launchnea.Settings.GlobalSettings
 import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
 import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
 import com.niaw.launchnea.database.ScheduleDao
@@ -58,9 +59,13 @@ import org.maplibre.compose.sources.GeoJsonData
 import org.maplibre.compose.sources.rememberGeoJsonSource
 import org.maplibre.compose.style.BaseStyle
 import org.maplibre.spatialk.geojson.Position
+import java.time.Clock
 import java.time.Duration
+import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.TimeZone
 
 
 @Composable
@@ -268,12 +273,12 @@ fun MissionMainBox(launch:Launch, scheduleDao: ScheduleDao){
                         Spacer(Modifier.height(4.dp))
                         IconTextRow(launchTimes.liftoffDate,"Launch Date",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.CalendarMonth),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
                         Spacer(Modifier.height(4.dp))
-                    launch.padName?.let { IconTextRow(it,"pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer) }
+                    IconTextRow("${launch.padName}, ${launch.padLocation}","pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
 
                     Spacer(Modifier.height(15.dp))
                     LaunchWindowTimeline(launchTimes)
                     Spacer(Modifier.height(15.dp))
-                    LaunchTimeLine(launch.timeline)
+                    launch.launchTimeUTC?.let { LaunchTimeLine(it,launch.timeline) }
                 }
         }
 }
@@ -552,6 +557,7 @@ fun TimelineDot(color: Color, modifier: Modifier) {
 
 @Composable
 fun RocketSection(launch:Launch, vehicle: RocketVersion?, onClick: (Launch) -> Unit){
+    val activeSince=vehicle?.activeSince?: "Unknown"
     if (vehicle != null) {
         IconTextRow(
             "Rocket",
@@ -570,7 +576,7 @@ fun RocketSection(launch:Launch, vehicle: RocketVersion?, onClick: (Launch) -> U
 
                     Text(if(vehicle.active == true) "Active" else "retired", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     vehicle.name?.let { Text(it, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer) }
-                    Text("Active Since: ${vehicle.activeSince}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                    Text("Active Since: $activeSince", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 }
 
             }
@@ -584,20 +590,23 @@ fun RocketSection(launch:Launch, vehicle: RocketVersion?, onClick: (Launch) -> U
 @Composable
 fun RocketInformationSection(vehicle: RocketVersion){
     val pricePerLaunch=vehicle.launchCost
-    val liftoffThrust=vehicle.liftoffThrust
-    val rocketDiameter = vehicle.diameterMe
-    val rocketHeight = vehicle.lengthMe
-    val stages = vehicle.stages
+    val rocketDiameter = vehicle.diameterMe?:"Unknown"
+    val rocketHeight = vehicle.lengthMe?:"Unknown"
+    val stages = vehicle.stages?:"Unknown"
     val payloadToOrbitLEO = vehicle.leoCapacity
     val payloadToOrbitGTO = vehicle.gtoCapacity
-    val liftoffMass = vehicle.launchMass
-
+    val liftoffMass = vehicle.launchMass?:"Unknown"
+    val liftoffThrust=vehicle.liftoffThrust?:"Unknown"
 
 
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Row 1
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Price Per Launch:\n $${pricePerLaunch?.div(1_000_000)} million", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            if (pricePerLaunch != null) {
+                Text("Price Per Launch:\n $${pricePerLaunch.div(1_000_000)} million", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            }else{
+                Text("Price Per Launch:\n Unknown Price", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            }
 
             Text("Stages:\n #$stages", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
         }
@@ -605,7 +614,15 @@ fun RocketInformationSection(vehicle: RocketVersion){
         // Row 2
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("Rocket:\n Diameter: ${rocketDiameter}m\n Height: ${rocketHeight}m", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
-            Text("Payload to orbit:\n LEO: ${payloadToOrbitLEO?.div(1000)} tonnes\n GTO: ${payloadToOrbitGTO?.div(1000)} tonnes", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            if ((payloadToOrbitLEO != null) and (payloadToOrbitGTO != null)) {
+                    Text("Payload to orbit:\n LEO: ${payloadToOrbitLEO!!.div(1000)} tonnes\n GTO: ${payloadToOrbitGTO!!.div(1000)} tonnes", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            }else if ((payloadToOrbitLEO == null) and (payloadToOrbitGTO != null)) {
+                Text("Payload to orbit:\n LEO: Unknown Mass\n GTO: ${payloadToOrbitGTO!!.div(1000)} tonnes", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            }else if ((payloadToOrbitLEO != null) and (payloadToOrbitGTO == null)) {
+                Text("Payload to orbit:\n LEO: ${payloadToOrbitLEO!!.div(1000)} tonnes\n GTO: Unknown Mass", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            }else{
+                Text("Payload to orbit:\n LEO: Unknown Mass\n GTO: Unknown Mass", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            }
         }
 
         // Row 3
@@ -699,9 +716,9 @@ fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable,onCli
 
         Column(modifier = Modifier.fillMaxWidth().border(width = 3.dp,MaterialTheme.colorScheme.outline,RoundedCornerShape(20.dp)).padding(15.dp,5.dp).clickable(onClick = {if (reusable.reuseName?.contains("Unknown", ignoreCase = true) != true) {onClick1(reusable.reuseID!!)}})) {
             if(reusable.landingType != LandingType.EXP) {
-                BoxChip(Chip(text = reusable.landingLocationName, type = reusable.landingType))
+                BoxChip(Chip(text = reusable.landingLocationName, icon = getIconForChip(reusable)))
             }else{
-                BoxChip(Chip(text="Expended (${reusable.landingLocationName})",type=reusable.landingType))
+                BoxChip(Chip(text="Expended (${reusable.landingLocationName})",icon=getIconForChip(reusable)))
             }
             reusable.reuseName?.let { Text(it,style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
 
@@ -797,7 +814,7 @@ fun PadLocation(location: Location) {
 
 
 @Composable
-fun LaunchTimeLine(timeline:List<TimelineEvent>){
+fun LaunchTimeLine(launchTimeUTC: ZonedDateTime, timeline:List<TimelineEvent>){
     var isExpanded by rememberSaveable  { mutableStateOf(false) }
 
 
@@ -807,7 +824,7 @@ fun LaunchTimeLine(timeline:List<TimelineEvent>){
         transitionSpec = {fadeIn(animationSpec = tween(500)) togetherWith fadeOut(animationSpec = tween(500))}
     ) { expanded  ->
         val count = if (expanded) timeline.size else 3
-        LaunchTimeLineList(count, timeline)
+        LaunchTimeLineList(launchTimeUTC,count, timeline)
     }
 
     Surface(
@@ -831,19 +848,38 @@ fun LaunchTimeLine(timeline:List<TimelineEvent>){
 }
 
 @Composable
-fun LaunchTimeLineList(count:Int, list:List<TimelineEvent>){
+fun LaunchTimeLineList(launchTimeUTC: ZonedDateTime,count:Int, list:List<TimelineEvent>){
     Column(modifier = Modifier.fillMaxWidth()/*.padding(16.dp,0.dp)*/,  verticalArrangement = Arrangement.spacedBy(5.dp)) {
         list.take(count).forEach { event ->
-            TimeLineEventDisplay(event)
+            TimeLineEventDisplay(launchTimeUTC,event)
         }
     }
 }
 
 @Composable
-fun TimeLineEventDisplay(event:TimelineEvent){
+fun TimeLineEventDisplay(launchTimeUTC: ZonedDateTime, event:TimelineEvent){
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        IconTextRow(event.abbrev,"timeline event",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Outlined.Circle),Modifier,MaterialTheme.colorScheme.onSecondaryContainer)
-        Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+        if(hasEventPassed(launchTimeUTC.toLocalDateTime(),event.relativeTime)) {
+            IconTextRow(
+                event.abbrev,
+                "timeline event",
+                MaterialTheme.typography.bodyMedium,
+                rememberVectorPainter(Icons.Filled.Circle),
+                Modifier,
+                GlobalSettings.successColour
+            )
+            Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+        }else{//Before
+            IconTextRow(
+                event.abbrev,
+                "timeline event",
+                MaterialTheme.typography.bodyMedium,
+                rememberVectorPainter(Icons.Outlined.Circle),
+                Modifier,
+                MaterialTheme.colorScheme.onSecondaryContainer
+            )
+            Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color = GlobalSettings.successColour)
+        }
     }
 }
 
@@ -870,4 +906,15 @@ fun formatTTime(
         minutes,
         seconds
     )
+}
+
+fun hasEventPassed(
+    eventTime: LocalDateTime,
+    offset: String
+): Boolean {
+    val endInstant = eventTime
+        .toInstant(ZoneOffset.UTC)
+        .plus(Duration.parse(offset))
+
+    return endInstant.isBefore(java.time.Instant.now())
 }

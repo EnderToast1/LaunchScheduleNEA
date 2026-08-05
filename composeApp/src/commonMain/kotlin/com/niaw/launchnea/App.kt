@@ -90,15 +90,16 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
         LaunchedEffect(Unit) {
             withContext(Dispatchers.IO) {
                 try {
-                    println(InetAddress.getByName("ll.thespacedevs.com"))
+                    //println(InetAddress.getByName("ll.thespacedevs.com"))
                 } catch (e: Exception) {
                     println(e)
                 }
 
-                delay(1.seconds)
-                updateLaunchData(scheduleDao)
+                //delay(1.seconds)
+                //updateLaunchData(scheduleDao)
             }
         }
+
 
         val items = listOf<NavigationItem>(
             NavigationItem(

@@ -3,7 +3,12 @@ package com.niaw.launchnea.database.entities
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Rocket
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -22,6 +27,7 @@ import com.niaw.launchnea.Settings.GlobalSettings.dateTimeFormat
 import com.niaw.launchnea.utils.LandingType
 import com.niaw.launchnea.utils.ReuseType
 import com.niaw.launchnea.utils.abbreviate
+import com.niaw.launchnea.utils.getIconForChip
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -109,7 +115,10 @@ data class Launch(
                 abbreviate(it.landingLocationName, 4),
                 null,
                 it.status,
-                it.landingType
+                getIconForChip(it)
             )
         }
+
 }
+
+

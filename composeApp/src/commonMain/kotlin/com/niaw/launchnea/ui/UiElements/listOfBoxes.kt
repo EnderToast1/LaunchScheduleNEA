@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Recycling
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -146,7 +148,7 @@ fun ListOfBoxesReuse(scheduleDao: ScheduleDao?, listOfItem: List<Reuse>, listSta
                         "Last Flight: ${lastFlight?.launchTimeUTC?.format(DateTimeFormatter.ofPattern(dateTimeFormat))} ($formattedDays $unit ago)"
                 }
 
-                itemText.chips= listOf(Chip("$flights",null, item.status== StatusReuse.ACTIVE, LandingType.REUSE))
+                itemText.chips= listOf(Chip("$flights",null, item.status== StatusReuse.ACTIVE, Icons.Default.Recycling))
 
                 ListBox(itemText, onItemClick)
             }

@@ -38,6 +38,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -258,24 +260,8 @@ fun BoxChip(chip: Chip ) {
         colour=partialFailureColour
     }
 
-    val icon=when(chip.type){
-        LandingType.ASDS -> rememberVectorPainter(Icons.Default.Shield)
-        LandingType.RTLS -> rememberVectorPainter(Icons.Default.Shield)
-        LandingType.VL -> rememberVectorPainter(Icons.Default.Shield)//Same as RTLS icon
-        LandingType.PCL -> rememberVectorPainter(Icons.Default.Shield)
-        LandingType.OCEAN -> rememberVectorPainter(Icons.Default.Water)// add rocket
-        LandingType.HC -> rememberVectorPainter(Icons.Default.Shield)
-        LandingType.HL -> rememberVectorPainter(Icons.Default.Shield)
-        LandingType.ATM -> rememberVectorPainter(Icons.Default.Shield)
-        LandingType.EXP -> rememberVectorPainter(Icons.Default.Shield)
-        LandingType.PFL -> rememberVectorPainter(Icons.Default.Paragliding)
-
-        LandingType.REUSE -> rememberVectorPainter(Icons.Default.Recycling)
-        LandingType.ACTIVE -> rememberVectorPainter(Icons.Default.CheckCircle)
-        LandingType.RETIRED -> rememberVectorPainter(Icons.Default.Inventory2)
-        else -> rememberVectorPainter(Icons.Default.QuestionMark)
-    }
-
+    val icon = if (chip.icon != null) {rememberVectorPainter(chip.icon)}
+               else{rememberVectorPainter(Icons.Default.Shield)}
 
     Box(
         modifier = Modifier

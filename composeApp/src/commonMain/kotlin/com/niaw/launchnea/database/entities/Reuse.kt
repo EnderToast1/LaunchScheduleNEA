@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Rocket
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material.icons.outlined.Timer
@@ -78,7 +79,7 @@ data class Reuse(
                 title = name,
                 imageGroup = ImageGroup(imageThumbURL, imageCredit, licenseType, show = true),
                 secondRowIcon = DisplayIcon.Vector(Icons.Outlined.Rocket),
-                secondRow = "$rocketName|$agencyName",
+                secondRow = "$rocketName | $agencyName",
                 thirdRowIcon = statusReuseIcon(),
                 thirdRow = status.toString(),
                 fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.History),
@@ -91,7 +92,7 @@ data class Reuse(
     fun statusReuseIcon(): DisplayIcon.Vector {//TODO need Editing
         return when (this.status) {
             StatusReuse.RETIRED,
-            StatusReuse.EXPENDED -> DisplayIcon.Vector(Icons.Outlined.CheckCircle)
+            StatusReuse.EXPENDED -> DisplayIcon.Vector(Icons.Outlined.Inventory2)
             StatusReuse.ACTIVE -> DisplayIcon.Vector(Icons.Outlined.AirplanemodeActive)
             StatusReuse.LOST -> DisplayIcon.Vector(Icons.Outlined.Error)
             StatusReuse.SCRAPPED -> DisplayIcon.Vector(Icons.Outlined.Delete)

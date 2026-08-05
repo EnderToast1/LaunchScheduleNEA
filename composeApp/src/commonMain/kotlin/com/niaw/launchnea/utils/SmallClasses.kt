@@ -62,12 +62,6 @@ enum class LandingType{
     EXP,        //expended 
     VL,        //vertical landing
     PFL,       //Unpowered landing using parafoil(s)
-
-
-    REUSE,
-    ACTIVE,
-    RETIRED,
-    
     UNKNOWN
 }
 

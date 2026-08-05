@@ -1,6 +1,8 @@
 package com.niaw.launchnea.database.entities
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.Rocket
 import androidx.compose.material.icons.filled.Schedule
@@ -67,12 +69,12 @@ data class RocketVersion(
         title =this.name,
         imageGroup = ImageGroup(this.imageThumbURL, imageCredit,licenseType,true),
         secondRowIcon = DisplayIcon.Vector(Icons.Filled.Schedule),
-        secondRow = "${activeSince?.format(DateTimeFormatter.ofPattern(dateFormat))}",
+        secondRow = "Active Since ${activeSince?.format(DateTimeFormatter.ofPattern(dateFormat))}",
         thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Numbers),
-        thirdRow = "$launches",
+        thirdRow = "$launches Flight${if (launches == 1) "" else "s"}",
         chips = getChips(),
     )
 
-    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired",null,if (active == true) true else false,if (active == true) LandingType.ACTIVE else LandingType.RETIRED))
+    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired",null,if (active == true) true else false,if (active == true) Icons.Default.CheckCircle else Icons.Default.Inventory2))
 }
 

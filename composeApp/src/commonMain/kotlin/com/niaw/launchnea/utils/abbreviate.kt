@@ -20,7 +20,7 @@ fun abbreviate(name: String?, maxWords: Int = 4): String {
         }
 
         val ignoredWords = setOf(
-            "and", "or", "the", "for", "in", "on", "at", "to", "an"
+            "and", "or", "for", "in", "on", "at", "to", "an"
         )
 
         val words = name.trim()

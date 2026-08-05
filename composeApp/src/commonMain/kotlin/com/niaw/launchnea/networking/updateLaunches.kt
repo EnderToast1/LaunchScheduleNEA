@@ -141,8 +141,14 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     }
     val padName= (launchJsonObj["pad"] as? JsonObject)?.jsonObject?.get("name")?.jsonPrimitive?.content
     val agencyID= launchJsonObj["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content
-    val rocketID= launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content
     val rocketVersionID= launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content
+    val rocketID=if ( launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject!=null){
+        launchJsonObj["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content
+    }else{
+        "NoFamily$rocketVersionID"
+    }
+
+
     val launchTimeUTC: ZonedDateTime? =launchJsonObj["net"]?.jsonPrimitive?.content?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
     val padTimeZoneID = (launchJsonObj["pad"] as? JsonObject)?.get("location")?.jsonObject?.get("timezone_name")?.jsonPrimitive?.content?.takeIf { it.isNotBlank() } // <- ignore empty strings
     val launchTimePad: ZonedDateTime? = if (launchTimeUTC != null && padTimeZoneID != null) {runCatching { launchTimeUTC.withZoneSameInstant(ZoneId.of(padTimeZoneID)) }.getOrNull()//gets the pad launch timezone id and the UTC launch time and the applies it if one or both is null or the timezone id is invalid it returns the UTC time
@@ -363,6 +369,7 @@ suspend fun checkForOtherEntities(launchJsonEle: JsonElement,launch: Launch,sche
             println("Rocket: ${launch.rocketName} ALREADY exists and is updated")
         }
     }
+
     if (launch.rocketVersionID!=null){
         if (!scheduleDao.doesRocketVersionExist(launch.rocketVersionID)|| scheduleDao.doesRocketVersionNeedUpdating(launch.rocketVersionID, lastUpdated)) {
             println("Version: ${launch.rocketVariantName} does NOT exist or needs updating")
@@ -452,25 +459,66 @@ suspend fun parseAgency(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Ag
 
 suspend fun parseRocket(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): Rocket {
     val rocketJsonObj=launchJsonEle.jsonObject["rocket"]?.jsonObject  //turns the element into an object
+    if ( rocketJsonObj?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject!=null) {
 
-    val toReturn = Rocket(//Gets all parts for the Object from the JSON
-        rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
-        name = rocketJsonObj?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("name")?.jsonPrimitive?.content,
-        agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
-        agencyName = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("name")?.jsonPrimitive?.content,
-        imageURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("image_url")?.jsonPrimitive?.content,
-        imageThumbURL =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("thumbnail_url")?.jsonPrimitive?.content,
-        imageCredit =(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
-        licenseType=(rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }?.get("license")?.let { it as? JsonObject }?.get("name")?.let { it as? JsonPrimitive }?.contentOrNull,
-        desc = rocketJsonObj?.get("configuration")?.jsonObject?.get("description")?.jsonPrimitive?.content,
-        lastUpdated=scheduleDao.getMetaData("lastUpdated")?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
-    )
-    println("      $toReturn")//LOG
-    return toReturn
+
+        val toReturn = Rocket(//Gets all parts for the Object from the JSON
+            rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get(
+                "id"
+            )?.jsonPrimitive?.content!!,
+            name = rocketJsonObj.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get(
+                "name"
+            )?.jsonPrimitive?.content,
+            agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
+            agencyName = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("name")?.jsonPrimitive?.content,
+            imageURL = (rocketJsonObj["configuration"] as? JsonObject)?.get("image")?.let { it as? JsonObject }
+                ?.get("image_url")?.jsonPrimitive?.content,
+            imageThumbURL = (rocketJsonObj["configuration"] as? JsonObject)?.get("image")
+                ?.let { it as? JsonObject }?.get("thumbnail_url")?.jsonPrimitive?.content,
+            imageCredit = (rocketJsonObj["configuration"] as? JsonObject)?.get("image")?.let { it as? JsonObject }
+                ?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
+            licenseType = (rocketJsonObj["configuration"] as? JsonObject)?.get("image")?.let { it as? JsonObject }
+                ?.get("license")?.let { it as? JsonObject }?.get("name")?.let { it as? JsonPrimitive }?.contentOrNull,
+            desc = rocketJsonObj["configuration"]?.jsonObject?.get("description")?.jsonPrimitive?.content,
+            lastUpdated = scheduleDao.getMetaData("lastUpdated")
+                ?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
+        )
+        println("      $toReturn")//LOG
+        return toReturn
+    }else{
+        val toReturn = Rocket(
+            rocketID = "NoFamily${rocketJsonObj?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content}",
+            name = rocketJsonObj?.get("configuration")?.jsonObject?.get("full_name")?.jsonPrimitive?.content,
+            agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
+            agencyName = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("name")?.jsonPrimitive?.content,
+            imageURL = (rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }
+                ?.get("image_url")?.jsonPrimitive?.content,
+            imageThumbURL = (rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")
+                ?.let { it as? JsonObject }?.get("thumbnail_url")?.jsonPrimitive?.content,
+            imageCredit = (rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }
+                ?.get("credit")?.let { it as? JsonPrimitive }?.contentOrNull,
+            licenseType = (rocketJsonObj?.get("configuration") as? JsonObject)?.get("image")?.let { it as? JsonObject }
+                ?.get("license")?.let { it as? JsonObject }?.get("name")?.let { it as? JsonPrimitive }?.contentOrNull,
+            desc = rocketJsonObj?.get("configuration")?.jsonObject?.get("description")?.jsonPrimitive?.content,
+            lastUpdated = scheduleDao.getMetaData("lastUpdated")
+                ?.let { LocalDateTime.parse(it, DateTimeFormatter.ISO_LOCAL_DATE_TIME) },
+        )
+
+        println("      $toReturn")//LOG
+        return toReturn
+
+    }
 }
 
 suspend fun parseRocketVersion(launchJsonEle: JsonElement,scheduleDao: ScheduleDao): RocketVersion {
     val rocketVersionJsonObj=launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject  //turns the element into an object
+
+    val rocketID=if ( rocketVersionJsonObj?.get("families")?.jsonArray?.lastOrNull()?.jsonObject!=null){
+        rocketVersionJsonObj["families"]?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content
+    }else{
+        "NoFamily${rocketVersionJsonObj?.get("id")?.jsonPrimitive?.content!!}"
+    }
+
 
     val toReturn =RocketVersion(//Gets all parts for the Object from the JSON
         rocketVersionID = rocketVersionJsonObj?.get("id")?.jsonPrimitive?.content!!,
@@ -478,7 +526,7 @@ suspend fun parseRocketVersion(launchJsonEle: JsonElement,scheduleDao: ScheduleD
         active = rocketVersionJsonObj["active"]?.jsonPrimitive?.boolean,
         launches = rocketVersionJsonObj["total_launch_count"]?.jsonPrimitive?.int,
         activeSince = rocketVersionJsonObj["maiden_flight"]?.takeIf { it !is JsonNull }?.jsonPrimitive?.content?.let(LocalDate::parse),
-        rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
+        rocketID = rocketID,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
         diameterMe = rocketVersionJsonObj["diameter"]?.jsonPrimitive?.doubleOrNull,
         lengthMe = rocketVersionJsonObj["length"]?.jsonPrimitive?.doubleOrNull,
