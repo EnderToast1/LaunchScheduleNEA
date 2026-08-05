@@ -40,7 +40,7 @@ class AppSettings(private val settings: Settings) {
     }
     fun saveDateFormat(format: DateFormat) {settings.putString(dateFormatKey, format.name)}
     fun getDateFormat(): DateFormat {
-        val saved = settings.getString(dateFormatKey, DateFormat.DayNMonthYear.name)
+        val saved = settings.getString(dateFormatKey, DateFormat.DaySMonthYear.name)
         return DateFormat.valueOf(saved)
     }
 

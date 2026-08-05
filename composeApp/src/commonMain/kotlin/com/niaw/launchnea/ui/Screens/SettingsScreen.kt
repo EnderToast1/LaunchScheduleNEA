@@ -72,6 +72,10 @@ import com.niaw.launchnea.Settings.initialWeekday
 import com.niaw.launchnea.Settings.toDateFormat
 import com.niaw.launchnea.Settings.toLabel
 import com.niaw.launchnea.Settings.toTimeFormat
+import launchnea.composeapp.generated.resources.Res
+import launchnea.composeapp.generated.resources.choose_Theme_colour
+import launchnea.composeapp.generated.resources.choose_success_type_colour
+import org.jetbrains.compose.resources.stringResource
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -155,7 +159,7 @@ fun ColourThemePickerBox(
 ){
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Text(
-            text = "Choose Theme Colour",
+            text = stringResource(Res.string.choose_Theme_colour),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier.padding(bottom = 10.dp)
@@ -431,7 +435,7 @@ fun DropdownMenuBox(
 @Composable
 fun SuccessStatusBox(appSettings: AppSettings) {
     Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.secondaryContainer).padding(16.dp)) {
-        Text("Choose Colour for Success Type ", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)//TODO add Colo(u)r Localisations
+        Text(stringResource(Res.string.choose_success_type_colour), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)//TODO add Colo(u)r Localisations
 
 
         SuccessTypeColourPickerBox("Success",Color.Green,successColour){ newColour ->
@@ -558,7 +562,7 @@ fun SuccessTypeColourPickerBox(
     if (showColourPicker) {
         AlertDialog(
             onDismissRequest = { showColourPicker = false },
-            title = { Text("Choose Colour") },
+            title = { Text(stringResource(Res.string.choose_Theme_colour)) },
             text = {
                 HsvColorPicker(
                     modifier = Modifier.size(250.dp),

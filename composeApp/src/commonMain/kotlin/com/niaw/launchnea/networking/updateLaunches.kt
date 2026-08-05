@@ -90,7 +90,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     }
 
     if (dbUpdated){
-        scheduleDao.upsertMetadata(MetaData("lastUpdated",LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES).toString() ))  //updates LastUpdated to now TODO take UTC time
+        scheduleDao.upsertMetadata(MetaData("lastUpdated",LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES).toString() ))  //updates LastUpdated to now
         println("LastUpdated Updated to ${scheduleDao.getMetaData("lastUpdated")}")
     }
     println("\nDone updateLaunchData")

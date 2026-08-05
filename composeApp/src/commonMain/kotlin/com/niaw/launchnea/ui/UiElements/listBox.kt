@@ -269,7 +269,7 @@ fun BoxChip(chip: Chip ) {
             .background(colour)
             .padding(horizontal = 5.dp, vertical = 3.dp)
     ) {
-        //TODO add row with Icon
+
         IconTextRow(chip.text?.ifBlank { "Unknown" } ?: "Unknown",chip.text?.ifBlank { "Unknown" } ?: "Unknown",MaterialTheme.typography.labelMedium,icon,Modifier,colour.onColor())
         
     }

@@ -27,4 +27,7 @@ actual object NotificationScheduler {
             )
         }
     }
+
+    actual fun cancelNotification(launchId: String) {
+    }
 }

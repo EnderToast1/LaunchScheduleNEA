@@ -22,7 +22,6 @@ data class LaunchTimesFormated(
     val windowClose: LocalDateTime
 )
 
-//TODO make function
 fun getLaunchTimesInTimeZone(launch: Launch, selectedZone: LiftoffTimeZone):LaunchTimes {
 
     if (selectedZone == LiftoffTimeZone.PAD_LOCAL) {

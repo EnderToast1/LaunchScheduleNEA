@@ -10,9 +10,9 @@ import com.niaw.launchnea.utils.TimeFormat
 object GlobalSettings {
     var timeFormat by mutableStateOf(TimeFormat.HOUR24SeOFF.toPattern())
         private set
-    var dateFormat by mutableStateOf(DateFormat.DayNMonthYear.toPattern())
+    var dateFormat by mutableStateOf(DateFormat.DaySMonthYear.toPattern())
         private set
-    var dateTimeFormat by mutableStateOf("${DateFormat.DayNMonthYear.toPattern()} ${TimeFormat.HOUR24SeOFF.toPattern()}")
+    var dateTimeFormat by mutableStateOf("${DateFormat.DaySMonthYear.toPattern()} ${TimeFormat.HOUR24SeOFF.toPattern()}")
         private set
     var successColour by mutableStateOf(Color.Green)
     var partialFailureColour by mutableStateOf(Color.Yellow)
