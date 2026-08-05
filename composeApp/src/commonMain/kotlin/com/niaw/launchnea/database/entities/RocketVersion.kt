@@ -1,26 +1,19 @@
 package com.niaw.launchnea.database.entities
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Numbers
-import androidx.compose.material.icons.filled.Rocket
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
-import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.ui.UiElements.Chip
-import com.niaw.launchnea.ui.UiElements.DisplayIcon
-import com.niaw.launchnea.ui.UiElements.DisplayItems
-import com.niaw.launchnea.ui.UiElements.ImageGroup
-import com.niaw.launchnea.ui.UiElements.ListBoxItem
-import com.niaw.launchnea.utils.LandingType
+import com.niaw.launchnea.ui.UiElements.*
+import launchnea.composeapp.generated.resources.Res
+import launchnea.composeapp.generated.resources.search_book
+import launchnea.composeapp.generated.resources.check_circle
+import launchnea.composeapp.generated.resources.inventory_2
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Entity(
@@ -75,6 +68,6 @@ data class RocketVersion(
         chips = getChips(),
     )
 
-    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired",null,if (active == true) true else false,if (active == true) Icons.Default.CheckCircle else Icons.Default.Inventory2))
+    fun getChips():List<Chip>  = listOf(Chip(if (active == true) "Active" else "Retired",null,if (active == true) true else false,if (active == true) Res.drawable.check_circle else Res.drawable.inventory_2))
 }
 

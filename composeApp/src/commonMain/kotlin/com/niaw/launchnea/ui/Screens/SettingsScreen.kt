@@ -435,7 +435,7 @@ fun DropdownMenuBox(
 @Composable
 fun SuccessStatusBox(appSettings: AppSettings) {
     Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.secondaryContainer).padding(16.dp)) {
-        Text(stringResource(Res.string.choose_success_type_colour), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)//TODO add Colo(u)r Localisations
+        Text(stringResource(Res.string.choose_success_type_colour), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
 
 
         SuccessTypeColourPickerBox("Success",Color.Green,successColour){ newColour ->

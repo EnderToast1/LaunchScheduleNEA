@@ -260,7 +260,7 @@ fun BoxChip(chip: Chip ) {
         colour=partialFailureColour
     }
 
-    val icon = if (chip.icon != null) {rememberVectorPainter(chip.icon)}
+    val icon = if (chip.icon != null) {painterResource(chip.icon)}
                else{rememberVectorPainter(Icons.Default.Shield)}
 
     Box(

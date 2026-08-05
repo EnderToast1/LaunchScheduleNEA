@@ -33,6 +33,8 @@ import com.niaw.launchnea.navigation.ViewModels.ReuseBoxInfo
 import com.niaw.launchnea.navigation.ViewModels.RocketLaunchesViewModel
 import com.niaw.launchnea.utils.LandingType
 import com.niaw.launchnea.utils.StatusReuse
+import launchnea.composeapp.generated.resources.Res
+import launchnea.composeapp.generated.resources.recycling
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -148,7 +150,7 @@ fun ListOfBoxesReuse(scheduleDao: ScheduleDao?, listOfItem: List<Reuse>, listSta
                         "Last Flight: ${lastFlight?.launchTimeUTC?.format(DateTimeFormatter.ofPattern(dateTimeFormat))} ($formattedDays $unit ago)"
                 }
 
-                itemText.chips= listOf(Chip("$flights",null, item.status== StatusReuse.ACTIVE, Icons.Default.Recycling))
+                itemText.chips= listOf(Chip("$flights",null, item.status== StatusReuse.ACTIVE, Res.drawable.recycling))//recycling
 
                 ListBox(itemText, onItemClick)
             }
