@@ -101,7 +101,7 @@ data class Launch(
             title = missionName,
             imageGroup = ImageGroup(imageUrl, imageCredit, licenseType,true),
             secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
-            secondRow = "$rocketName  |  $agencyName",
+            secondRow = "$rocketName  |  ${abbreviate(agencyName)}",
             thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Place),
             thirdRow = "$padName, $padLocation",
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),

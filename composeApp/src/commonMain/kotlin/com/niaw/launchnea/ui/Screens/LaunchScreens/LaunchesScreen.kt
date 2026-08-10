@@ -3,6 +3,7 @@ package com.niaw.launchnea.ui.Screens.LaunchScreens
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
@@ -26,6 +27,11 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
     var searchText by rememberSaveable { mutableStateOf("") }
     var selectedLaunchID by rememberSaveable { mutableStateOf<String?>(null) } // track selected launch
     var selectedLaunch by remember { mutableStateOf<Launch?>(null) }
+    val listStateUpcoming = rememberLazyListState()
+    val listStatePrevious = rememberLazyListState()
+    // Keep ViewModels across detail navigation so list data and scroll aren't reset
+    val upcomingViewModel = remember { UpcomingLaunchViewModel(scheduleDao) }
+    val previousViewModel = remember { PreviousLaunchViewModel(scheduleDao) }
 
     val tabItems = listOf(
         TabItem("Upcoming"),
@@ -105,11 +111,15 @@ fun LaunchesScreen(scheduleDao: ScheduleDao) {
 
                         when (page) {
                             0 -> {
-                                ListLaunchesScreen(remember { UpcomingLaunchViewModel(scheduleDao) }, searchText) { launchId ->selectedLaunchID = launchId }
+                                ListLaunchesScreen(upcomingViewModel, listStateUpcoming, searchText) { launchId ->
+                                    selectedLaunchID = launchId
+                                }
                             }
 
                             1 -> {
-                                ListLaunchesScreen(remember { PreviousLaunchViewModel(scheduleDao) },searchText) { launchId -> selectedLaunchID = launchId }
+                                ListLaunchesScreen(previousViewModel, listStatePrevious, searchText) { launchId ->
+                                    selectedLaunchID = launchId
+                                }
                             }
 
                         }

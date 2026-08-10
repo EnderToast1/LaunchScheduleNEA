@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+
     <application
             android:name=".App"
             android:allowBackup="true"
@@ -24,6 +29,15 @@
         <receiver
                 android:name=".utils.NotificationReceiver"
                 android:exported="false"/>
+        <receiver
+                android:name=".networking.SyncAlarmReceiver"
+                android:exported="false"/>
+
+        <!-- Required so WorkManager can run long syncs as a dataSync FGS on API 34+ -->
+        <service
+                android:name="androidx.work.impl.foreground.SystemForegroundService"
+                android:foregroundServiceType="dataSync"
+                tools:node="merge"/>
 
     </application>
 

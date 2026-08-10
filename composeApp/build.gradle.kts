@@ -31,6 +31,7 @@ kotlin {
             implementation("androidx.core:core:1.17.0")
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation("androidx.work:work-runtime-ktx:2.9.0")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -46,7 +47,6 @@ kotlin {
             implementation(libs.maplibre.maps)
             implementation(libs.geojson)
             implementation(libs.maplibre.m3)
-
             implementation("org.slf4j:slf4j-simple:2.0.13")
             implementation(libs.paletteon.core)
             implementation(compose.components.resources)

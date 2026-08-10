@@ -3,6 +3,7 @@ package com.niaw.launchnea.ui.UiElements
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
@@ -42,7 +43,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import com.niaw.launchnea.Settings.GlobalSettings.failureColour
 import com.niaw.launchnea.Settings.GlobalSettings.holdColour
@@ -51,6 +54,7 @@ import com.niaw.launchnea.Settings.GlobalSettings.partialFailureColour
 import com.niaw.launchnea.Settings.GlobalSettings.successColour
 import com.niaw.launchnea.utils.LandingType
 import com.niaw.launchnea.utils.Status
+import com.niaw.launchnea.utils.abbreviate
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -128,36 +132,55 @@ fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
 fun BoxLeftImage( item: ImageGroup?) {
     val url = item?.imageUrl
     val shouldShow = url != null && item.show
+    if ((url == null) and (item?.show == true)) {ImagePlaceholder()}
 
     if (shouldShow) {
-        SubcomposeAsyncImage(
-            model = url,
-            contentDescription = "Launch Image",
-            modifier = Modifier
-                .fillMaxHeight()
-                .wrapContentWidth(),
-            contentScale = ContentScale.FillHeight,
-            loading = {//While image loading
-                Box(
-                    modifier = Modifier
-                        .width(145.dp)
-                        .fillMaxHeight()
-                        .background(Color.DarkGray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        strokeCap = StrokeCap.Round
-                    )
+        Box(Modifier.width(145.dp).fillMaxHeight(), contentAlignment = Alignment.BottomStart) {
+            SubcomposeAsyncImage(
+                model = url,
+                contentDescription = "Launch Image",
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .wrapContentWidth(),
+                contentScale = ContentScale.FillHeight,
+                loading = {//While image loading
+                    Box(
+                        modifier = Modifier
+                            .width(145.dp)
+                            .fillMaxHeight()
+                            .background(Color.DarkGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            strokeCap = StrokeCap.Round
+                        )
+                    }
+                },
+                // This catches 'NoSuchKey' / 404 errors
+                error = {
+                    ImagePlaceholder()
                 }
-            },
-            // This catches 'NoSuchKey' / 404 errors
-            error = {
-                ImagePlaceholder()
+            )
+            Box(Modifier.padding(2.dp).clip(RoundedCornerShape(30.dp)).background(Color.LightGray).padding(5.dp,0.dp), contentAlignment = Alignment.CenterStart) {
+                Text(
+                    text = if ((item.imageCredit=="null") or (item.imageCredit==null)){
+                        "Unknown"
+                    }else if(item.imageCredit?.length!!>=10) {
+                        abbreviate(item.imageCredit)
+
+                    }else{
+                        item.imageCredit
+                    },
+                    color = Color.DarkGray,
+                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodyMedium,
+
+                )
             }
-        )
+        }
     }
 }
 

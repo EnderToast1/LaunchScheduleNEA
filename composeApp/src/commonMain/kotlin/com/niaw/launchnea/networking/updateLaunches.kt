@@ -65,29 +65,42 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
     println("\n\nCalled $callApiUrl")
     var dbUpdated=true
     var callResponse=APIFetchRequest(callApiUrl) //passes the url as a string with the last updated dateTime as part of it in the API filter system
-    println("NEXT RESPONSE: 1")
     callResponse.next=null//TODO TEMP
-    if ((callResponse.errorType!=null) and (callResponse.errorType!= NetworkError.NO_DATA)) {
-        dbUpdated=false
-        requestNumber()
-    }else if (callResponse.errorType == NetworkError.NO_DATA){
-        println("\nNO DATA\n")
 
-    }
 
-    responseToDatabase(scheduleDao,callResponse)        //parses the response and adds each launch to the database (inside the function it checks for other tables that need adding to)
-    var i=0
-    while ((callResponse.count>=100) and (callResponse.next!=null)) {
-        i++
-        println("NEXT RESPONSE: ${i+1}")
-        callResponse=APIFetchRequest(callResponse.next)
-        callResponse.count-=(i*100)
-        if (callResponse.errorType!=null) {
+    if(callResponse.errorType==null){
+        var i=1
+        println("NEXT RESPONSE: #${i}")
+        responseToDatabase(scheduleDao,callResponse)
+
+        while (callResponse.next!=null){
+            i++
+            println("NEXT RESPONSE: #${i}")
+            callResponse=APIFetchRequest(callResponse.next)
+            callResponse.count-=(i*100)
+            if(callResponse.errorType==null){
+                responseToDatabase(scheduleDao,callResponse)
+            }else{
+                if (callResponse.errorType == NetworkError.NO_DATA){
+                    println("\nNO DATA\n")
+                }else{
+                    dbUpdated=false
+                    requestNumber()
+                }
+            }
+        }
+    }else{
+        println("Error: "+callResponse.errorType)
+        if (callResponse.errorType == NetworkError.NO_DATA) {
+            println("\nNO DATA\n")
+        }else if (callResponse.errorType == NetworkError.NO_INTERNET){
+            dbUpdated=false
+        }else{
             dbUpdated=false
             requestNumber()
         }
-        responseToDatabase(scheduleDao,callResponse)
     }
+
 
     if (dbUpdated){
         scheduleDao.upsertMetadata(MetaData("lastUpdated",LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES).toString() ))  //updates LastUpdated to now

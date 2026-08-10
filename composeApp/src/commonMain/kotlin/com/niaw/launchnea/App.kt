@@ -5,56 +5,38 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.niaw.launchnea.Settings.AppSettings
+import com.niaw.launchnea.Settings.GlobalSettings
 import com.niaw.launchnea.database.ScheduleDao
+import com.niaw.launchnea.navigation.NavigationItem
+import com.niaw.launchnea.networking.AppSyncManager
+import com.niaw.launchnea.networking.BackgroundSyncScheduler
+import com.niaw.launchnea.networking.updateLaunchData
 import com.niaw.launchnea.ui.Screens.HomeScreens.HomeScreen
 import com.niaw.launchnea.ui.Screens.LaunchScreens.LaunchesScreen
 import com.niaw.launchnea.ui.Screens.SettingsScreen
 import com.niaw.launchnea.ui.Screens.VehiclesScreens.VehiclesScreen
-import com.niaw.launchnea.navigation.NavigationItem
-import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.utils.AppTheme
-import com.niaw.launchnea.Settings.GlobalSettings
-import com.niaw.launchnea.database.entities.Launch
-import com.niaw.launchnea.database.entities.StarredLaunch
-import com.niaw.launchnea.networking.requestNumber
-import com.niaw.launchnea.networking.updateLaunchData
-import com.niaw.launchnea.utils.NotificationManager
-import com.niaw.launchnea.utils.NotificationScheduler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.withContext
-import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.FilledRocket
+import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.filledrocketh
 import org.jetbrains.compose.resources.painterResource
-import java.net.InetAddress
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 
  @Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 
 @Composable
-fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
+fun App(scheduleDao: ScheduleDao, scheduler: BackgroundSyncScheduler, appSettings: AppSettings) {
 
     var currentRoute by rememberSaveable  { mutableStateOf("home") }
     var currentTheme by remember { mutableStateOf(appSettings.getTheme()) }
@@ -70,14 +52,19 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
         GlobalSettings.holdColour=(appSettings.getColourHold())
     }
 
+     val syncManager = remember {
+         AppSyncManager(
+             backgroundScheduler = scheduler,
+             fetchApiCall = {
+                 // API fetch & DB update call
+                 updateLaunchData(scheduleDao)
+             }
+         )
+     }
 
 
     AppTheme(selectedMode = currentTheme, seedColourType = currentColourTheme ) {
         /*
-        NotificationManager.showNotification(
-            "Launch Reminder",
-            "Launches in 15 minutes."
-        )
 
         NotificationScheduler.scheduleNotification(
             ZonedDateTime.now().plusMinutes(1).toInstant().toEpochMilli(),
@@ -85,21 +72,15 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
             "Launches in 10 minutes",
             1000
         )
-        */
 
+*/
         LaunchedEffect(Unit) {
-            withContext(Dispatchers.IO) {
-                try {
-                    //println(InetAddress.getByName("ll.thespacedevs.com"))
-                } catch (e: Exception) {
-                    println(e)
-                }
+            syncManager.onAppForegrounded()//auto updates
 
-                //delay(1.seconds)
-                //updateLaunchData(scheduleDao)
-            }
+                //updateLaunchData(scheduleDao)//Manual updates
+
         }
-
+        PlatformLifecycleObserver(syncManager = syncManager)
 
         val items = listOf<NavigationItem>(
             NavigationItem(
@@ -182,4 +163,5 @@ fun App(scheduleDao: ScheduleDao,appSettings: AppSettings) {
 
 }
 
-
+ @Composable
+ expect fun PlatformLifecycleObserver(syncManager: AppSyncManager)

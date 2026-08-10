@@ -11,6 +11,13 @@ import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.utils.NotificationManager
 import com.russhwolf.settings.SharedPreferencesSettings
 import android.os.Build
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.niaw.launchnea.networking.AppSyncManager
+import com.niaw.launchnea.networking.BackgroundSyncScheduler
 import com.niaw.launchnea.utils.AndroidNotificationContext
 
 object ActivityHolder {
@@ -36,11 +43,11 @@ class MainActivity : ComponentActivity() {
         val settings = SharedPreferencesSettings(sharedPrefs)
         val themeSettings = AppSettings(settings)
 
-
+        val scheduler = BackgroundSyncScheduler(applicationContext)
         val dao = getScheduleDatabase(applicationContext).ScheduleDao()
         setContent {
 
-            App(dao,themeSettings)
+            App(dao,scheduler,themeSettings)
         }
     }
 }

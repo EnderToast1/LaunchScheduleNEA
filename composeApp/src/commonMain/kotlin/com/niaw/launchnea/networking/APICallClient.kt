@@ -11,6 +11,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.network.sockets.SocketTimeoutException
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.contentOrNull
@@ -43,24 +44,25 @@ val httpClient = HttpClient(OkHttp.create()) {
             return ResponseData()//sends out all null so aborts
         }
         val response = try {
-            httpClient.get(urlString)                                 //Tries to get request the data from the api
-        } catch (_: HttpRequestTimeoutException) {
-            return ResponseData(null, NetworkError.REQUEST_TIMEOUT)          //If the Request timeout it catches it and returns the error
-        }catch (_: ConnectTimeoutException) {
-            return ResponseData(null,NetworkError.CONNECTION_TIMEOUT)         //If the connection is timed out it catches and returns the error
-        }catch (_: UnknownHostException) {
-                return ResponseData(null, NetworkError.NO_INTERNET)           //If DNS fails
-        }catch (_: SocketTimeoutException){
-            return ResponseData(null, NetworkError.SOCKET_TIMEOUT)           //If the Socket is closed before a response it catches and return the error
-        }catch(_: UnresolvedAddressException){
-            return ResponseData(null,NetworkError.NO_INTERNET)                //If the address is invalid for some reason it catches it and returns the error
-        }catch(_: SerializationException){
-            return ResponseData(null,NetworkError.SERIALIZATION)       //If there is a JSON error it catches it and returns the error
-        }catch(e: Exception){                                         //If it is another error it catches and prints the error returns unknown error
-            println("Type: ${e::class.qualifiedName}")
-            println("Cause: ${e.cause}")
-            e.printStackTrace()
-            return ResponseData(null, NetworkError.UNKNOWN)
+            httpClient.get(urlString)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return when (e) {
+                is HttpRequestTimeoutException -> ResponseData(null, NetworkError.REQUEST_TIMEOUT)
+                is ConnectTimeoutException -> ResponseData(null, NetworkError.CONNECTION_TIMEOUT)
+                is SocketTimeoutException -> ResponseData(null, NetworkError.SOCKET_TIMEOUT)
+                is SerializationException -> ResponseData(null, NetworkError.SERIALIZATION)
+                is UnknownHostException -> ResponseData(null, NetworkError.NO_INTERNET)
+
+
+                else -> {
+                    println("Type: ${e::class.qualifiedName}")
+                    println("Cause: ${e.cause}")
+                    e.printStackTrace()
+                    ResponseData(null, NetworkError.UNKNOWN)
+                }
+            }
         }
         println("API request finished")
         return when(response.status.value) {
