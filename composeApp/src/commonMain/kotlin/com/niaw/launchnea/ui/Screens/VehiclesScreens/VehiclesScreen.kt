@@ -3,6 +3,7 @@ package com.niaw.launchnea.ui.Screens.VehiclesScreens
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -12,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -20,6 +20,8 @@ import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.navigation.TabItem
+import com.niaw.launchnea.navigation.ViewModels.ReuseViewModel
+import com.niaw.launchnea.navigation.ViewModels.RocketViewModel
 import com.niaw.launchnea.ui.Screens.IndividualScreens.IndividualReuseScreen
 import com.niaw.launchnea.ui.Screens.IndividualScreens.IndividualRocketScreen
 import kotlinx.coroutines.launch
@@ -34,6 +36,11 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
     var selectedReuse by remember { mutableStateOf<Reuse?>(null) }
     var selectedRocket by remember { mutableStateOf<Rocket?>(null) }
     var showOnlyActive by remember { mutableStateOf(false) }
+
+    val listStateRockets = rememberLazyListState()
+    val listStateReuse = rememberLazyListState()
+    val rocketViewModel = remember { RocketViewModel(scheduleDao) }
+    val reuseViewModel = remember { ReuseViewModel(scheduleDao) }
 
     val tabItems = listOf(
         TabItem("Rockets"),
@@ -134,11 +141,23 @@ fun VehiclesScreen(scheduleDao: ScheduleDao) {
                         when (page) {
 
                             0 -> {
-                                RocketsScreen(searchText,scheduleDao,showOnlyActive){ rocketId ->selectedRocketID = rocketId}
+                                RocketsScreen(
+                                    searchText = searchText,
+                                    scheduleDao = scheduleDao,
+                                    showOnlyActive = showOnlyActive,
+                                    viewModel = rocketViewModel,
+                                    listState = listStateRockets,
+                                ) { rocketId -> selectedRocketID = rocketId }
                             }
 
                             1 -> {
-                                ReusesScreen(searchText,scheduleDao,showOnlyActive){ reuseId ->selectedReuseID = reuseId}
+                                ReusesScreen(
+                                    searchText = searchText,
+                                    scheduleDao = scheduleDao,
+                                    showOnlyActive = showOnlyActive,
+                                    viewModel = reuseViewModel,
+                                    listState = listStateReuse,
+                                ) { reuseId -> selectedReuseID = reuseId }
                             }
 
                         }
