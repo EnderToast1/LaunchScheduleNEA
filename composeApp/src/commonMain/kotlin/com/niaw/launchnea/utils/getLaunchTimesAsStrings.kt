@@ -60,7 +60,6 @@ fun getLaunchTimesInTimeZone(launch: Launch, selectedZone: LiftoffTimeZone):Laun
 
 fun getLaunchTimesAsNeededFormat(launch: Launch,dateFormatter: DateTimeFormatter,timeFormater: DateTimeFormatter, selectedZone:LiftoffTimeZone): LaunchTimesFormated {
         val times = getLaunchTimesInTimeZone(launch,selectedZone)
-
         return LaunchTimesFormated(
             liftoffDate = times.liftoff?.format(dateFormatter) ?:"Error" ,
             liftoffTime = times.liftoff?.format(timeFormater) ?:"Error" ,

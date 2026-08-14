@@ -263,25 +263,57 @@ fun MissionMainBox(launch:Launch, scheduleDao: ScheduleDao){
 
                         val dateFormatter = DateTimeFormatter.ofPattern(dateFormat)
                         val timeFormatter = DateTimeFormatter.ofPattern(timeFormat)
-                        val launchTimes=getLaunchTimesAsNeededFormat(launch, dateFormatter, timeFormatter,selectedZone)
+                    val launchTimes =getLaunchTimesAsNeededFormat(launch, dateFormatter, timeFormatter, selectedZone)
+
+                    if ((launch.precisionAbbrev=="SEC") or (launch.precisionAbbrev=="MIN")) {
+
 
                         Text(
-                                text=launchTimes.liftoffTime,
-                                style = MaterialTheme.typography.displayMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            text = launchTimes.liftoffTime,
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(Modifier.height(4.dp))
-                        IconTextRow(launchTimes.liftoffDate,"Launch Date",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.CalendarMonth),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
+                        IconTextRow(
+                            launchTimes.liftoffDate,
+                            "Launch Date",
+                            MaterialTheme.typography.bodyMedium,
+                            rememberVectorPainter(Icons.Filled.CalendarMonth),
+                            Modifier.fillMaxWidth(),
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }else{
+                        Text(
+                            text = getNetLaunchTime(launch, selectedZone),
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+
+                    }
+
+
+
                         Spacer(Modifier.height(4.dp))
                     IconTextRow("${launch.padName}, ${launch.padLocation}","pad name",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Filled.Place),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
 
                     Spacer(Modifier.height(15.dp))
                     LaunchWindowTimeline(launchTimes)
                     Spacer(Modifier.height(15.dp))
+                    WeatherConcerns(launch.weatherConcerns,launch.weatherProbability)
+                    Spacer(Modifier.height(15.dp))
                     launch.launchTimeUTC?.let { LaunchTimeLine(it,launch.timeline) }
                 }
         }
 }
+
+@Composable
+fun WeatherConcerns(weatherConcerns: String?,weatherProbability: Double?) {
+    if (!weatherConcerns.isNullOrBlank() && weatherConcerns != "null") {
+        IconTextRow("$weatherConcerns, $weatherProbability% Go","weatherConcerns",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Default.CloudQueue),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
+    }
+}
+
+
 
 @Composable
 fun StarToggle(launch:Launch,scheduleDao: ScheduleDao) {

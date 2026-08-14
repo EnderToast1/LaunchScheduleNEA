@@ -24,10 +24,12 @@ import com.niaw.launchnea.ui.UiElements.DisplayItems
 import com.niaw.launchnea.ui.UiElements.ImageGroup
 import com.niaw.launchnea.ui.UiElements.ListBoxItem
 import com.niaw.launchnea.Settings.GlobalSettings.dateTimeFormat
+import com.niaw.launchnea.ui.Screens.IndividualScreens.LiftoffTimeZone
 import com.niaw.launchnea.utils.LandingType
 import com.niaw.launchnea.utils.ReuseType
 import com.niaw.launchnea.utils.abbreviate
 import com.niaw.launchnea.utils.getIconForChip
+import com.niaw.launchnea.utils.getNetLaunchTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -105,7 +107,7 @@ data class Launch(
             thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Place),
             thirdRow = "$padName, $padLocation",
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),
-            fourthRow = launchTimeUTC?.withZoneSameInstant(ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern(dateTimeFormat)),
+            fourthRow = getNetLaunchTime(this, LiftoffTimeZone.DEVICE_LOCAL),
             chips = getChips(),
             success=success
     )
