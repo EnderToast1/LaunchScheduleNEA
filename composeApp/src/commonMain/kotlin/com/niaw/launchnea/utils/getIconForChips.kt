@@ -1,18 +1,7 @@
 package com.niaw.launchnea.utils
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Waves
-import androidx.compose.ui.graphics.vector.ImageVector
-import launchnea.composeapp.generated.resources.FilledRocket
-import launchnea.composeapp.generated.resources.Res
-import launchnea.composeapp.generated.resources.asds_icon
-import launchnea.composeapp.generated.resources.capsule_parachute
-import launchnea.composeapp.generated.resources.filledrocketh
-import launchnea.composeapp.generated.resources.search_book
-import launchnea.composeapp.generated.resources.waves
+import launchnea.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.painterResource
 
 fun getIconForChip(reusable: Reusable): DrawableResource {//TODO Finish
 
@@ -20,15 +9,18 @@ fun getIconForChip(reusable: Reusable): DrawableResource {//TODO Finish
         ReuseType.BOOSTER -> {
             return when (reusable.landingType) {
                 LandingType.ASDS -> Res.drawable.asds_icon
-                LandingType.RTLS -> Res.drawable.search_book   //IF starship catch else Pad
+                LandingType.RTLS -> {
+                    if (reusable.reuseName?.contains("Booster", ignoreCase = true) == true) {Res.drawable.boostercatch} else {Res.drawable.rtls}
+                }
                 LandingType.OCEAN -> Res.drawable.waves
-                LandingType.PCL -> Res.drawable.search_book  //Booster under parachutes
-                LandingType.HC -> Res.drawable.search_book  //Booster Under Heli
-                LandingType.HL -> Res.drawable.search_book  // Booster flipped 90 to flat
+                LandingType.PCL -> Res.drawable.booster_parachute
+                LandingType.HC -> Res.drawable.helicopter_catch
+                LandingType.HL -> Res.drawable.horizontal_landing
                 LandingType.EXP -> Res.drawable.waves
-                LandingType.VL -> Res.drawable.search_book   //same as RTLS
-                LandingType.PFL -> Res.drawable.search_book  //same as PCL
-                else -> Res.drawable.search_book
+                LandingType.VL -> Res.drawable.rtls
+                LandingType.PFL -> Res.drawable.booster_parachute
+
+                else -> Res.drawable.unknown
             }
 
         }
@@ -37,18 +29,19 @@ fun getIconForChip(reusable: Reusable): DrawableResource {//TODO Finish
                 LandingType.RTLS -> Res.drawable.search_book   //Ship catch icon
                 LandingType.OCEAN -> Res.drawable.waves
                 LandingType.PCL -> Res.drawable.capsule_parachute
-                LandingType.HL -> Res.drawable.search_book  //Space Plane landing
-                LandingType.ATM -> Res.drawable.search_book  //capsule burning up
+                LandingType.HL -> Res.drawable.horizontal_landing
+                LandingType.ATM -> Res.drawable.atmospheric_burn_up
                 LandingType.EXP -> Res.drawable.waves
-                LandingType.VL -> Res.drawable.search_book   //same as RTLS
-                LandingType.PFL -> Res.drawable.search_book //same as PCL
-                else -> Res.drawable.search_book
+                LandingType.VL -> Res.drawable.rtls
+                LandingType.PFL -> Res.drawable.capsule_parachute
+
+                else -> Res.drawable.unknown
             }
 
 
         }
         else -> {
-            return Res.drawable.search_book
+            return Res.drawable.unknown
         }
     }
 
