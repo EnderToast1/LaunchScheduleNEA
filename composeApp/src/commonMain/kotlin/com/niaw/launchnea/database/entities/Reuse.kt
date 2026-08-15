@@ -2,26 +2,18 @@ package com.niaw.launchnea.database.entities
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
-import androidx.compose.material.icons.filled.Rocket
-import androidx.compose.material.icons.outlined.AirplanemodeActive
-import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material.icons.outlined.Dangerous
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.LocationOff
 import androidx.compose.material.icons.outlined.Rocket
 import androidx.compose.material.icons.outlined.SwapHoriz
-import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.navigation.ViewModels.ReuseBoxInfo
-import com.niaw.launchnea.navigation.ViewModels.ReuseViewModel
 import com.niaw.launchnea.ui.UiElements.Chip
 import com.niaw.launchnea.utils.ReuseType
 import com.niaw.launchnea.utils.StatusReuse
@@ -89,15 +81,15 @@ data class Reuse(
             )
     }
 
-    fun statusReuseIcon(): DisplayIcon.Vector {//TODO need Editing
+    fun statusReuseIcon(): DisplayIcon.Vector {
         return when (this.status) {
-            StatusReuse.RETIRED,
-            StatusReuse.EXPENDED -> DisplayIcon.Vector(Icons.Outlined.Inventory2)
-            StatusReuse.ACTIVE -> DisplayIcon.Vector(Icons.Outlined.AirplanemodeActive)
-            StatusReuse.LOST -> DisplayIcon.Vector(Icons.Outlined.Error)
-            StatusReuse.SCRAPPED -> DisplayIcon.Vector(Icons.Outlined.Delete)
+            StatusReuse.ACTIVE -> DisplayIcon.Vector(Icons.Outlined.CheckCircle)
+            StatusReuse.RETIRED -> DisplayIcon.Vector(Icons.Outlined.Inventory2)
+            StatusReuse.EXPENDED -> DisplayIcon.Vector(Icons.Outlined.WaterDrop)
+            StatusReuse.LOST -> DisplayIcon.Vector(Icons.Outlined.LocationOff)
+            StatusReuse.SCRAPPED -> DisplayIcon.Vector(Icons.Outlined.DeleteForever)
             StatusReuse.CONVERTED -> DisplayIcon.Vector(Icons.Outlined.SwapHoriz)
-            StatusReuse.DESTROYED -> DisplayIcon.Vector(Icons.Outlined.Cancel)
+            StatusReuse.DESTROYED -> DisplayIcon.Vector(Icons.Outlined.Dangerous)
             StatusReuse.UNKNOWN -> DisplayIcon.Vector(Icons.AutoMirrored.Outlined.Help)
         }
     }

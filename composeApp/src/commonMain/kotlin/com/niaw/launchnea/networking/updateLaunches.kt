@@ -49,23 +49,27 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
     //finds the last time the database updated and then updates it so it set to now()
     var databaseLastUpdated= scheduleDao.getMetaData("lastUpdated")//Gets lastUpdates time
-    println("Last Updated: $databaseLastUpdated")//LOG    //TODO remove 1min from databaseLastUpdated
+    println("Last Updated: $databaseLastUpdated")//LOG
 
 
     //Only for if DB is reset
     if (databaseLastUpdated == null) {//if it doesn't exist set to some time SHOULD BE TEMP AS WHEN IN PRODUCTION WILL ALWAYS EXIST
-        databaseLastUpdated=(LocalDateTime.of(2025,12,24,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
+        databaseLastUpdated=(LocalDateTime.of(2026,8,1,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
         scheduleDao.upsertMetadata(MetaData("lastUpdated",databaseLastUpdated))
     }
 
-    var callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&ordering=-last_updated&last_updated__lte=$databaseLastUpdated"
+    // Overlap by 1 minute so updates at the boundary aren't missed
+    databaseLastUpdated = LocalDateTime.parse(databaseLastUpdated)
+        .minusMinutes(1)
+        .toString()
+
+    val callApiUrl="https://ll.thespacedevs.com/2.3.0/launches/?mode=detailed&limit=100&ordering=-last_updated&last_updated__gte=$databaseLastUpdated"
 
 
     //Updates previous launches
     println("\n\nCalled $callApiUrl")
     var dbUpdated=true
     var callResponse=APIFetchRequest(callApiUrl) //passes the url as a string with the last updated dateTime as part of it in the API filter system
-    callResponse.next=null//TODO TEMP
 
 
     if(callResponse.errorType==null){
@@ -120,23 +124,27 @@ suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseD
         //if there was no error it sets it to a JsonArray and calls a function to parse each launch into an object then adds to db
         val launchesJsonArray = callResponse.data
         launchesJsonArray?.forEachIndexed {i, launchJson ->              //goes though each launch in the return from the API
-            val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch  TODO place in a try loop and catch and print the error
-           println("\n\nLaunch number ${i+1}: \n$launch")//LOG
-            if (launch != null) {
-                if (scheduleDao.isStarred(launch.launchID)) {
-                    NotificationScheduler.cancelNotification(launch.launchID)
-                    enableLaunchReminder(launch)
+
+            try {
+                val launch = parseLaunch(launchJson)         //first it creates a launch object for the launch
+                println("\n\nLaunch number ${i + 1}: \n$launch")//LOG
+                if (launch != null) {
+                    if (scheduleDao.isStarred(launch.launchID)) {
+                        NotificationScheduler.cancelNotification(launch.launchID)
+                        enableLaunchReminder(launch)
+                    }
+
+                    checkForOtherEntities(launchJson, launch, scheduleDao)
+                    scheduleDao.upsertLaunch(launch) //adds to database if not null
+                    checkForReuse(launchJson, launch, scheduleDao)
                 }
-
-                checkForOtherEntities(launchJson,launch, scheduleDao)
-                scheduleDao.upsertLaunch(launch) //adds to database if not null
-                checkForReuse(launchJson,launch, scheduleDao)
-
+            }catch (e:Exception){
+                println("Error: ${e.message}")
+            }
 
 
 
             }
-        }
         println("\n\nNext: ${callResponse.next}\n")
     }else {//if there is an error it logs it
         println("ERROR: ${callResponse.errorType}")//LOG

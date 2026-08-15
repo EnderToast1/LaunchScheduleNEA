@@ -164,9 +164,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
 @Composable
 fun RocketStats(rocket: Rocket,successes: Int, failures: Int, partialFailures: Int, successStreak: Int) {
     val missions=successes+failures+partialFailures
-    val successRate = if (missions > 0) {((successes + 0.5 * partialFailures) / missions) * 100} else {0.0}
-
-    //TODO maybe change to just success not 0.5 of partials
+    val successRate = if (missions > 0) {((successes) / missions) * 100} else {0.0}
 
 
 

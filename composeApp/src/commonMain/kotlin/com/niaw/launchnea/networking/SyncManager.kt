@@ -77,7 +77,7 @@ class AppSyncManager(
                     println("Foreground fetch error: ${e.message}")
                     logNextApiCall("foreground", SyncIntervals.foreground)
                 }
-                delay(SyncIntervals.foreground)//Time Between Calls//TODO BIG IMPORTANT
+                delay(SyncIntervals.foreground)//Time Between Calls
             }
         }
     }

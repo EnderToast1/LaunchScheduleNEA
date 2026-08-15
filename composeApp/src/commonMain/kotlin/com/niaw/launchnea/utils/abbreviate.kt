@@ -1,5 +1,6 @@
 package com.niaw.launchnea.utils
-//TODO add cut after /
+
+
 fun abbreviate(name: String?, maxWords: Int = 4): String {
     if (name == "China Aerospace Science and Technology Corporation") {
         return "CASC"
