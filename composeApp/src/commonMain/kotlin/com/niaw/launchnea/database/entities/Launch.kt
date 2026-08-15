@@ -105,7 +105,7 @@ data class Launch(
             secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
             secondRow = "$rocketName  |  ${abbreviate(agencyName)}",
             thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Place),
-            thirdRow = "$padName, $padLocation",
+            thirdRow = "$padLocation",
             fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),
             fourthRow = getNetLaunchTime(this, LiftoffTimeZone.DEVICE_LOCAL),
             chips = getChips(),

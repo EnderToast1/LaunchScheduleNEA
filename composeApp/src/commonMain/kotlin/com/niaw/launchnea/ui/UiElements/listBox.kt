@@ -2,7 +2,9 @@ package com.niaw.launchnea.ui.UiElements
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,8 +44,10 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
@@ -110,7 +114,7 @@ fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
         tonalElevation = 2.dp,
         border = launchBorder
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().clip(cardShape)) {
             //Content
             Row(
                 modifier = Modifier.fillMaxSize(),
@@ -118,7 +122,7 @@ fun ListBox(boxContent: DisplayItems, onClick: (String) -> Unit) {
             ) {
 
                 BoxLeftImage(boxContent.imageGroup)
-                Box(Modifier.weight(1f).padding(16.dp,10.dp)) {
+                Box(Modifier.weight(1f).padding(8.dp,8.dp).clipToBounds()) {
                     BoxDetailsDisplay(boxContent)
                 }
 
@@ -207,21 +211,28 @@ fun ImagePlaceholder() {
 fun BoxDetailsDisplay(item: DisplayItems) {
 
     Column(
-        modifier = Modifier.fillMaxHeight(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         BoxChipsRow(item.chips)
-        item.title?.let { Text(it, style = MaterialTheme.typography.titleMedium) }
+        item.title?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = if(item.chips.isEmpty()) 2 else 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
 
         LowerRow(item.secondRowIcon,item.secondRow)
-        LowerRow(item.thirdRowIcon,item.thirdRow)
+        LowerRow(item.thirdRowIcon,item.thirdRow, maxLines = 2)
         LowerRow(item.fourthRowIcon,item.fourthRow)
 
     }
 }
 
 @Composable
-fun LowerRow(icon: DisplayIcon?,value:String?) {
+fun LowerRow(icon: DisplayIcon?, value: String?, maxLines: Int = 1) {
     if (icon != null || value != null) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -253,7 +264,9 @@ fun LowerRow(icon: DisplayIcon?,value:String?) {
                 Spacer(modifier = Modifier.width(3.dp))
                 Text(
                     text = value,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = maxLines,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -263,12 +276,12 @@ fun LowerRow(icon: DisplayIcon?,value:String?) {
 @Composable
 fun BoxChipsRow(chips: List<Chip>) {
     Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
        chips.forEach { chip ->
             BoxChip(chip)
         }
-
     }
 }
 
@@ -293,7 +306,7 @@ fun BoxChip(chip: Chip ) {
             .padding(horizontal = 5.dp, vertical = 3.dp)
     ) {
 
-        IconTextRow(chip.text?.ifBlank { "Unknown" } ?: "Unknown",chip.text?.ifBlank { "Unknown" } ?: "Unknown",MaterialTheme.typography.labelMedium,icon,Modifier,colour.onColor())
+        IconTextRow(chip.text?.ifBlank { "Unknown" } ?: "Unknown",chip.text?.ifBlank { "Unknown" } ?: "Unknown",MaterialTheme.typography.labelSmall,icon,Modifier,colour.onColor())
         
     }
 }

@@ -38,10 +38,10 @@ fun getNetLaunchTime(
         "MIN" -> local.withSecond(0).withNano(0).format(dateTimeFormatter)
         "HR" -> {
             val hourRounded = local.withMinute(0).withSecond(0).withNano(0)
-            "NET ${hourRounded.format(timeFormatter)} on ${local.format(dateFormatter)}"
+            "NET ${hourRounded.format(timeFormatter)} ${local.format(dateFormatter)}"
         }
-        "AM" -> "NET morning on ${local.format(dateFormatter)}"
-        "PM" -> "NET afternoon on ${local.format(dateFormatter)}"
+        "AM" -> "NET morning of ${local.format(dateFormatter)}"
+        "PM" -> "NET afternoon of ${local.format(dateFormatter)}"
         "DAY" -> "NET ${local.format(dateFormatter)}"
         "WK" -> {
             val week = local.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)

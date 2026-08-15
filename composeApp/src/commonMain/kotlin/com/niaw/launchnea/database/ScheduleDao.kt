@@ -303,7 +303,7 @@ interface ScheduleDao {
     INNER JOIN starred_launches 
     ON Launch.launchID = starred_launches.launchID
     WHERE datetime(Launch.launchTimeUTC) >= datetime(CURRENT_TIMESTAMP)
-    ORDER BY datetime(Launch.launchTimeUTC) DESC
+    ORDER BY datetime(Launch.launchTimeUTC) ASC
 """)
     fun getStarredUpcomingLaunches(): Flow<List<Launch>>
 

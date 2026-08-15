@@ -3,7 +3,7 @@ package com.niaw.launchnea.utils
 import launchnea.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.DrawableResource
 
-fun getIconForChip(reusable: Reusable): DrawableResource {//TODO Finish
+fun getIconForChip(reusable: Reusable): DrawableResource {
 
     when (reusable.reuseType) {
         ReuseType.BOOSTER -> {
@@ -26,7 +26,7 @@ fun getIconForChip(reusable: Reusable): DrawableResource {//TODO Finish
         }
         ReuseType.SHIP_CAPSULE -> {
             return when (reusable.landingType) {
-                LandingType.RTLS -> Res.drawable.search_book   //Ship catch icon
+                LandingType.RTLS -> Res.drawable.ship_catch
                 LandingType.OCEAN -> Res.drawable.waves
                 LandingType.PCL -> Res.drawable.capsule_parachute
                 LandingType.HL -> Res.drawable.horizontal_landing
