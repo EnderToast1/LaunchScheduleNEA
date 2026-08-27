@@ -54,7 +54,7 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
 
     //Only for if DB is reset
     if (databaseLastUpdated == null) {//if it doesn't exist set to some time SHOULD BE TEMP AS WHEN IN PRODUCTION WILL ALWAYS EXIST
-        databaseLastUpdated=(LocalDateTime.of(2026,8,1,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
+        databaseLastUpdated=(LocalDateTime.of(2026,8,25,0,0)).toString()  //some one-time variable will only be used when Database is reset in TESTing
         scheduleDao.upsertMetadata(MetaData("lastUpdated",databaseLastUpdated))
     }
 
@@ -87,7 +87,13 @@ suspend fun updateLaunchData(scheduleDao: ScheduleDao){
             }else{
                 if (callResponse.errorType == NetworkError.NO_DATA){
                     println("\nNO DATA\n")
+                }else if(callResponse.errorType!=NetworkError.TOO_MANY_REQUESTS){
+                    println("\nTOO_MANY_REQUESTS\n")
+                    dbUpdated=false
+                    requestNumber()
+
                 }else{
+                    println(callResponse.errorType)
                     dbUpdated=false
                     requestNumber()
                 }

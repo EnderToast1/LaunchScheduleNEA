@@ -62,13 +62,19 @@ class AppSyncManager(
 
     // Call when app moves to FOREGROUND
     fun onAppForegrounded() {
+        // Both Compose startup and the Android lifecycle can report foregrounding.
+        // Keep the request already in progress: replacing its job can make the new
+        // loop lose the SyncGate and delay the next real update by five minutes.
+        if (foregroundJob?.isActive == true) return
+
         // Stop periodic background work; foreground loop owns syncing now
         backgroundScheduler.cancelBackgroundSync()
 
-        if (foregroundJob?.isActive == true) return
         foregroundJob = scope.launch {
             while (isActive) {
                 try {
+                    // The first loop iteration is immediate, refreshing cached data
+                    // whenever the app is opened or brought to the foreground.
                     SyncGate.runExclusive("foreground") { fetchApiCall() }
                     logNextApiCall("foreground", SyncIntervals.foreground)
                 } catch (e: CancellationException) {

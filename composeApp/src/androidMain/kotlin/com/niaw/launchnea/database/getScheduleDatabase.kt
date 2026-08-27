@@ -11,9 +11,9 @@ fun getScheduleDatabase(context: Context): ScheduleDatabase {
     return instance ?: synchronized(ScheduleDatabase::class.java) {
         instance ?: Room.databaseBuilder<ScheduleDatabase>(
             context = context.applicationContext,
-            name = context.getDatabasePath("schedule.db").absolutePath
+            name = "schedule.db"
         )
-            .setDriver(BundledSQLiteDriver())
+            .createFromAsset("schedule.db")
             .build()
             .also { instance = it }
     }

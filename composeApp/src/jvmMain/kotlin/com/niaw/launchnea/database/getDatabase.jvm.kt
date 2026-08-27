@@ -5,10 +5,41 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import java.io.File
 
+private var instance: ScheduleDatabase? = null
+
 fun getDatabase(): ScheduleDatabase {
-    val dbFile = File(System
-            .getProperty("java.io.tmpdir"), "schedule.db")
-    return Room.databaseBuilder<ScheduleDatabase>(
-        name = dbFile.absolutePath
-    ).setDriver(BundledSQLiteDriver()).build()
+    return instance ?: synchronized(ScheduleDatabase::class.java) {
+
+        instance ?: run {
+
+            val appData = File(
+                System.getProperty("user.home"),
+                ".launchnea"
+            )
+
+            appData.mkdirs()
+
+            val dbFile = File(appData, "schedule.db")
+
+            if (!dbFile.exists()) {
+                val inputStream = object {}.javaClass
+                    .classLoader
+                    ?.getResourceAsStream("schedule.db")
+                    ?: error("Preloaded schedule.db not found")
+
+                inputStream.use { input ->
+                    dbFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            }
+
+            Room.databaseBuilder<ScheduleDatabase>(
+                name = dbFile.absolutePath
+            )
+                .setDriver(BundledSQLiteDriver())
+                .build()
+                .also { instance = it }
+        }
+    }
 }

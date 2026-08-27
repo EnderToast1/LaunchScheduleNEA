@@ -59,6 +59,8 @@ import com.niaw.launchnea.Settings.GlobalSettings.successColour
 import com.niaw.launchnea.utils.LandingType
 import com.niaw.launchnea.utils.Status
 import com.niaw.launchnea.utils.abbreviate
+import launchnea.composeapp.generated.resources.Res
+import launchnea.composeapp.generated.resources.unknown
 import org.jetbrains.compose.resources.painterResource
 
 
@@ -297,7 +299,7 @@ fun BoxChip(chip: Chip ) {
     }
 
     val icon = if (chip.icon != null) {painterResource(chip.icon)}
-               else{rememberVectorPainter(Icons.Default.Shield)}
+               else{painterResource(Res.drawable.unknown)}
 
     Box(
         modifier = Modifier

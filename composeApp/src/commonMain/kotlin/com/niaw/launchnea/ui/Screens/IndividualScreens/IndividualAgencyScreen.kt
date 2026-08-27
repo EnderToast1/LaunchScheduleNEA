@@ -87,6 +87,8 @@ import com.niaw.launchnea.ui.UiElements.ListBox
 import com.niaw.launchnea.ui.UiElements.ListOfBoxesReuse
 import com.niaw.launchnea.ui.UiElements.ListOfBoxesRocket
 import kotlinx.coroutines.launch
+import launchnea.composeapp.generated.resources.Res
+import launchnea.composeapp.generated.resources.recycling
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -482,7 +484,7 @@ fun AgencyReuse(agency: Agency,scheduleDao: ScheduleDao,onClick2: (String) -> Un
                         "Last Flight: ${lastFlight?.launchTimeUTC?.format(DateTimeFormatter.ofPattern(dateTimeFormat))} ($formattedDays $unit ago)"
                 }
 
-                itemText.chips= listOf(Chip("$flights"))
+                itemText.chips= listOf(Chip("$flights",icon= Res.drawable.recycling))
 
                 ListBox(itemText, onClick2)
             }

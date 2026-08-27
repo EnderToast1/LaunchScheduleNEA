@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
             android:name=".App"
@@ -32,6 +33,13 @@
         <receiver
                 android:name=".networking.SyncAlarmReceiver"
                 android:exported="false"/>
+        <receiver
+                android:name=".networking.SyncBootReceiver"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
 
         <!-- Required so WorkManager can run long syncs as a dataSync FGS on API 34+ -->
         <service

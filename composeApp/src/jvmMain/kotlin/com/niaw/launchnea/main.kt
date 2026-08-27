@@ -6,7 +6,6 @@ import androidx.compose.ui.window.application
 import com.niaw.launchnea.database.getDatabase
 import com.niaw.launchnea.Settings.AppSettings
 import com.niaw.launchnea.networking.BackgroundSyncScheduler
-import com.niaw.launchnea.networking.PlatformScheduler
 import com.russhwolf.settings.PreferencesSettings
 
 

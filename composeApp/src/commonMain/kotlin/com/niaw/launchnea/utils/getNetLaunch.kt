@@ -14,7 +14,6 @@ fun getNetLaunchTime(
     selectedZone: LiftoffTimeZone = LiftoffTimeZone.DEVICE_LOCAL,
 ): String {
     val launchTime = launch.launchTimeUTC ?: return "TBD"
-    val netAbbrev = launch.precisionAbbrev ?: return "TBD"
 
     val zoneId = when (selectedZone) {
         LiftoffTimeZone.PAD_LOCAL -> try {
@@ -32,6 +31,8 @@ fun getNetLaunchTime(
     val timeFormatter = DateTimeFormatter.ofPattern(timeFormat)
     val dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimeFormat)
     val monthYearFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
+
+    val netAbbrev = launch.precisionAbbrev ?: return local.format(dateTimeFormatter)
 
     return when (netAbbrev) {
         "SEC" -> local.format(dateTimeFormatter)

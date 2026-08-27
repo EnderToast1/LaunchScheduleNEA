@@ -26,16 +26,17 @@ import java.util.concurrent.TimeUnit
 actual class BackgroundSyncScheduler(private val context: Context) {
     private val appContext = context.applicationContext
     private val workManager = WorkManager.getInstance(appContext)
+    private val preferences = appContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     actual fun schedulePeriodicBackgroundSync() {
-        enabled = true
+        setEnabled(true)
         scheduleNext(SyncIntervals.background.inWholeMilliseconds)
         logNextApiCall("background", SyncIntervals.background)
     }
 
     /** Call after a background sync to chain the next run. */
     fun scheduleNextAfterSync() {
-        if (!enabled) {
+        if (!isEnabled()) {
             println("Background sync disabled (app foregrounded) — not re-arming")
             return
         }
@@ -61,7 +62,7 @@ actual class BackgroundSyncScheduler(private val context: Context) {
     }
 
     actual fun cancelBackgroundSync() {
-        enabled = false
+        setEnabled(false)
         alarmManager().cancel(alarmPendingIntent())
         workManager.cancelUniqueWork(UNIQUE_WORK_NAME)
         println("Background sync cancelled")
@@ -126,15 +127,21 @@ actual class BackgroundSyncScheduler(private val context: Context) {
         )
     }
 
+    private fun isEnabled(): Boolean =
+        preferences.getBoolean(BACKGROUND_SYNC_ENABLED_KEY, false)
+
+    private fun setEnabled(value: Boolean) {
+        preferences.edit().putBoolean(BACKGROUND_SYNC_ENABLED_KEY, value).apply()
+    }
+
     companion object {
         const val UNIQUE_WORK_NAME = "ApiSyncWork"
         const val SYNC_CHANNEL_ID = "sync_channel"
         const val SYNC_NOTIFICATION_ID = 71002
         private const val ALARM_REQUEST_CODE = 71001
 
-        @Volatile
-        var enabled: Boolean = false
-            private set
+        private const val PREFERENCES_NAME = "background_sync"
+        private const val BACKGROUND_SYNC_ENABLED_KEY = "enabled"
     }
 }
 
@@ -194,6 +201,22 @@ class SyncAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         println("Background sync alarm fired — handing off to worker")
         BackgroundSyncScheduler(context.applicationContext).enqueueSyncNow()
+    }
+}
+
+/** Restores the next alarm after a device reboot when background syncing was enabled. */
+class SyncBootReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent?) {
+        if (intent?.action != Intent.ACTION_BOOT_COMPLETED) return
+
+        val appContext = context.applicationContext
+        val enabled = appContext
+            .getSharedPreferences("background_sync", Context.MODE_PRIVATE)
+            .getBoolean("enabled", false)
+        if (enabled) {
+            println("Device restarted — restoring background sync")
+            BackgroundSyncScheduler(appContext).schedulePeriodicBackgroundSync()
+        }
     }
 }
 
