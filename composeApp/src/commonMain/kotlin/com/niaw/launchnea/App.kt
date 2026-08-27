@@ -64,16 +64,7 @@ fun App(scheduleDao: ScheduleDao, scheduler: BackgroundSyncScheduler, appSetting
 
 
     AppTheme(selectedMode = currentTheme, seedColourType = currentColourTheme ) {
-        /*
 
-        NotificationScheduler.scheduleNotification(
-            ZonedDateTime.now().plusMinutes(1).toInstant().toEpochMilli(),
-            "Launch Reminder",
-            "Launches in 10 minutes",
-            1000
-        )
-
-*/
         LaunchedEffect(Unit) {
             syncManager.onAppForegrounded()//auto updates
 

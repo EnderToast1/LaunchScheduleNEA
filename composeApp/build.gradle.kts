@@ -100,8 +100,18 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file("launchnea-release.jks")
+            storePassword = project.findProperty("RELEASE_STORE_PASSWORD") as String
+            keyAlias = "launchnea"
+            keyPassword = project.findProperty("RELEASE_KEY_PASSWORD") as String
+        }
+    }
+
     buildTypes {
-        getByName("release") {
+        release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
         }
     }
