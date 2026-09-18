@@ -52,10 +52,7 @@ import androidx.compose.ui.unit.dp
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.niaw.launchnea.Settings.AppSettings
-import com.niaw.launchnea.utils.ColourTheme
-import com.niaw.launchnea.utils.DateFormat
 import com.niaw.launchnea.Settings.GlobalSettings
-import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
 import com.niaw.launchnea.Settings.GlobalSettings.dateTimeFormat
 import com.niaw.launchnea.Settings.GlobalSettings.failureColour
 import com.niaw.launchnea.Settings.GlobalSettings.holdColour
@@ -63,8 +60,6 @@ import com.niaw.launchnea.Settings.GlobalSettings.inFlightColour
 import com.niaw.launchnea.Settings.GlobalSettings.partialFailureColour
 import com.niaw.launchnea.Settings.GlobalSettings.successColour
 import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
-import com.niaw.launchnea.utils.ThemeMode
-import com.niaw.launchnea.utils.TimeFormat
 import com.niaw.launchnea.Settings.getSeedColour
 import com.niaw.launchnea.Settings.initialMonth
 import com.niaw.launchnea.Settings.initialOrder
@@ -72,6 +67,10 @@ import com.niaw.launchnea.Settings.initialWeekday
 import com.niaw.launchnea.Settings.toDateFormat
 import com.niaw.launchnea.Settings.toLabel
 import com.niaw.launchnea.Settings.toTimeFormat
+import com.niaw.launchnea.utils.ColourTheme
+import com.niaw.launchnea.utils.DateFormat
+import com.niaw.launchnea.utils.ThemeMode
+import com.niaw.launchnea.utils.TimeFormat
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.choose_Theme_colour
 import launchnea.composeapp.generated.resources.choose_success_type_colour
@@ -438,7 +437,7 @@ fun SuccessStatusBox(appSettings: AppSettings) {
         Text(stringResource(Res.string.choose_success_type_colour), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
 
 
-        SuccessTypeColourPickerBox("Success",Color.Green,successColour){ newColour ->
+        SuccessTypeColourPickerBox("Success",Color(0xFF008000),successColour){ newColour ->
             successColour =(newColour)
             appSettings.saveColourSuccess(newColour)
         }

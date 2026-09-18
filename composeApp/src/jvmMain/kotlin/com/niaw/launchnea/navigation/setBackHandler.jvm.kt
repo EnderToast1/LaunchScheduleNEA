@@ -1,4 +1,8 @@
 package com.niaw.launchnea.navigation
 
-actual fun setBackHandler(enabled: Boolean, onBack: () -> Unit) {//Not needed for JVM
+import androidx.compose.runtime.Composable
+
+@Composable
+actual fun SetBackHandler(enabled: Boolean, onBack: () -> Unit) {
+    // Not needed for JVM/desktop
 }

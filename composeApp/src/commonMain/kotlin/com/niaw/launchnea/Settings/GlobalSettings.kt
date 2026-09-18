@@ -14,7 +14,7 @@ object GlobalSettings {
         private set
     var dateTimeFormat by mutableStateOf("${DateFormat.DaySMonthYear.toPattern()} ${TimeFormat.HOUR24SeOFF.toPattern()}")
         private set
-    var successColour by mutableStateOf(Color.Green)
+    var successColour by mutableStateOf(Color(0xFF0C6812))
     var partialFailureColour by mutableStateOf(Color.Yellow)
     var failureColour by mutableStateOf(Color.Red)
     var inFlightColour by mutableStateOf(Color.Blue)

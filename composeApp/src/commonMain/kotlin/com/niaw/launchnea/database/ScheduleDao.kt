@@ -353,7 +353,7 @@ interface ScheduleDao {
 
 
     //Search / Filter Systems
-    @Query("SELECT * FROM launch WHERE strftime('%m-%d', launchTimeUTC) = strftime('%m-%d', 'now')")
+    @Query("SELECT * FROM launch WHERE strftime('%m-%d', launchTimeUTC) = strftime('%m-%d', 'now') ORDER BY launchTimeUTC DESC")
     fun getOnThisDayLaunches(): Flow<List<Launch>>
 
     @Query("""SELECT * FROM launch

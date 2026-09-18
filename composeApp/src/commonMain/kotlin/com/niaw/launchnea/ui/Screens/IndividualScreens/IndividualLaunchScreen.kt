@@ -6,20 +6,60 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Recycling
+import androidx.compose.material.icons.filled.Rocket
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,15 +74,30 @@ import com.niaw.launchnea.Settings.GlobalSettings
 import com.niaw.launchnea.Settings.GlobalSettings.dateFormat
 import com.niaw.launchnea.Settings.GlobalSettings.timeFormat
 import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.database.entities.*
+import com.niaw.launchnea.database.entities.Agency
+import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.Reuse
+import com.niaw.launchnea.database.entities.Rocket
+import com.niaw.launchnea.database.entities.RocketVersion
+import com.niaw.launchnea.database.entities.StarredLaunch
 import com.niaw.launchnea.getPlatform
 import com.niaw.launchnea.navigation.ViewModels.ReusableViewModel
-import com.niaw.launchnea.navigation.setBackHandler
+import com.niaw.launchnea.navigation.SetBackHandler
 import com.niaw.launchnea.ui.UiElements.BoxChip
 import com.niaw.launchnea.ui.UiElements.BoxLeftImage
 import com.niaw.launchnea.ui.UiElements.Chip
 import com.niaw.launchnea.ui.UiElements.IconTextRow
-import com.niaw.launchnea.utils.*
+import com.niaw.launchnea.utils.LandingType
+import com.niaw.launchnea.utils.LaunchTimesFormated
+import com.niaw.launchnea.utils.Location
+import com.niaw.launchnea.utils.NotificationScheduler
+import com.niaw.launchnea.utils.Reusable
+import com.niaw.launchnea.utils.TimelineEvent
+import com.niaw.launchnea.utils.abbreviate
+import com.niaw.launchnea.utils.enableLaunchReminder
+import com.niaw.launchnea.utils.getIconForChip
+import com.niaw.launchnea.utils.getLaunchTimesAsNeededFormat
+import com.niaw.launchnea.utils.getNetLaunchTime
 import kotlinx.coroutines.launch
 import launchnea.composeapp.generated.resources.FilledRocket
 import launchnea.composeapp.generated.resources.Res
@@ -59,13 +114,11 @@ import org.maplibre.compose.sources.GeoJsonData
 import org.maplibre.compose.sources.rememberGeoJsonSource
 import org.maplibre.compose.style.BaseStyle
 import org.maplibre.spatialk.geojson.Position
-import java.time.Clock
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.TimeZone
 
 
 @Composable
@@ -85,7 +138,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
     }
     // THIS HANDLES SUB-SCREEN BACK PRESS
     // Active only when you are looking at an Agency, Rocket, or Launch
-    setBackHandler(enabled = selectedAgencyID != null || selectedReuseID != null || selectedRocketID != null) {
+    SetBackHandler(enabled = selectedAgencyID != null || selectedReuseID != null || selectedRocketID != null) {
         selectedAgencyID = null
         selectedReuseID = null
         selectedRocketID = null
@@ -96,7 +149,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
 
     // THIS HANDLES MAIN SCREEN BACK PRESS
     // Active only when the main list is visible. It calls the parent's back function.
-    setBackHandler(enabled = selectedAgencyID == null && selectedReuseID == null && selectedRocketID == null) {
+    SetBackHandler(enabled = selectedAgencyID == null && selectedReuseID == null && selectedRocketID == null) {
         //println("Main Back: Exiting IndividualReuseScreen")
         onBackLaunch()
     }
@@ -924,7 +977,7 @@ fun TimeLineEventDisplay(launchTimeUTC: ZonedDateTime, event:TimelineEvent){
                 Modifier,
                 GlobalSettings.successColour
             )
-            Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color = GlobalSettings.successColour)
         }else{//Before
             IconTextRow(
                 event.abbrev,
@@ -934,7 +987,7 @@ fun TimeLineEventDisplay(launchTimeUTC: ZonedDateTime, event:TimelineEvent){
                 Modifier,
                 MaterialTheme.colorScheme.onSecondaryContainer
             )
-            Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color = GlobalSettings.successColour)
+            Text(formatTTime(event.relativeTime), style = MaterialTheme.typography.bodyMedium, color =  MaterialTheme.colorScheme.onSecondaryContainer)
         }
     }
 }

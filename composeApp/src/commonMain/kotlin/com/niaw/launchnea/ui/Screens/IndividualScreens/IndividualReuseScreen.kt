@@ -7,20 +7,41 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,9 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import com.niaw.launchnea.database.ScheduleDao
-import com.niaw.launchnea.database.entities.*
+import com.niaw.launchnea.database.entities.Agency
+import com.niaw.launchnea.database.entities.Launch
+import com.niaw.launchnea.database.entities.Reuse
+import com.niaw.launchnea.database.entities.Rocket
+import com.niaw.launchnea.database.entities.RocketVersion
 import com.niaw.launchnea.navigation.ViewModels.ReuseLaunchesViewModel
-import com.niaw.launchnea.navigation.setBackHandler
+import com.niaw.launchnea.navigation.SetBackHandler
 import com.niaw.launchnea.ui.UiElements.ListBox
 import kotlin.math.round
 
@@ -66,7 +91,7 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
 
     // THIS HANDLES SUB-SCREEN BACK PRESS
     // Active only when you are looking at an Agency, Rocket, or Launch
-    setBackHandler(enabled = selectedAgencyID != null || selectedLaunchID != null || selectedRocketID != null) {
+    SetBackHandler(enabled = selectedAgencyID != null || selectedLaunchID != null || selectedRocketID != null) {
         selectedAgencyID = null
         selectedLaunchID = null
         selectedRocketID = null
@@ -77,7 +102,7 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
 
     // THIS HANDLES MAIN SCREEN BACK PRESS
     // Active only when the main list is visible. It calls the parent's back function.
-    setBackHandler(enabled = selectedAgencyID == null && selectedLaunchID == null && selectedRocketID == null) {
+    SetBackHandler(enabled = selectedAgencyID == null && selectedLaunchID == null && selectedRocketID == null) {
         onBackReuse()
     }
 
@@ -133,7 +158,7 @@ fun IndividualReuseScreen(scheduleDao: ScheduleDao,reuse: Reuse,  onBackReuse: (
         Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(scrollState)) {
 
             //Image and Stats
-            TopImage(reuse.imageURL,reuse.name!!, agencyName)
+            TopImage(reuse.imageURL,reuse.name!!, agencyName, onBackReuse)
             ReuseStatsBox(reuse, reuses, averageReuseTime, fastestReuseTime)
 
             //Configuration Section
@@ -236,12 +261,13 @@ fun DataRow(leftLabel: String, leftValue: String, rightLabel: String, rightValue
     }
 }
 @Composable
-fun TopImage(url: String?, titleText: String, secondText:String?) {
+fun TopImage(url: String?, titleText: String, secondText:String?,onBack: () -> Unit) {
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
+            .height(250.dp),
+        contentAlignment = Alignment.TopStart
     ) {
 
         SubcomposeAsyncImage(
@@ -292,6 +318,23 @@ fun TopImage(url: String?, titleText: String, secondText:String?) {
                     )
                 )
         )
+        Box(
+            modifier = Modifier
+                .size(70.dp,30.dp)
+                .clip(RoundedCornerShape(0.dp,0.dp,12.dp,0.dp))
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                .padding(horizontal = 4.dp, vertical = 4.dp)
+                .clickable { onBack() }
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint =MaterialTheme.colorScheme.onTertiaryContainer)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Back", style = MaterialTheme.typography.bodyMedium, color =MaterialTheme.colorScheme.onTertiaryContainer)
+            }
+        }
 
         // title
         Column(

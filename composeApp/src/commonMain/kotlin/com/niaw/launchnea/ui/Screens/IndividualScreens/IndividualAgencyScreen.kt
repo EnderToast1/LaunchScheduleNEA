@@ -7,10 +7,8 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,27 +16,21 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -72,20 +64,13 @@ import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.navigation.TabItem
 import com.niaw.launchnea.navigation.ViewModels.AgencyViewModel
-import com.niaw.launchnea.navigation.ViewModels.HomeViewModel
 import com.niaw.launchnea.navigation.ViewModels.ListBoxRocketInfoViewModel
-import com.niaw.launchnea.navigation.ViewModels.PreviousLaunchViewModel
 import com.niaw.launchnea.navigation.ViewModels.ReuseBoxInfo
-import com.niaw.launchnea.navigation.ViewModels.UpcomingLaunchViewModel
-import com.niaw.launchnea.navigation.setBackHandler
+import com.niaw.launchnea.navigation.SetBackHandler
 import com.niaw.launchnea.ui.Screens.HomeScreens.HomeLaunchesSection
-import com.niaw.launchnea.ui.Screens.LaunchScreens.ListLaunchesScreen
 import com.niaw.launchnea.ui.UiElements.Chip
 import com.niaw.launchnea.ui.UiElements.EmptyListDisplay
-import com.niaw.launchnea.ui.UiElements.IconTextRow
 import com.niaw.launchnea.ui.UiElements.ListBox
-import com.niaw.launchnea.ui.UiElements.ListOfBoxesReuse
-import com.niaw.launchnea.ui.UiElements.ListOfBoxesRocket
 import kotlinx.coroutines.launch
 import launchnea.composeapp.generated.resources.Res
 import launchnea.composeapp.generated.resources.recycling
@@ -103,7 +88,7 @@ fun IndividualAgencyScreen(scheduleDao: ScheduleDao, agency: Agency, onBack: () 
     var selectedReuse by remember { mutableStateOf<Reuse?>(null) }
     var selectedLaunch by remember { mutableStateOf<Launch?>(null) }
 
-    setBackHandler(enabled = selectedLaunchID != null || selectedReuseID != null || selectedRocketID != null) {
+    SetBackHandler(enabled = selectedLaunchID != null || selectedReuseID != null || selectedRocketID != null) {
         selectedLaunchID = null
         selectedReuseID = null
         selectedRocketID = null
@@ -127,7 +112,7 @@ fun IndividualAgencyScreen(scheduleDao: ScheduleDao, agency: Agency, onBack: () 
 
     // THIS HANDLES MAIN SCREEN BACK PRESS
     // Active only when the main list is visible. It calls the parent's back function.
-    setBackHandler(enabled = selectedLaunchID == null && selectedReuseID == null && selectedRocketID == null) {
+    SetBackHandler(enabled = selectedLaunchID == null && selectedReuseID == null && selectedRocketID == null) {
         onBack()
     }
 
@@ -172,7 +157,7 @@ fun IndividualAgencyScreen(scheduleDao: ScheduleDao, agency: Agency, onBack: () 
     }
     else {
         Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(scrollState)) {
-            agency.name?.let { TopLogo(agency.logoURL, it) }
+            agency.name?.let { TopLogo(agency.logoURL, it,onBack) }
             Spacer(modifier = Modifier.height(8.dp))
             Column(
                 modifier = Modifier.background(
@@ -281,12 +266,13 @@ fun IndividualAgencyScreen(scheduleDao: ScheduleDao, agency: Agency, onBack: () 
 }
 
 @Composable
-fun TopLogo(url: String?, titleText: String) {
+fun TopLogo(url: String?, titleText: String,onBack: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(8.dp).fillMaxWidth().background(Color.Transparent))
         Box(
-            modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp), contentAlignment = Alignment.TopStart
         ) {
+
             SubcomposeAsyncImage(
                 model = url,
                 contentDescription = null,
@@ -328,10 +314,28 @@ fun TopLogo(url: String?, titleText: String) {
                 modifier = Modifier
                     .matchParentSize()
                     .background(Brush.verticalGradient(
-                        0f to Color.Transparent,
+                        0f to MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f),
                         1f to MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f),
                     ))
             )
+            Box(
+                modifier = Modifier
+                    .size(70.dp,30.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    .padding(horizontal = 4.dp, vertical = 4.dp)
+                    .clickable { onBack() }
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint =MaterialTheme.colorScheme.onTertiaryContainer)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Back", style = MaterialTheme.typography.bodyMedium, color =MaterialTheme.colorScheme.onTertiaryContainer)
+                }
+            }
+
         }
         Spacer(modifier = Modifier.height(16.dp).fillMaxWidth().background(Brush.verticalGradient(
             0f to MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f),

@@ -6,12 +6,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,22 +22,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.niaw.launchnea.database.ScheduleDao
 import com.niaw.launchnea.database.entities.Launch
 import com.niaw.launchnea.navigation.ViewModels.HomeViewModel
-import com.niaw.launchnea.navigation.ViewModels.ReuseViewModel
+import com.niaw.launchnea.navigation.ViewModels.OnThisDayViewModel
 import com.niaw.launchnea.ui.Screens.IndividualScreens.IndividualLaunchScreen
 import com.niaw.launchnea.ui.Screens.IndividualScreens.LaunchDisplay
 import com.niaw.launchnea.ui.Screens.IndividualScreens.LaunchHeading
-import com.niaw.launchnea.ui.Screens.IndividualScreens.LaunchesSection
-import com.niaw.launchnea.utils.NotificationManager
 
 @Composable
 fun HomeScreen(scheduleDao: ScheduleDao) {
@@ -48,35 +50,73 @@ fun HomeScreen(scheduleDao: ScheduleDao) {
     val nextLaunches by viewModel.upcomingLaunches.collectAsState()
     val pastLaunches by viewModel.pastLaunches.collectAsState()
 
-    if (selectedLaunchID != null) {
-        LaunchedEffect(selectedLaunchID){
-            selectedLaunch = scheduleDao.getLaunchById(id = selectedLaunchID!!)
+
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                .verticalScroll(scrollState)
+        ) {
+            Box(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 4.dp, vertical = 4.dp), Alignment.Center
+            ) {
+                Text(
+                    text = "Stared Launches",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            HomeLaunchesSection(
+                staredNextLaunches,
+                staredPastLaunches
+            ) { onClick -> selectedLaunchID = onClick }
+            Spacer(Modifier.height(20.dp))
+
+            Box(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 4.dp, vertical = 4.dp), Alignment.Center
+            ) {
+                Text(
+                    text = "All Launches",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            HomeLaunchesSection(nextLaunches, pastLaunches) { onClick ->
+                selectedLaunchID = onClick
+            }
+            Spacer(Modifier.height(20.dp))
+
+            Box(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(horizontal = 4.dp, vertical = 4.dp), Alignment.Center
+            ) {
+                Text(
+                    text = "On this Day",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            OnThisDay(scheduleDao) { onClick -> selectedLaunchID = onClick }
         }
-        selectedLaunch?.let { launch ->
-            println("Clicked on ${launch.missionName},  \n$launch")
-            IndividualLaunchScreen(scheduleDao,launch) {
-                println("Backed out of ${launch.missionName}")
-                selectedLaunch = null
-                selectedLaunchID = null
+
+        if (selectedLaunchID != null) {
+            LaunchedEffect(selectedLaunchID) {
+                selectedLaunch = scheduleDao.getLaunchById(id = selectedLaunchID!!)
+            }
+            selectedLaunch?.let { launch ->
+                println("Clicked on ${launch.missionName},  \n$launch")
+                IndividualLaunchScreen(scheduleDao, launch) {
+                    println("Backed out of ${launch.missionName}")
+                    selectedLaunch = null
+                    selectedLaunchID = null
+                }
             }
         }
-    }
-
-    else{
-    Column(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-            .verticalScroll(scrollState)
-    ) {
-        Text(text = "Stared Launches", style = MaterialTheme.typography.titleLarge,color = MaterialTheme.colorScheme.secondary)
-        HomeLaunchesSection(staredNextLaunches,staredPastLaunches){onClick-> selectedLaunchID = onClick}
-        Spacer(Modifier.height(20.dp))
-        Text(text = "All Launches", style = MaterialTheme.typography.titleLarge,color = MaterialTheme.colorScheme.secondary)
-        HomeLaunchesSection(nextLaunches,pastLaunches){onClick-> selectedLaunchID = onClick}
-
-
-
-
-    }
     }
 
 }
@@ -114,4 +154,13 @@ fun HomeLaunchesSection(nextLaunches: List<Launch>, pastLaunches: List<Launch>, 
         val count = if (expanded) 10 else 2
         LaunchDisplay(count, pastLaunches, onClickList = onClick)
     }
+}
+
+@Composable
+fun OnThisDay(scheduleDao: ScheduleDao, onClick: (String) -> Unit){
+    val viewModel = remember{OnThisDayViewModel(scheduleDao)}
+
+    val launches by viewModel.launches.collectAsState()
+
+    LaunchDisplay(0, launches, onClickList = onClick)
 }

@@ -36,7 +36,7 @@ import com.niaw.launchnea.database.entities.Reuse
 import com.niaw.launchnea.database.entities.Rocket
 import com.niaw.launchnea.database.entities.RocketVersion
 import com.niaw.launchnea.navigation.ViewModels.RocketLaunchesViewModel
-import com.niaw.launchnea.navigation.setBackHandler
+import com.niaw.launchnea.navigation.SetBackHandler
 import com.niaw.launchnea.ui.UiElements.IconTextRow
 import com.niaw.launchnea.ui.UiElements.ListBox
 import com.niaw.launchnea.utils.Status
@@ -69,13 +69,12 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
 
     var agencyName by rememberSaveable { mutableStateOf<String?>(null) }
     var agencyLogo by rememberSaveable { mutableStateOf<String?>(null) }
-    var rocketVersion by remember { mutableStateOf<RocketVersion?>(null) }
     var successStreak by rememberSaveable { mutableIntStateOf(0) }
     successStreak=calculateSuccessStreak(launches)
 
     // THIS HANDLES SUB-SCREEN BACK PRESS
     // Active only when you are looking at an Agency, Rocket, or Launch
-    setBackHandler(enabled = selectedAgencyID != null || selectedLaunchID != null || selectedReuseID != null) {
+    SetBackHandler(enabled = selectedAgencyID != null || selectedLaunchID != null || selectedReuseID != null) {
         println("Internal Back: Closing sub-screen")
         selectedAgencyID = null
         selectedLaunchID = null
@@ -87,7 +86,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
 
     // THIS HANDLES MAIN SCREEN BACK PRESS
     // Active only when the main list is visible. It calls the parent's back function.
-    setBackHandler(enabled = selectedAgencyID == null && selectedLaunchID == null && selectedReuseID == null) {
+    SetBackHandler(enabled = selectedAgencyID == null && selectedLaunchID == null && selectedReuseID == null) {
         onBackRocket()
     }
 
@@ -143,9 +142,9 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
         ) {
-            rocket.name?.let { TopImage(rocket.imageURL,it, agencyName) }
+            rocket.name?.let { TopImage(rocket.imageURL,it, agencyName,onBackRocket) }
             Column(Modifier.fillMaxWidth()) {
-                RocketStats(rocket,successes,failures,partialFailures,successStreak)
+                RocketStats(successes,failures,partialFailures,successStreak)
                 Spacer(Modifier.height(10.dp))
                 AgencyBox(rocket.agencyID, agencyName) { agencyID -> selectedAgencyID = agencyID }
                 Spacer(Modifier.height(10.dp))
@@ -163,7 +162,7 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
 
 
 @Composable
-fun RocketStats(rocket: Rocket,successes: Int, failures: Int, partialFailures: Int, successStreak: Int) {
+fun RocketStats(successes: Int, failures: Int, partialFailures: Int, successStreak: Int) {
     val missions=successes+failures+partialFailures
     val successRate = if (missions > 0) {
         ((successes.toDouble() / missions) * 100).roundToInt()
@@ -220,7 +219,7 @@ fun VersionsList(rocket: Rocket,scheduleDao:ScheduleDao) {
 
 @Composable
 fun VersionBox(rocketVersion: RocketVersion) {
-    ListBox(rocketVersion.listBoxText()){onClick -> println("Clicked on $rocketVersion")}
+    ListBox(rocketVersion.listBoxText()){ _ -> println("Clicked on $rocketVersion")}
 }
 
 private fun calculateSuccessStreak(launches: List<Launch>): Int {
