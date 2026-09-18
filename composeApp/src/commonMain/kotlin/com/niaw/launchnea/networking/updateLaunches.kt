@@ -146,6 +146,8 @@ suspend fun responseToDatabase(scheduleDao: ScheduleDao, callResponse: ResponseD
                 }
             }catch (e:Exception){
                 println("Error: ${e.message}")
+                println(e.cause)
+                println(e.stackTrace.contentToString())
             }
 
 
@@ -174,6 +176,10 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
     }else{
         "NoFamily$rocketVersionID"
     }
+    if((rocketID=="NoFamily465") and ((launchJsonObj["mission"] as? JsonObject)?.jsonObject?.get("type")?.jsonPrimitive?.content=="Test Flight")){
+        return null
+    }//To remove Virgin Galactic Test Flights
+
 
 
     val launchTimeUTC: ZonedDateTime? =launchJsonObj["net"]?.jsonPrimitive?.content?.let { runCatching { ZonedDateTime.parse(it) }.getOrNull() }
@@ -203,7 +209,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
                 val statusReuse = (stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("success")?.jsonPrimitive?.booleanOrNull)
 
                 val flightNumber= stage.jsonObject["launcher"]?.takeIf { it != JsonNull }?.jsonObject?.get("flights")?.jsonPrimitive?.intOrNull
-                val reuseID = stage.jsonObject["launcher"]?.takeIf { it != JsonNull }?.jsonObject?.get("id")?.jsonPrimitive?.contentOrNull
+                val reuseID = "B"+stage.jsonObject["launcher"]?.takeIf { it != JsonNull }?.jsonObject?.get("id")?.jsonPrimitive?.contentOrNull
                 val reuseName = stage.jsonObject["launcher"]?.takeIf { it != JsonNull }?.jsonObject?.get("serial_number")?.jsonPrimitive?.contentOrNull
 
 
@@ -241,7 +247,7 @@ suspend fun parseLaunch(launchJsonEle: JsonElement): Launch? {
             val capStatusReuse = (stage.jsonObject["landing"]?.takeIf { it != JsonNull }?.jsonObject?.get("success")?.jsonPrimitive?.booleanOrNull)
 
             val flightNumber= stage.jsonObject["spacecraft"]?.takeIf { it != JsonNull }?.jsonObject?.get("flights_count")?.jsonPrimitive?.intOrNull
-            val reuseID = stage.jsonObject["spacecraft"]?.takeIf { it != JsonNull }?.jsonObject?.get("id")?.jsonPrimitive?.contentOrNull
+            val reuseID = "S"+stage.jsonObject["spacecraft"]?.takeIf { it != JsonNull }?.jsonObject?.get("id")?.jsonPrimitive?.contentOrNull
             val reuseName = stage.jsonObject["spacecraft"]?.takeIf { it != JsonNull }?.jsonObject?.get("name")?.jsonPrimitive?.contentOrNull
 
 
@@ -609,7 +615,7 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
                 "4" -> StatusReuse.EXPENDED
                 else -> StatusReuse.UNKNOWN
             }
-            val image =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("launcher")?.jsonObject?.get("image") as? JsonObject
+            val image =launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("spacecraft_stage")?.jsonArray?.firstOrNull()?.jsonObject?.get("spacecraft")?.jsonObject?.get("image") as? JsonObject
 
             imageUrl = image?.get("image_url")?.jsonPrimitive?.content
             thumbnailUrl = image?.get("thumbnail_url")?.jsonPrimitive?.content
@@ -634,8 +640,12 @@ suspend fun parseReuse(launchJsonEle: JsonElement, reusablePart: Reusable, sched
         )?.jsonObject?.get("first_launch_date")?.jsonPrimitive?.content?.takeIf { it != "null" }
             ?.let { Instant.parse(it).atZone(ZoneOffset.UTC).toLocalDate() },
         versionID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content!!,
-        rocketID = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content,
-        rocketName = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("name")?.jsonPrimitive?.content,
+        rocketID = if ( launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject!=null){
+            launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("families")?.jsonArray?.lastOrNull()?.jsonObject?.get("id")?.jsonPrimitive?.content
+    }else{
+        "NoFamily${launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("id")?.jsonPrimitive?.content!!}"
+    },
+        rocketName = launchJsonEle.jsonObject["rocket"]?.jsonObject?.get("configuration")?.jsonObject?.get("name")?.jsonPrimitive?.content,
         agencyID = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("id")?.jsonPrimitive?.content,
         agencyName = launchJsonEle.jsonObject["launch_service_provider"]?.jsonObject?.get("name")?.jsonPrimitive?.content,
 

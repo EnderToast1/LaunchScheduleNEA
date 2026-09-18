@@ -170,21 +170,27 @@ fun BoxLeftImage( item: ImageGroup?) {
                     ImagePlaceholder()
                 }
             )
-            Box(Modifier.padding(2.dp).clip(RoundedCornerShape(30.dp)).background(Color.LightGray).padding(5.dp,0.dp), contentAlignment = Alignment.CenterStart) {
-                Text(
-                    text = if ((item.imageCredit=="null") or (item.imageCredit==null)){
-                        "Unknown"
-                    }else if(item.imageCredit?.length!!>=10) {
-                        abbreviate(item.imageCredit)
+            if ((item.imageCredit!="null") and (item.imageCredit!=null)){
+                Box(
+                    Modifier.padding(2.dp).clip(RoundedCornerShape(30.dp))
+                        .background(Color.LightGray).padding(5.dp, 0.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        text = if ((item.imageCredit == "null") or (item.imageCredit == null)) {
+                            "Unknown"
+                        } else if (item.imageCredit?.length!! >= 10) {
+                            abbreviate(item.imageCredit)
 
-                    }else{
-                        item.imageCredit
-                    },
-                    color = Color.DarkGray,
-                    fontSize = 12.sp,
-                    style = MaterialTheme.typography.bodyMedium,
+                        } else {
+                            item.imageCredit
+                        },
+                        color = Color.DarkGray,
+                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodyMedium,
 
-                )
+                        )
+                }
             }
         }
     }
@@ -296,6 +302,8 @@ fun BoxChip(chip: Chip ) {
         colour=failureColour
     }else if (chip.status==Status.PARTIAL_SUCCESS){
         colour=partialFailureColour
+    }else if (chip.status==Status.IN_FLIGHT){
+        colour=inFlightColour
     }
 
     val icon = if (chip.icon != null) {painterResource(chip.icon)}

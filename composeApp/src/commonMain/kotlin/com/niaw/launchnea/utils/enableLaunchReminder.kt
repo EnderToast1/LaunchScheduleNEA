@@ -12,12 +12,20 @@ fun enableLaunchReminder(launch: Launch) {
 
     if (reminderTime.isAfter(ZonedDateTime.now(ZoneOffset.UTC))) {
         println("Reminder set for: $reminderTime ")
+        println("Reminder set for: ${launch.launchTimeUTC} ")
 
         NotificationScheduler.scheduleNotification(
             reminderTime.toInstant().toEpochMilli() ,
             "Upcoming Launch",
             "${launch.missionName} launches in $minutesBefore minutes",
-            launch.launchID.hashCode()
+            (launch.launchID+minutesBefore).hashCode()
+        )
+
+        NotificationScheduler.scheduleNotification(
+            reminderTime.toInstant().toEpochMilli() ,
+            "Launch",
+            "${launch.missionName} is launching now",
+            (launch.launchID+0).hashCode()
         )
     }
 }

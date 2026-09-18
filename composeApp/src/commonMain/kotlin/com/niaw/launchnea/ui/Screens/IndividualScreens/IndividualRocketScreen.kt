@@ -40,6 +40,7 @@ import com.niaw.launchnea.navigation.setBackHandler
 import com.niaw.launchnea.ui.UiElements.IconTextRow
 import com.niaw.launchnea.ui.UiElements.ListBox
 import com.niaw.launchnea.utils.Status
+import kotlin.math.roundToInt
 
 @Composable
 fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocket: () -> Unit) {
@@ -164,8 +165,11 @@ fun IndividualRocketScreen(scheduleDao: ScheduleDao, rocket: Rocket, onBackRocke
 @Composable
 fun RocketStats(rocket: Rocket,successes: Int, failures: Int, partialFailures: Int, successStreak: Int) {
     val missions=successes+failures+partialFailures
-    val successRate = if (missions > 0) {((successes) / missions) * 100} else {0.0}
-
+    val successRate = if (missions > 0) {
+        ((successes.toDouble() / missions) * 100).roundToInt()
+    } else {
+        0.0
+    }
 
 
     Column(modifier = Modifier.clip(RoundedCornerShape(0.dp,0.dp,15.dp,15.dp)).fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {

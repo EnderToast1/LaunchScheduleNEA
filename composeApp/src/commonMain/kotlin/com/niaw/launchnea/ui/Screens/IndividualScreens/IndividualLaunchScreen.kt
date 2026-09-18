@@ -309,7 +309,7 @@ fun MissionMainBox(launch:Launch, scheduleDao: ScheduleDao){
 @Composable
 fun WeatherConcerns(weatherConcerns: String?,weatherProbability: Double?) {
     if (!weatherConcerns.isNullOrBlank() && weatherConcerns != "null") {
-        IconTextRow("$weatherConcerns, $weatherProbability% Go","weatherConcerns",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Default.CloudQueue),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
+        IconTextRow("$weatherProbability% Go, $weatherConcerns","weatherConcerns",MaterialTheme.typography.bodyMedium,rememberVectorPainter(Icons.Default.CloudQueue),Modifier.fillMaxWidth(),MaterialTheme.colorScheme.onPrimaryContainer)
     }
 }
 
@@ -475,7 +475,18 @@ fun MissionDetailsBody(launch:Launch){
                                 )
                         }
                 }
-                Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(2.dp))
+            if (launch.orbit!=null) {
+                Box(Modifier.padding(10.dp)) {
+                    Text(
+                        "Orbit: ${launch.orbit}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+                //Spacer(modifier = Modifier.height(2.dp))
+            }
+
                 Box(Modifier.padding(10.dp)) {
                         launch.description?.let {
                                 Text(
@@ -589,7 +600,6 @@ fun TimelineDot(color: Color, modifier: Modifier) {
 
 @Composable
 fun RocketSection(launch:Launch, vehicle: RocketVersion?, onClick: (Launch) -> Unit){
-    val activeSince=vehicle?.activeSince?: "Unknown"
     if (vehicle != null) {
         IconTextRow(
             "Rocket",
@@ -608,7 +618,8 @@ fun RocketSection(launch:Launch, vehicle: RocketVersion?, onClick: (Launch) -> U
 
                     Text(if(vehicle.active == true) "Active" else "retired", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
                     vehicle.name?.let { Text(it, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer) }
-                    Text("Active Since: $activeSince", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                    val dateFormatter = DateTimeFormatter.ofPattern(dateFormat)
+                    Text("Active Since: ${vehicle.activeSince?.format(dateFormatter) ?: "Unknown"}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 }
 
             }
@@ -659,7 +670,7 @@ fun RocketInformationSection(vehicle: RocketVersion){
 
         // Row 3
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Mass at liftOff:\n $liftoffMass tonnes", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
+            Text("Mass at liftoff:\n $liftoffMass tonnes", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
             Text("Liftoff Thrust:\n $liftoffThrust Kilonewton", style = MaterialTheme.typography.bodyMedium,modifier = Modifier.weight(1f))
         }
     }
@@ -709,10 +720,13 @@ fun AgencyBox(id:String?, name:String?, onClick: (String) -> Unit) {
 
 @Composable
 fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Unit){
-        Column(modifier = Modifier.padding(5.dp,0.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(horizontal = 5.dp, vertical = 1.dp)) {
+    if (!launch.reusableParts.isEmpty()) {
+        Column(
+            modifier = Modifier.padding(5.dp, 0.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(horizontal = 5.dp, vertical = 1.dp)
+        ) {
             IconTextRow(
                 "Vehicle Reuse",
                 "Reusable Parts",
@@ -723,11 +737,12 @@ fun ReuseDetails(scheduleDao: ScheduleDao, launch:Launch,onClick: (String) -> Un
             )
 
             launch.reusableParts.forEach { reusable ->
-                ReusableBox(scheduleDao, launch, reusable,onClick)
+                ReusableBox(scheduleDao, launch, reusable, onClick)
                 Spacer(modifier = Modifier.height(5.dp))
 
             }
         }
+    }
 }
 
 @Composable
@@ -745,27 +760,36 @@ fun ReusableBox(scheduleDao: ScheduleDao, launch:Launch,reusable: Reusable,onCli
     }
     if (viewModel != null) {
         val dayTurnAround by viewModel.dayTurnAround.collectAsState()
+        val flights by viewModel.flights.collectAsState()
 
         Column(modifier = Modifier.fillMaxWidth().border(width = 3.dp,MaterialTheme.colorScheme.outline,RoundedCornerShape(20.dp)).padding(15.dp,5.dp).clickable(onClick = {if (reusable.reuseName?.contains("Unknown", ignoreCase = true) != true) {onClick1(reusable.reuseID!!)}})) {
             if(reusable.landingType != LandingType.EXP) {
-                BoxChip(Chip(text = reusable.landingLocationName, icon = getIconForChip(reusable)))
+                BoxChip(Chip(text = reusable.landingLocationName, icon = getIconForChip(reusable), success = reusable.status))
             }else{
-                BoxChip(Chip(text="Expended (${reusable.landingLocationName})",icon=getIconForChip(reusable)))
+                BoxChip(Chip(text="Expended (${reusable.landingLocationName})",icon=getIconForChip(reusable),success = reusable.status))
             }
             reusable.reuseName?.let { Text(it,style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
 
             if (reusable.reuseName?.contains("Unknown") != true) {
                     Text(
-                        "Flights #${reusable.flightNumber}",
+                        "Flight #${flights}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
 
+                if ((dayTurnAround!=Duration.ofDays(99999)) or (flights!=1)) {
                     Text(
                         "${dayTurnAround?.toDays()} day turnaround",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
+                }else{
+                    Text(
+                        "First Flight",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
                 }
             }
         }

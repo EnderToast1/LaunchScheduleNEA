@@ -166,6 +166,9 @@ fun buildSyncForegroundInfo(context: Context): ForegroundInfo {
         .setContentText("Fetching the latest launch data…")
         .setOngoing(true)
         .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setForegroundServiceBehavior(
+            NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
+        )
         .build()
 
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

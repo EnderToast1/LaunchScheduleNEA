@@ -30,6 +30,9 @@ import com.niaw.launchnea.utils.ReuseType
 import com.niaw.launchnea.utils.abbreviate
 import com.niaw.launchnea.utils.getIconForChip
 import com.niaw.launchnea.utils.getNetLaunchTime
+import launchnea.composeapp.generated.resources.Res
+import launchnea.composeapp.generated.resources.suborbital
+import launchnea.composeapp.generated.resources.waves
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -99,28 +102,48 @@ data class Launch(
     val programType: ProgramType?= ProgramType.UNKNOWN
     ): ListBoxItem {
     override fun listBoxText() = DisplayItems(
-            id=launchID,
-            title = missionName,
-            imageGroup = ImageGroup(imageUrl, imageCredit, licenseType,true),
-            secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
-            secondRow = "$rocketName  |  ${abbreviate(agencyName)}",
-            thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Place),
-            thirdRow = "$padLocation",
-            fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),
-            fourthRow = getNetLaunchTime(this, LiftoffTimeZone.DEVICE_LOCAL),
-            chips = getChips(),
-            success=success
+        id = launchID,
+        title = missionName,
+        imageGroup = ImageGroup(imageUrl, imageCredit, licenseType, true),
+        secondRowIcon = DisplayIcon.Vector(Icons.Filled.Rocket),
+        secondRow = "$rocketName  |  ${abbreviate(agencyName)}",
+        thirdRowIcon = DisplayIcon.Vector(Icons.Filled.Place),
+        thirdRow = "$padLocation",
+        fourthRowIcon = DisplayIcon.Vector(Icons.Outlined.Schedule),
+        fourthRow = getNetLaunchTime(this, LiftoffTimeZone.DEVICE_LOCAL),
+        chips = getChips(),
+        success = success
     )
 
-    fun getChips():List<Chip>  =reusableParts.filter { it.landingType != LandingType.EXP }.map {
-            Chip(
-                abbreviate(it.landingLocationName, 4),
-                null,
-                it.status,
-                getIconForChip(it)
+    fun getChips(): List<Chip> {
+        val chips = reusableParts
+            .filter { it.landingType != LandingType.EXP }
+            .map {
+                Chip(
+                    abbreviate(it.landingLocationName, 4),
+                    null,
+                    it.status,
+                    getIconForChip(it)
+                )
+            }
+            .toMutableList()
+
+        if (orbit == "Suborbital") {
+            chips.add(
+                0,
+                Chip(
+                    "Suborbital",
+                    Status.IN_FLIGHT,
+                    null,
+                    Res.drawable.suborbital
+
+
+                )
             )
         }
 
+        return chips
+    }
 }
 
 

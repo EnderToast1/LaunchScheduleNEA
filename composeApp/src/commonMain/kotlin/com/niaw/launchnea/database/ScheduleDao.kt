@@ -57,7 +57,16 @@ interface ScheduleDao {
     @Query("SELECT * FROM Reuse")
     fun getReuse(): Flow<List<Reuse>>
 
-    @Query("SELECT * FROM Rocket WHERE active = true ORDER BY name ASC")
+    @Query("""
+    SELECT * FROM Rocket r
+    WHERE EXISTS (
+        SELECT 1
+        FROM RocketVersion rv
+        WHERE rv.rocketID = r.rocketID
+          AND rv.active = true
+    )
+    ORDER BY r.name ASC
+""")
     fun getActiveRockets(): Flow<List<Rocket>>
 
     @Query("""
@@ -164,6 +173,15 @@ interface ScheduleDao {
 """)
     fun getReuseCountById(reuseID: String): Flow<Int>
 
+
+    @Query("""
+        SELECT COUNT(Launch.launchID) 
+        FROM Launch
+        INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID
+        WHERE LaunchReuseCrossRef.reuseID = :reuseID 
+        AND datetime(launchTimeUTC) <= datetime(:launchTime)
+""")
+    fun getReuseCountByIdToTime(reuseID: String,launchTime: ZonedDateTime): Flow<Int>
     @Query("""
         SELECT COUNT(Launch.launchID)
         FROM Launch
@@ -375,12 +393,20 @@ interface ScheduleDao {
            """)
     fun getRocketLikeName(givenName: String): Flow<List<Rocket>>
 
-    @Query("""SELECT * FROM rocket 
-           WHERE (name LIKE '%' || :givenName || '%' COLLATE NOCASE          
-           OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE)
-            AND active = true
-           ORDER BY name DESC 
-           """)
+    @Query("""
+    SELECT * FROM Rocket r
+    WHERE (
+        r.name LIKE '%' || :givenName || '%' COLLATE NOCASE
+        OR r.agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
+    )
+    AND EXISTS (
+        SELECT 1
+        FROM RocketVersion rv
+        WHERE rv.rocketID = r.rocketID
+          AND rv.active = true
+    )
+    ORDER BY r.name DESC
+""")
     fun getActiveRocketLikeName(givenName: String): Flow<List<Rocket>>
 
     @Query("""SELECT Reuse.* FROM reuse

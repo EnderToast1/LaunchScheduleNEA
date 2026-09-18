@@ -18,7 +18,7 @@ suspend fun requestNumber() {
         val jsonElement = Json.parseToJsonElement(response.bodyAsText())
 
         println("Used calls: ${jsonElement.jsonObject["current_use"]?.jsonPrimitive?.intOrNull}")
-        println("Next call time: ${jsonElement.jsonObject["next_use_secs"]?.jsonPrimitive?.intOrNull}")
+        println("Next call time: ${(jsonElement.jsonObject["next_use_secs"]?.jsonPrimitive?.intOrNull)?.div(60)} minutes")
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {

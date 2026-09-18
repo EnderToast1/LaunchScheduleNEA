@@ -142,7 +142,7 @@ fun ListOfBoxesReuse(scheduleDao: ScheduleDao?, listOfItem: List<Reuse>, listSta
 
                     val days = duration.toMillis() / (1000.0 * 60 * 60 * 24)
                     val absDays = kotlin.math.abs(days)
-                    val formattedDays = "%.1f".format(absDays)
+                    val formattedDays = "%.0f".format(absDays)
 
                     val unit = if (absDays == 1.0) "day" else "days"
 

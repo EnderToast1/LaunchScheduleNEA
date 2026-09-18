@@ -29,6 +29,14 @@ class ReusableViewModel(
             else{
                 _dayTurnAround.value = Duration.ofDays(99999)
             }
+
+
         }
     }
+    val flights: StateFlow<Int> = scheduleDao.getReuseCountByIdToTime(reuseID,launchTime)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 0
+        )
 }
