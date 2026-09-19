@@ -1,5 +1,6 @@
 package com.niaw.launchnea.ui.UiElements
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -31,6 +33,34 @@ fun IconTextRow(text:String, description: String, textStyle: TextStyle, painter:
             contentDescription = description,
             tint = tint,
             modifier = Modifier.size(iconSize)
+        )
+
+        Spacer(modifier = Modifier.width(5.dp))
+
+        Text(
+            text = text,
+            style = textStyle,
+            color = tint
+        )
+    }
+}
+
+
+@Composable
+fun LogoTextRow(text:String, description: String, textStyle: TextStyle, painter: Painter, modifier: Modifier, tint: Color){
+    val iconSize = with(LocalDensity.current) {
+        textStyle.fontSize.toDp()
+    }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = description,
+            modifier = Modifier.size(iconSize+(10.dp)),
+            contentScale = ContentScale.Fit
         )
 
         Spacer(modifier = Modifier.width(5.dp))
