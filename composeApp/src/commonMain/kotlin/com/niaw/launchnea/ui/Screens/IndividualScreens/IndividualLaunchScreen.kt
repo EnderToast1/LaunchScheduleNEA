@@ -199,7 +199,7 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
         ) {
-            HeaderRow(launch, onBackLaunch) { agencyID -> selectedAgencyID = agencyID }
+            HeaderRow(onBackLaunch)
 
 
             MissionMainBox(launch,scheduleDao)
@@ -233,33 +233,17 @@ fun IndividualLaunchScreen(scheduleDao: ScheduleDao,launch: Launch,  onBackLaunc
 }
 
 @Composable
-fun HeaderRow(launch: Launch,onBack: () -> Unit,onClick: (String) -> Unit){
-    val id = launch.agencyID
-    if (id != null) {
-    val agencyName=abbreviate(launch.agencyName?: "Unknown")
-
-    val calculatedWeight = remember(agencyName) {
-            val minWeight = 1f
-            val maxWeight = 2f
-            val normalized = (agencyName.length / 50f).coerceIn(0f, 1f) // 50 chars = max
-            minWeight + normalized * (maxWeight - minWeight)
-    }
-    val animatedWeight by animateFloatAsState(calculatedWeight)
-
-
-    Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-
+fun HeaderRow(onBack: () -> Unit){
         Box(
             modifier = Modifier
-                .weight(1f)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(12.dp, 12.dp))
                 .background(MaterialTheme.colorScheme.primaryContainer)
-                .padding(horizontal = 4.dp, vertical = 8.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp)
                 .clickable { onBack() }
         ) {
             Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint =MaterialTheme.colorScheme.onPrimaryContainer)
@@ -267,30 +251,6 @@ fun HeaderRow(launch: Launch,onBack: () -> Unit,onClick: (String) -> Unit){
                 Text("Back", style = MaterialTheme.typography.bodyMedium, color =MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
-
-        Spacer(modifier = Modifier.weight(1.5f))
-
-        Box(
-            modifier = Modifier
-                .weight(animatedWeight)
-                .fillMaxHeight()
-                .clip(RoundedCornerShape(12.dp, 12.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .padding(horizontal = 4.dp, vertical = 8.dp)
-                .clickable { onClick(id) }
-        ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Icon(Icons.Filled.Business, contentDescription = "Agency", tint = MaterialTheme.colorScheme.onPrimaryContainer )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(agencyName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
-            }
-        }
-    }
-    }
 }
 
 @Composable

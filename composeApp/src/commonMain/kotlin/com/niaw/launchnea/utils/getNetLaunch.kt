@@ -39,7 +39,7 @@ fun getNetLaunchTime(
         "MIN" -> local.withSecond(0).withNano(0).format(dateTimeFormatter)
         "HR" -> {
             val hourRounded = local.withMinute(0).withSecond(0).withNano(0)
-            "NET ${hourRounded.format(timeFormatter)} ${local.format(dateFormatter)}"
+            "NET ${local.format(dateFormatter)} ${hourRounded.format(timeFormatter)}"
         }
         "AM" -> "NET morning of ${local.format(dateFormatter)}"
         "PM" -> "NET afternoon of ${local.format(dateFormatter)}"

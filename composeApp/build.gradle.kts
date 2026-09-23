@@ -92,8 +92,8 @@ android {
         applicationId = "com.niaw.launchnea"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 2
-        versionName = "1.001"
+        versionCode = 3
+        versionName = "1.002"
     }
     packaging {
         resources {
