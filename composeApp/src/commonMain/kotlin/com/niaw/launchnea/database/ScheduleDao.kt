@@ -44,13 +44,21 @@ interface ScheduleDao {
 
 
     //Get Flow Lists
-    @Query("SELECT * FROM Launch")
+    // List queries use LAUNCH_LIST_COLUMNS to avoid Android CursorWindow (~2MB) crashes
+    // from loading description/timeline JSON across hundreds of rows.
+    @Query("SELECT $LAUNCH_LIST_COLUMNS FROM Launch")
     fun getLaunches(): Flow<List<Launch>>
-    @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP) ORDER BY datetime(launchTimeUTC) DESC")
+    @Query("SELECT $LAUNCH_LIST_COLUMNS FROM Launch WHERE datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP) ORDER BY datetime(launchTimeUTC) DESC")
     fun getPreviousLaunches(): Flow<List<Launch>>
 
-    @Query("SELECT * FROM Launch WHERE datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP) ORDER BY datetime(launchTimeUTC) ASC")
+    @Query("SELECT $LAUNCH_LIST_COLUMNS FROM Launch WHERE datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP) ORDER BY datetime(launchTimeUTC) DESC LIMIT :limit")
+    fun getPreviousLaunches(limit: Int): Flow<List<Launch>>
+
+    @Query("SELECT $LAUNCH_LIST_COLUMNS FROM Launch WHERE datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP) ORDER BY datetime(launchTimeUTC) ASC")
     fun getUpcomingLaunches(): Flow<List<Launch>>
+
+    @Query("SELECT $LAUNCH_LIST_COLUMNS FROM Launch WHERE datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP) ORDER BY datetime(launchTimeUTC) ASC LIMIT :limit")
+    fun getUpcomingLaunches(limit: Int): Flow<List<Launch>>
 
     @Query("SELECT * FROM Rocket ORDER BY name ASC")
     fun getRockets(): Flow<List<Rocket>>
@@ -105,11 +113,11 @@ interface ScheduleDao {
 """)
     fun getActiveReuse(): Flow<List<Reuse>>
 
-    @Query("SELECT l.* FROM launch l INNER JOIN starred_launches s ON l.launchID = s.launchID")
+    @Query("SELECT $LAUNCH_LIST_COLUMNS_QUALIFIED FROM Launch INNER JOIN starred_launches ON Launch.launchID = starred_launches.launchID")
     fun getStarredLaunches(): Flow<List<Launch>>
     @Transaction
     @Query("""
-        SELECT * FROM Launch 
+        SELECT $LAUNCH_LIST_COLUMNS_QUALIFIED FROM Launch 
         INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
         WHERE LaunchReuseCrossRef.reuseID = :reuseID 
         AND datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP)
@@ -118,7 +126,7 @@ interface ScheduleDao {
     fun getUpcomingLaunchesByReuseId(reuseID: String): Flow<List<Launch>>
     @Transaction
     @Query("""
-        SELECT * FROM Launch 
+        SELECT $LAUNCH_LIST_COLUMNS_QUALIFIED FROM Launch 
         INNER JOIN LaunchReuseCrossRef ON Launch.launchID = LaunchReuseCrossRef.launchID 
         WHERE LaunchReuseCrossRef.reuseID = :reuseID 
         AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
@@ -128,7 +136,7 @@ interface ScheduleDao {
 
 
     @Query("""
-    SELECT * FROM Launch 
+    SELECT $LAUNCH_LIST_COLUMNS FROM Launch 
     WHERE rocketID = :rocketID 
     AND datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP)
     ORDER BY launchTimeUTC ASC
@@ -136,17 +144,17 @@ interface ScheduleDao {
     fun getUpcomingLaunchesByRocketId(rocketID: String): Flow<List<Launch>>
 
     @Query("""
-    SELECT * FROM Launch 
+    SELECT $LAUNCH_LIST_COLUMNS FROM Launch 
     WHERE rocketID = :rocketID 
     AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP)
     ORDER BY launchTimeUTC DESC
 """)
     fun getPreviousLaunchesByRocketId(rocketID: String): Flow<List<Launch>>
 
-    @Query("SELECT * FROM Launch WHERE agencyID = :agencyID AND datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP) ORDER BY launchTimeUTC ASC")
+    @Query("SELECT $LAUNCH_LIST_COLUMNS FROM Launch WHERE agencyID = :agencyID AND datetime(launchTimeUTC) >= datetime(CURRENT_TIMESTAMP) ORDER BY launchTimeUTC ASC")
     fun getUpcomingLaunchesByAgencyId(agencyID: String): Flow<List<Launch>>
 
-    @Query("SELECT * FROM Launch WHERE agencyID = :agencyID AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP) ORDER BY launchTimeUTC DESC")
+    @Query("SELECT $LAUNCH_LIST_COLUMNS FROM Launch WHERE agencyID = :agencyID AND datetime(launchTimeUTC) < datetime(CURRENT_TIMESTAMP) ORDER BY launchTimeUTC DESC")
     fun getPreviousLaunchesByAgencyId(agencyID: String): Flow<List<Launch>>
 
     @Query("SELECT * FROM Rocket WHERE agencyID = :agencyID")
@@ -306,7 +314,7 @@ interface ScheduleDao {
     @Query("SELECT EXISTS(SELECT 1 FROM starred_launches WHERE launchId = :id)")
     suspend fun isStarred(id: String): Boolean
     @Query("""
-    SELECT Launch.*
+    SELECT $LAUNCH_LIST_COLUMNS_QUALIFIED
     FROM Launch
     INNER JOIN starred_launches 
     ON Launch.launchID = starred_launches.launchID
@@ -316,7 +324,7 @@ interface ScheduleDao {
     fun getStarredPreviousLaunches(): Flow<List<Launch>>
 
     @Query("""
-    SELECT Launch.*
+    SELECT $LAUNCH_LIST_COLUMNS_QUALIFIED
     FROM Launch
     INNER JOIN starred_launches 
     ON Launch.launchID = starred_launches.launchID
@@ -353,10 +361,10 @@ interface ScheduleDao {
 
 
     //Search / Filter Systems
-    @Query("SELECT * FROM launch WHERE strftime('%m-%d', launchTimeUTC) = strftime('%m-%d', 'now') ORDER BY launchTimeUTC DESC")
+    @Query("SELECT $LAUNCH_LIST_COLUMNS FROM Launch WHERE strftime('%m-%d', launchTimeUTC) = strftime('%m-%d', 'now') ORDER BY launchTimeUTC DESC")
     fun getOnThisDayLaunches(): Flow<List<Launch>>
 
-    @Query("""SELECT * FROM launch
+    @Query("""SELECT $LAUNCH_LIST_COLUMNS FROM Launch
            WHERE (missionName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE
@@ -371,7 +379,7 @@ interface ScheduleDao {
            """)
     fun getPreviousLaunchesLikeName(givenName : String): Flow<List<Launch>>
 
-    @Query("""SELECT * FROM launch 
+    @Query("""SELECT $LAUNCH_LIST_COLUMNS FROM Launch 
            WHERE (missionName LIKE '%' || :givenName || '%' COLLATE NOCASE 
            OR rocketName LIKE '%' || :givenName || '%' COLLATE NOCASE
            OR agencyName LIKE '%' || :givenName || '%' COLLATE NOCASE

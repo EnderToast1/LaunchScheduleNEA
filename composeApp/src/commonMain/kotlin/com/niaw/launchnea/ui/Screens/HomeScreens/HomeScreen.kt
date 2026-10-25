@@ -81,7 +81,7 @@ fun HomeScreen(scheduleDao: ScheduleDao) {
                     .padding(horizontal = 4.dp, vertical = 4.dp), Alignment.Center
             ) {
                 Text(
-                    text = "Stared Launches",
+                    text = "Starred Launches",
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onPrimary
                 )

@@ -25,14 +25,14 @@ class HomeViewModel( private val scheduleDao: ScheduleDao) : ViewModel() {
             initialValue = emptyList()
         )
     val upcomingLaunches: StateFlow<List<Launch>> = scheduleDao
-        .getUpcomingLaunches()
+        .getUpcomingLaunches(limit = 10)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
     val pastLaunches: StateFlow<List<Launch>> = scheduleDao
-        .getPreviousLaunches()
+        .getPreviousLaunches(limit = 10)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

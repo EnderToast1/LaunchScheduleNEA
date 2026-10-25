@@ -40,7 +40,7 @@ actual object NotificationManager {
         createNotificationChannel(context)
 
         val builder = NotificationCompat.Builder(context, "launch_channel")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(android.R.drawable.star_on)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
